@@ -52,17 +52,22 @@ class CounterBox {
     this.min = min;
     this.max = max;
     this.displayElement = displayElement;
+    this.isActive = false;
     this.updateDisplay();
   }
+  setActive(state) {
+    this.isActive = state;
+    console.log(this.displayElement, state);
+  }
   increment() {
-    if (this.counterValue < this.max) {
+    if (this.isActive && this.counterValue < this.max) {
       this.counterValue++;
       this.updateDisplay();
       eventDispatcher.emit('counterUpdated', 1);
     }
   }
   decrement() {
-    if (this.counterValue > this.min) {
+    if (this.isActive && this.counterValue > this.min) {
       this.counterValue--;
       this.updateDisplay();
       eventDispatcher.emit('counterUpdated', -1);
@@ -132,15 +137,32 @@ class GlobalCounterBox {
   }
   static updateDisplay() {
     if (GlobalCounterBox.displayElement) {
-      GlobalCounterBox.displayElement.textContent = `Globa: ${GlobalCounterBox.globalCount}`;
+      GlobalCounterBox.displayElement.textContent = `Global: ${GlobalCounterBox.globalCount}`;
     }
   }
 }
+class Controller {
+  constructor() {
+    this.activeCounter = null;
+    this.counters = [];
+  }
+  registerCounter(counter) {
+    this.counters.push(counter);
+  }
+  setActiveCounter(activeCounter) {
+    if (this.activeCounter) {
+      this.activeCounter.setActive(false);
+    }
+    this.activeCounter = activeCounter;
+    this.activeCounter.setActive(true);
+  }
+}
 class CounterInstance {
-  constructor(wrapperId, instanceId, counterValue = 0, counterRange = {
+  constructor(controller, wrapperId, instanceId, counterValue = 0, counterRange = {
     min: 0,
     max: 20
   }) {
+    this.controller = controller;
     this.wrapperId = wrapperId;
     this.instanceId = instanceId;
     const parent = document.getElementById(wrapperId);
@@ -166,36 +188,55 @@ class CounterInstance {
     buttonContainer.className = 'button-container';
     radioContainer.appendChild(buttonContainer);
     const displayElement = label;
-    const counterBox = new CounterBox(displayElement, counterValue, counterRange.min, counterRange.max);
-    const minusButton = new Button('minus', counterBox);
-    buttonContainer.appendChild(minusButton.element);
-    const plusButton = new Button('plus', counterBox);
-    buttonContainer.appendChild(plusButton.element);
+    this.counterBox = new CounterBox(displayElement, counterValue, counterRange.min, counterRange.max);
+    this.radioButton = document.createElement('input');
+
+    // const minusButton = new Button('minus', counterBox);
+    // buttonContainer.appendChild(minusButton.element);
+
+    // const plusButton = new Button('plus', counterBox);
+    // buttonContainer.appendChild(plusButton.element);
+
+    // Event listener that might trigger setActive
+    radioButton.addEventListener('change', () => {
+      if (radioButton.checked) {
+        this.controller.setActiveCounter(this);
+      }
+    });
+  }
+  setActive(isActive) {
+    this.counterBox.setActive(isActive);
+    if (isActive) {
+      // Additional logic when this counter becomes active
+      // console.log(this.counterBox, 'is active');
+    }
   }
 }
 
 // Example usage: Creating a new counter instance within the 'app' parent element
-new CounterInstance('app_0', 0, 0, {
+const controllerA = new Controller();
+const controllerB = new Controller();
+new CounterInstance(controllerA, 'app_0', 0, 0, {
   min: 0,
   max: 3
 });
-new CounterInstance('app_0', 1, 0, {
+new CounterInstance(controllerA, 'app_0', 1, 0, {
   min: 0,
   max: 4
 });
-new CounterInstance('app_0', 2, 0, {
+new CounterInstance(controllerA, 'app_0', 2, 0, {
   min: 0,
   max: 4
 });
-new CounterInstance('app_0', 3, 0, {
+new CounterInstance(controllerA, 'app_0', 3, 0, {
   min: 0,
   max: 4
 });
-new CounterInstance('app_1', 0, 0, {
+new CounterInstance(controllerB, 'app_1', 0, 0, {
   min: 0,
   max: 3
 });
-new CounterInstance('app_1', 1, 0, {
+new CounterInstance(controllerB, 'app_1', 1, 0, {
   min: 0,
   max: 4
 });
