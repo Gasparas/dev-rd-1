@@ -7,6 +7,8 @@
 	<?php esc_html_e('Rd Shop Product – hello from a dynamic block!!', 'rd-shop-product'); ?>
 </p> -->
 
-<div id="app_0" class="wrapper"></div>
-<div id="app_1" class="wrapper"></div>
+<div id="group_a" class="wrapper">
+</div>
+<div id="group_b" class="wrapper">
+</div>
 <div id="globalCounterWrapper"></div>

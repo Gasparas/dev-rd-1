@@ -142,12 +142,14 @@ class GlobalCounterBox {
   }
 }
 class Controller {
-  constructor() {
+  constructor(wrapperId) {
+    this.wrapperId = wrapperId;
+    this.wrapper = document.getElementById(wrapperId);
     this.activeCounter = null;
-    this.counters = [];
+    this.initializeButtons();
   }
   registerCounter(counter) {
-    this.counters.push(counter);
+    // Additional code to register counters if necessary
   }
   setActiveCounter(activeCounter) {
     if (this.activeCounter) {
@@ -155,6 +157,26 @@ class Controller {
     }
     this.activeCounter = activeCounter;
     this.activeCounter.setActive(true);
+  }
+  incrementActiveCounter() {
+    if (this.activeCounter && this.activeCounter.counterBox.isActive) {
+      this.activeCounter.counterBox.increment();
+    }
+  }
+  decrementActiveCounter() {
+    if (this.activeCounter && this.activeCounter.counterBox.isActive) {
+      this.activeCounter.counterBox.decrement();
+    }
+  }
+  initializeButtons() {
+    const incrementButton = document.createElement('button');
+    incrementButton.textContent = '+';
+    incrementButton.addEventListener('click', () => this.incrementActiveCounter());
+    const decrementButton = document.createElement('button');
+    decrementButton.textContent = '-';
+    decrementButton.addEventListener('click', () => this.decrementActiveCounter());
+    this.wrapper.appendChild(decrementButton);
+    this.wrapper.appendChild(incrementButton);
   }
 }
 class CounterInstance {
@@ -214,32 +236,40 @@ class CounterInstance {
 }
 
 // Example usage: Creating a new counter instance within the 'app' parent element
-const controllerA = new Controller();
-const controllerB = new Controller();
-new CounterInstance(controllerA, 'app_0', 0, 0, {
+const controllerA = new Controller('group_a');
+new CounterInstance(controllerA, 'group_a', 0, 0, {
   min: 0,
   max: 3
 });
-new CounterInstance(controllerA, 'app_0', 1, 0, {
+new CounterInstance(controllerA, 'group_a', 1, 0, {
   min: 0,
   max: 4
 });
-new CounterInstance(controllerA, 'app_0', 2, 0, {
+new CounterInstance(controllerA, 'group_a', 2, 0, {
   min: 0,
   max: 4
 });
-new CounterInstance(controllerA, 'app_0', 3, 0, {
+new CounterInstance(controllerA, 'group_a', 3, 0, {
   min: 0,
   max: 4
 });
-new CounterInstance(controllerB, 'app_1', 0, 0, {
+// Add more instances as needed...
+
+const controllerB = new Controller('group_b');
+new CounterInstance(controllerB, 'group_b', 0, 0, {
   min: 0,
   max: 3
 });
-new CounterInstance(controllerB, 'app_1', 1, 0, {
+new CounterInstance(controllerB, 'group_b', 1, 0, {
   min: 0,
   max: 4
 });
+new CounterInstance(controllerB, 'group_b', 2, 0, {
+  min: 0,
+  max: 4
+});
+// Add more instances as needed...
+
 GlobalCounterBox.initialize('globalCounterWrapper');
 /******/ })()
 ;
