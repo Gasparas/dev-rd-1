@@ -1,0 +1,60 @@
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.wp-block-create-block-rd-shop-product {
+	background-color: #21759b;
+	color: #fff;
+	padding: 2px;
+}
+
+.wrapper {
+	margin: 0 0 3em 0;
+	display: flex;
+  }
+  
+  .wrapper>* {
+	margin: 0 0.5em;
+  }
+  
+  .wrapper {
+	max-width: 800px;
+	display: flex;
+	justify-content: center;
+  }
+  
+  .radio-container {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	margin: 0 0.5em;
+  }
+  
+  .radio-button {
+	display: none;
+  }
+  
+  .radio-label {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background-color: #f4f4f4;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	transition: background-color 0.4s;
+	margin-bottom: 1em;
+  }
+  
+  .radio-button:checked+.radio-label {
+	background-color: #4CAF50;
+	color: white;
+  }
+  
+  .radio-label:hover {
+	background-color: #ccc;
+  }  
