@@ -47,23 +47,25 @@ class EventDispatcher {
 }
 const eventDispatcher = new EventDispatcher();
 class CounterBox {
-  constructor(displayElement, initialValue = 0, min = 0, max = 20) {
+  constructor(displayElement, initialValue = 0, min = 0, max = 20, color, productId) {
     this.counterValue = initialValue;
     this.min = min;
     this.max = max;
+    this.color = color;
     this.displayElement = displayElement;
     this.isActive = false;
+    this.productId = productId;
     this.updateDisplay();
   }
   setActive(state) {
     this.isActive = state;
-    console.log(this.displayElement, state);
   }
   increment() {
     if (this.isActive && this.counterValue < this.max) {
       this.counterValue++;
       this.updateDisplay();
       eventDispatcher.emit('counterUpdated', 1);
+      eventDispatcher.emit('addToCart', this.productId);
     }
   }
   decrement() {
@@ -71,34 +73,12 @@ class CounterBox {
       this.counterValue--;
       this.updateDisplay();
       eventDispatcher.emit('counterUpdated', -1);
+      eventDispatcher.emit('removeFromCart', this.productId);
     }
   }
   updateDisplay() {
     // this.displayElement.textContent = `${this.counterValue}`;
     this.displayElement.textContent = this.counterValue > 0 ? this.counterValue : '';
-  }
-}
-class Button {
-  constructor(buttonType, counterBox) {
-    this.buttonType = buttonType;
-    this.counterBox = counterBox;
-    this.element = this.createButton();
-    this.addClickListener();
-  }
-  createButton() {
-    const button = document.createElement('button');
-    button.textContent = this.buttonType === 'plus' ? '+' : '-';
-    return button;
-  }
-  addClickListener() {
-    this.element.addEventListener('click', () => this.onClick());
-  }
-  onClick() {
-    if (this.buttonType === 'plus') {
-      this.counterBox.increment();
-    } else if (this.buttonType === 'minus') {
-      this.counterBox.decrement();
-    }
   }
 }
 class GlobalCounterBox {
@@ -146,10 +126,15 @@ class Controller {
     this.wrapperId = wrapperId;
     this.wrapper = document.getElementById(wrapperId);
     this.activeCounter = null;
+    this.counters = [];
     this.initializeButtons();
   }
   registerCounter(counter) {
-    // Additional code to register counters if necessary
+    this.counters.push(counter);
+    // If this is the first counter, set it as active
+    if (this.counters.length === 1) {
+      this.setActiveCounter(counter);
+    }
   }
   setActiveCounter(activeCounter) {
     if (this.activeCounter) {
@@ -159,42 +144,63 @@ class Controller {
     this.activeCounter.setActive(true);
   }
   incrementActiveCounter() {
-    if (this.activeCounter && this.activeCounter.counterBox.isActive) {
+    if (this.activeCounter && this.activeCounter.counterBox.isActive && this.activeCounter.counterBox.counterValue < this.activeCounter.counterBox.max) {
       this.activeCounter.counterBox.increment();
+      // WooCommerce integration
+      addProductToCart(this.activeCounter.counterBox.productId, 1);
     }
   }
   decrementActiveCounter() {
-    if (this.activeCounter && this.activeCounter.counterBox.isActive) {
+    if (this.activeCounter && this.activeCounter.counterBox.isActive && this.activeCounter.counterBox.counterValue > this.activeCounter.counterBox.min) {
       this.activeCounter.counterBox.decrement();
+      // WooCommerce integration
+      removeProductFromCart(this.activeCounter.counterBox.productId, 1);
     }
   }
   initializeButtons() {
-    const incrementButton = document.createElement('button');
-    incrementButton.textContent = '+';
-    incrementButton.addEventListener('click', () => this.incrementActiveCounter());
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.className = 'controller-wrapper';
     const decrementButton = document.createElement('button');
+    decrementButton.className = 'controller-button';
     decrementButton.textContent = '-';
     decrementButton.addEventListener('click', () => this.decrementActiveCounter());
-    this.wrapper.appendChild(decrementButton);
-    this.wrapper.appendChild(incrementButton);
+    buttonsContainer.appendChild(decrementButton); // Add the decrement button to the container
+
+    const incrementButton = document.createElement('button');
+    incrementButton.className = 'controller-button';
+    incrementButton.textContent = '+';
+    incrementButton.addEventListener('click', () => this.incrementActiveCounter());
+    buttonsContainer.appendChild(incrementButton); // Add the increment button to the container
+
+    this.wrapper.appendChild(buttonsContainer); // Append the container to the wrapper
   }
 }
 class CounterInstance {
   constructor(controller, wrapperId, instanceId, counterValue = 0, counterRange = {
     min: 0,
     max: 20
-  }) {
+  }, color, productId) {
     this.controller = controller;
     this.wrapperId = wrapperId;
     this.instanceId = instanceId;
+    this.productId = productId;
     const parent = document.getElementById(wrapperId);
     if (!parent) {
       console.error('Parent not found');
       return;
     }
+
+    // Create or select the counters-wrapper
+    let countersWrapper = parent.querySelector('.counters-wrapper');
+    if (!countersWrapper) {
+      countersWrapper = document.createElement('div');
+      countersWrapper.className = 'counters-wrapper';
+      parent.appendChild(countersWrapper);
+    }
     const radioContainer = document.createElement('div');
     radioContainer.className = 'radio-container';
-    parent.appendChild(radioContainer);
+    countersWrapper.appendChild(radioContainer); // Append to countersWrapper instead of parent
+
     const radioButton = document.createElement('input');
     radioButton.type = 'radio';
     radioButton.id = `${wrapperId}-radio-${instanceId}`;
@@ -205,19 +211,13 @@ class CounterInstance {
     const label = document.createElement('label');
     label.setAttribute('for', `${wrapperId}-radio-${instanceId}`);
     label.className = 'radio-label';
+    label.style.backgroundColor = color;
     radioContainer.appendChild(label);
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'button-container';
     radioContainer.appendChild(buttonContainer);
     const displayElement = label;
-    this.counterBox = new CounterBox(displayElement, counterValue, counterRange.min, counterRange.max);
-    this.radioButton = document.createElement('input');
-
-    // const minusButton = new Button('minus', counterBox);
-    // buttonContainer.appendChild(minusButton.element);
-
-    // const plusButton = new Button('plus', counterBox);
-    // buttonContainer.appendChild(plusButton.element);
+    this.counterBox = new CounterBox(displayElement, counterValue, counterRange.min, counterRange.max, color, productId);
 
     // Event listener that might trigger setActive
     radioButton.addEventListener('change', () => {
@@ -230,47 +230,182 @@ class CounterInstance {
     this.counterBox.setActive(isActive);
     if (isActive) {
       // Additional logic when this counter becomes active
-      // console.log(this.counterBox, 'is active');
     }
   }
 }
 
-// Example usage: Creating a new counter instance within the 'app' parent element
-const controllerA = new Controller('group_a');
-new CounterInstance(controllerA, 'group_a', 0, 0, {
-  min: 0,
-  max: 3
-});
-new CounterInstance(controllerA, 'group_a', 1, 0, {
-  min: 0,
-  max: 4
-});
-new CounterInstance(controllerA, 'group_a', 2, 0, {
-  min: 0,
-  max: 4
-});
-new CounterInstance(controllerA, 'group_a', 3, 0, {
-  min: 0,
-  max: 4
-});
-// Add more instances as needed...
+// WooCommerce
 
-const controllerB = new Controller('group_b');
-new CounterInstance(controllerB, 'group_b', 0, 0, {
-  min: 0,
-  max: 3
-});
-new CounterInstance(controllerB, 'group_b', 1, 0, {
-  min: 0,
-  max: 4
-});
-new CounterInstance(controllerB, 'group_b', 2, 0, {
-  min: 0,
-  max: 4
-});
-// Add more instances as needed...
+function addProductToCart(productId, quantity) {
+  console.log(`Adding product ${productId} to the cart`);
+  jQuery.ajax({
+    url: ajaxurl,
+    method: 'POST',
+    data: {
+      'action': 'add_to_cart_request',
+      product_id: productId,
+      quantity: quantity
+    },
+    success: function (data) {
+      console.log(data);
+    },
+    error: function (errorThrown) {
+      window.alert(errorThrown);
+    }
+  });
+}
+function removeProductFromCart(productId, quantity) {
+  console.log(`Removing product ${productId} from the cart`);
+  jQuery.ajax({
+    url: ajaxurl,
+    method: 'POST',
+    data: {
+      'action': 'remove_from_cart_request',
+      product_id: productId,
+      quantity: quantity
+    },
+    success: function (data) {
+      console.log(data);
+    },
+    error: function (errorThrown) {
+      window.alert(errorThrown);
+    }
+  });
+}
+
+// Initialise 
 
 GlobalCounterBox.initialize('globalCounterWrapper');
+function initializeCounterInstances(controller, groupId, instances) {
+  instances.forEach(instance => {
+    const counterInstance = new CounterInstance(controller, groupId, instance.id, instance.initialValue, instance.range, instance.color, instance.productId);
+    controller.registerCounter(counterInstance);
+
+    // Automatically set the first counter box of each group as active
+    if (instance.id === 0) {
+      controller.setActiveCounter(counterInstance);
+    }
+  });
+}
+
+// Define counter configurations for each group
+const groupAInstances = [{
+  id: 0,
+  initialValue: 0,
+  range: {
+    min: 0,
+    max: 10
+  },
+  color: '#2252b8',
+  productId: '36'
+}, {
+  id: 1,
+  initialValue: 0,
+  range: {
+    min: 0,
+    max: 10
+  },
+  color: '#af3e8d',
+  productId: '38'
+}, {
+  id: 2,
+  initialValue: 0,
+  range: {
+    min: 0,
+    max: 10
+  },
+  color: '#75a937',
+  productId: '34'
+}, {
+  id: 3,
+  initialValue: 0,
+  range: {
+    min: 0,
+    max: 10
+  },
+  color: '#e29a35',
+  productId: '27'
+}];
+const groupBInstances = [{
+  id: 0,
+  initialValue: 0,
+  range: {
+    min: 0,
+    max: 10
+  },
+  color: '#af3e8d',
+  productId: '23'
+}, {
+  id: 1,
+  initialValue: 0,
+  range: {
+    min: 0,
+    max: 10
+  },
+  color: '#e29a35',
+  productId: '20'
+}, {
+  id: 2,
+  initialValue: 0,
+  range: {
+    min: 0,
+    max: 10
+  },
+  color: '#2252b8',
+  productId: '21'
+}];
+
+// Initialize counter instances for group A
+const controllerA = new Controller('group_a');
+initializeCounterInstances(controllerA, 'group_a', groupAInstances);
+
+// Initialize counter instances for group B
+const controllerB = new Controller('group_b');
+initializeCounterInstances(controllerB, 'group_b', groupBInstances);
+
+// Rest API
+
+// document.addEventListener('DOMContentLoaded', function() {
+//     // Replace '32' with the actual product ID you're interested in
+//     const productId = '36';
+//     const apiUrl = `/wp-json/mycustom/v1/cart-item-quantity/${productId}`;
+
+//     fetch(apiUrl)
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Network response was not ok');
+//             }
+//             return response.json();
+//         })
+//         .then(data => {
+//             console.log(`Quantity of product ID ${productId} in cart:`, data.quantity);
+//         })
+//         .catch(error => console.error('Error fetching cart item quantity:', error));
+// });
+
+// jQuery.ajax({
+//     url: ajaxurl,
+//     method: 'POST',
+//     data: {
+//         'action': 'cart_get_total_request',
+//     },
+//     success: function(response) {
+//         if (response.success) {
+//             console.log('Total quantity in cart:', response.data.total_quantity);
+//             // You can now update the DOM with this data.
+//         } else {
+//             console.error('Error:', response.data.message);
+//         }
+//     },
+//     error: function(error) {
+//         console.error('AJAX error:', error);
+//     }
+// });
+
+// Inside view.js
+// import { greet } from './test.js';
+
+// console.log('greet('World')'); // Output: Hello, World!
 /******/ })()
 ;
 //# sourceMappingURL=view.js.map
