@@ -90,29 +90,12 @@ add_action('wp_ajax_nopriv_cart_get_total_request', 'cart_get_total_request');
 add_action( 'plugins_loaded', 'my_plugin_override' );
 
 function my_plugin_override() {
-    $localized_data_2 = array(
-        // 'ajax_url' => admin_url( 'admin-ajax.php' ),
-        // 'nonce' => wp_create_nonce( 'my-nonce' ),
-        'test' => 'test data',
-    );
-    wp_localize_script('create-block-rd-shop-product-view-script', 'testData', $localized_data_2);
 }
 
-function list_enqueued_scripts() {
-    global $wp_scripts; // Access the global variable that holds all enqueued scripts
 
-    if ( ! ( $wp_scripts instanceof WP_Scripts ) ) {
-        return; // Exit if $wp_scripts is not set up correctly
-    }
-
-    echo '<ul>';
-    foreach ( $wp_scripts->queue as $handle ) { // Loop through the queue to get handles of enqueued scripts
-        $script = $wp_scripts->registered[$handle]; // Get the script object by handle
-
-        // Output the script handle and source
-        echo '<li><strong>' . esc_html( $handle ) . '</strong>: ' . esc_url( $script->src ) . '</li>';
-    }
-    echo '</ul>';
-}
-
-// add_action( 'wp_footer', 'list_enqueued_scripts', 100 ); // Hook into wp_footer
+$localized_data_2 = array(
+    // 'ajax_url' => admin_url( 'admin-ajax.php' ),
+    // 'nonce' => wp_create_nonce( 'my-nonce' ),
+    'test' => 'test data',
+);
+wp_localize_script('create-block-rd-shop-product-view-script', 'testData', $localized_data_2);

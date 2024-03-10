@@ -1,8 +1,141 @@
 /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./src/view-module.js":
+/*!****************************!*\
+  !*** ./src/view-module.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   myFunction: () => (/* binding */ myFunction),
+/* harmony export */   myVariable: () => (/* binding */ myVariable)
+/* harmony export */ });
+// Exporting a variable
+const myVariable = 'view-module.js: var';
+
+// Exporting a function
+function myFunction() {
+  console.log('view-module.js: function');
+}
+
+/***/ }),
+
+/***/ "react":
+/*!************************!*\
+  !*** external "React" ***!
+  \************************/
+/***/ ((module) => {
+
+module.exports = window["React"];
+
+/***/ }),
+
+/***/ "@wordpress/dom-ready":
+/*!**********************************!*\
+  !*** external ["wp","domReady"] ***!
+  \**********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["domReady"];
+
+/***/ }),
+
+/***/ "@wordpress/element":
+/*!*********************************!*\
+  !*** external ["wp","element"] ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["element"];
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
 var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
 /*!*********************!*\
   !*** ./src/view.js ***!
   \*********************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _view_module_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./view-module.js */ "./src/view-module.js");
+/* harmony import */ var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/dom-ready */ "@wordpress/dom-ready");
+/* harmony import */ var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
+
 /**
  * Use this file for JavaScript code that you want to run in the front-end
  * on posts/pages that contain this block.
@@ -26,7 +159,7 @@ var __webpack_exports__ = {};
  */
 
 /* eslint-disable no-console */
-console.log('Hello World! (from create-block-rd-shop-product block)');
+console.log("view.js");
 /* eslint-enable no-console */
 class EventDispatcher {
   constructor() {
@@ -64,21 +197,21 @@ class CounterBox {
     if (this.isActive && this.counterValue < this.max) {
       this.counterValue++;
       this.updateDisplay();
-      eventDispatcher.emit('counterUpdated', 1);
-      eventDispatcher.emit('addToCart', this.productId);
+      eventDispatcher.emit("counterUpdated", 1);
+      eventDispatcher.emit("addToCart", this.productId);
     }
   }
   decrement() {
     if (this.isActive && this.counterValue > this.min) {
       this.counterValue--;
       this.updateDisplay();
-      eventDispatcher.emit('counterUpdated', -1);
-      eventDispatcher.emit('removeFromCart', this.productId);
+      eventDispatcher.emit("counterUpdated", -1);
+      eventDispatcher.emit("removeFromCart", this.productId);
     }
   }
   updateDisplay() {
     // this.displayElement.textContent = `${this.counterValue}`;
-    this.displayElement.textContent = this.counterValue > 0 ? this.counterValue : '';
+    this.displayElement.textContent = this.counterValue > 0 ? this.counterValue : "";
   }
 }
 class GlobalCounterBox {
@@ -93,14 +226,14 @@ class GlobalCounterBox {
     }
 
     // Create and append the display element for the global counter within the wrapper
-    const globalCounterDisplay = document.createElement('div');
-    globalCounterDisplay.id = 'globalCounter'; // Adding an ID for styling or querying
+    const globalCounterDisplay = document.createElement("div");
+    globalCounterDisplay.id = "globalCounter"; // Adding an ID for styling or querying
     wrapper.appendChild(globalCounterDisplay);
     GlobalCounterBox.displayElement = globalCounterDisplay;
     GlobalCounterBox.updateDisplay();
 
     // Subscribe to counter updates
-    eventDispatcher.subscribe('counterUpdated', change => {
+    eventDispatcher.subscribe("counterUpdated", change => {
       GlobalCounterBox.globalCount += change;
       GlobalCounterBox.ensureGlobalCountWithinRange();
       GlobalCounterBox.updateDisplay();
@@ -158,18 +291,18 @@ class Controller {
     }
   }
   initializeButtons() {
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.className = 'controller-wrapper';
-    const decrementButton = document.createElement('button');
-    decrementButton.className = 'controller-button';
-    decrementButton.textContent = '-';
-    decrementButton.addEventListener('click', () => this.decrementActiveCounter());
+    const buttonsContainer = document.createElement("div");
+    buttonsContainer.className = "controller-wrapper";
+    const decrementButton = document.createElement("button");
+    decrementButton.className = "controller-button";
+    decrementButton.textContent = "-";
+    decrementButton.addEventListener("click", () => this.decrementActiveCounter());
     buttonsContainer.appendChild(decrementButton); // Add the decrement button to the container
 
-    const incrementButton = document.createElement('button');
-    incrementButton.className = 'controller-button';
-    incrementButton.textContent = '+';
-    incrementButton.addEventListener('click', () => this.incrementActiveCounter());
+    const incrementButton = document.createElement("button");
+    incrementButton.className = "controller-button";
+    incrementButton.textContent = "+";
+    incrementButton.addEventListener("click", () => this.incrementActiveCounter());
     buttonsContainer.appendChild(incrementButton); // Add the increment button to the container
 
     this.wrapper.appendChild(buttonsContainer); // Append the container to the wrapper
@@ -186,41 +319,41 @@ class CounterInstance {
     this.productId = productId;
     const parent = document.getElementById(wrapperId);
     if (!parent) {
-      console.error('Parent not found');
+      console.error("Parent not found");
       return;
     }
 
     // Create or select the counters-wrapper
-    let countersWrapper = parent.querySelector('.counters-wrapper');
+    let countersWrapper = parent.querySelector(".counters-wrapper");
     if (!countersWrapper) {
-      countersWrapper = document.createElement('div');
-      countersWrapper.className = 'counters-wrapper';
+      countersWrapper = document.createElement("div");
+      countersWrapper.className = "counters-wrapper";
       parent.appendChild(countersWrapper);
     }
-    const radioContainer = document.createElement('div');
-    radioContainer.className = 'radio-container';
+    const radioContainer = document.createElement("div");
+    radioContainer.className = "radio-container";
     countersWrapper.appendChild(radioContainer); // Append to countersWrapper instead of parent
 
-    const radioButton = document.createElement('input');
-    radioButton.type = 'radio';
+    const radioButton = document.createElement("input");
+    radioButton.type = "radio";
     radioButton.id = `${wrapperId}-radio-${instanceId}`;
     radioButton.name = `number-${wrapperId}`;
-    radioButton.className = 'radio-button';
+    radioButton.className = "radio-button";
     radioButton.checked = instanceId === 0;
     radioContainer.appendChild(radioButton);
-    const label = document.createElement('label');
-    label.setAttribute('for', `${wrapperId}-radio-${instanceId}`);
-    label.className = 'radio-label';
+    const label = document.createElement("label");
+    label.setAttribute("for", `${wrapperId}-radio-${instanceId}`);
+    label.className = "radio-label";
     label.style.backgroundColor = color;
     radioContainer.appendChild(label);
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'button-container';
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = "button-container";
     radioContainer.appendChild(buttonContainer);
     const displayElement = label;
     this.counterBox = new CounterBox(displayElement, counterValue, counterRange.min, counterRange.max, color, productId);
 
     // Event listener that might trigger setActive
-    radioButton.addEventListener('change', () => {
+    radioButton.addEventListener("change", () => {
       if (radioButton.checked) {
         this.controller.setActiveCounter(this);
       }
@@ -240,9 +373,9 @@ function addProductToCart(productId, quantity) {
   console.log(`Adding product ${productId} to the cart`);
   jQuery.ajax({
     url: ajaxurl,
-    method: 'POST',
+    method: "POST",
     data: {
-      'action': 'add_to_cart_request',
+      action: "add_to_cart_request",
       product_id: productId,
       quantity: quantity
     },
@@ -258,9 +391,9 @@ function removeProductFromCart(productId, quantity) {
   console.log(`Removing product ${productId} from the cart`);
   jQuery.ajax({
     url: ajaxurl,
-    method: 'POST',
+    method: "POST",
     data: {
-      'action': 'remove_from_cart_request',
+      action: "remove_from_cart_request",
       product_id: productId,
       quantity: quantity
     },
@@ -273,9 +406,9 @@ function removeProductFromCart(productId, quantity) {
   });
 }
 
-// Initialise 
+// Initialise
 
-GlobalCounterBox.initialize('globalCounterWrapper');
+GlobalCounterBox.initialize("globalCounterWrapper");
 function initializeCounterInstances(controller, groupId, instances) {
   instances.forEach(instance => {
     const counterInstance = new CounterInstance(controller, groupId, instance.id, instance.initialValue, instance.range, instance.color, instance.productId);
@@ -296,8 +429,8 @@ const groupAInstances = [{
     min: 0,
     max: 10
   },
-  color: '#2252b8',
-  productId: '36'
+  color: "#2252b8",
+  productId: "36"
 }, {
   id: 1,
   initialValue: 0,
@@ -305,8 +438,8 @@ const groupAInstances = [{
     min: 0,
     max: 10
   },
-  color: '#af3e8d',
-  productId: '38'
+  color: "#af3e8d",
+  productId: "38"
 }, {
   id: 2,
   initialValue: 0,
@@ -314,8 +447,8 @@ const groupAInstances = [{
     min: 0,
     max: 10
   },
-  color: '#75a937',
-  productId: '34'
+  color: "#75a937",
+  productId: "34"
 }, {
   id: 3,
   initialValue: 0,
@@ -323,8 +456,8 @@ const groupAInstances = [{
     min: 0,
     max: 10
   },
-  color: '#e29a35',
-  productId: '27'
+  color: "#e29a35",
+  productId: "27"
 }];
 const groupBInstances = [{
   id: 0,
@@ -333,8 +466,8 @@ const groupBInstances = [{
     min: 0,
     max: 10
   },
-  color: '#af3e8d',
-  productId: '23'
+  color: "#af3e8d",
+  productId: "23"
 }, {
   id: 1,
   initialValue: 0,
@@ -342,8 +475,8 @@ const groupBInstances = [{
     min: 0,
     max: 10
   },
-  color: '#e29a35',
-  productId: '20'
+  color: "#e29a35",
+  productId: "20"
 }, {
   id: 2,
   initialValue: 0,
@@ -351,17 +484,17 @@ const groupBInstances = [{
     min: 0,
     max: 10
   },
-  color: '#2252b8',
-  productId: '21'
+  color: "#2252b8",
+  productId: "21"
 }];
 
 // Initialize counter instances for group A
-const controllerA = new Controller('group_a');
-initializeCounterInstances(controllerA, 'group_a', groupAInstances);
+const controllerA = new Controller("group_a");
+initializeCounterInstances(controllerA, "group_a", groupAInstances);
 
 // Initialize counter instances for group B
-const controllerB = new Controller('group_b');
-initializeCounterInstances(controllerB, 'group_b', groupBInstances);
+const controllerB = new Controller("group_b");
+initializeCounterInstances(controllerB, "group_b", groupBInstances);
 
 // Rest API
 
@@ -402,10 +535,21 @@ initializeCounterInstances(controllerB, 'group_b', groupBInstances);
 //     }
 // });
 
-// Inside view.js
-// import { greet } from './test.js';
+// Importing specific exports from test.js
 
-// console.log('greet('World')'); // Output: Hello, World!
+console.log(_view_module_js__WEBPACK_IMPORTED_MODULE_1__.myVariable); // Outputs: Hello World
+(0,_view_module_js__WEBPACK_IMPORTED_MODULE_1__.myFunction)(); // Outputs: Function called
+
+
+
+const App = () => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "REACT");
+_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2___default()(function () {
+  console.log("dom ready");
+  const container = document.querySelector("#app");
+  // render(<App />, container);
+});
+})();
+
 /******/ })()
 ;
 //# sourceMappingURL=view.js.map

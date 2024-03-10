@@ -1,0 +1,123 @@
+/*!***************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/style.scss ***!
+  \***************************************************************************************************************************************************************************************************************************************/
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+main {
+  background-color: #ffffff;
+}
+
+.wp-block-create-block-rd-shop-product {
+  background-color: #21759b;
+  color: #fff;
+  padding: 2px;
+}
+
+.rd-shop-wrapper {
+  margin: 0 0 3em 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rd-shop-wrapper > * {
+  margin: 0 0.5em;
+}
+
+.rd-shop-wrapper {
+  max-width: 800px;
+  display: flex;
+  justify-content: center;
+}
+
+.counters-wrapper {
+  flex-direction: row;
+  display: flex;
+}
+
+.rd-shop-wrapper .image-container,
+.rd-shop-wrapper .image-container img {
+  width: auto;
+  max-height: 400px;
+  margin: 0 0 1em 0;
+}
+
+.radio-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin: 0 0.2em;
+}
+
+.radio-button {
+  display: none;
+}
+
+.radio-label {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.4s;
+  margin: 0 0 1em 0;
+  border: 3px solid #ffffff;
+  color: #ffffff;
+}
+
+.radio-button:checked + .radio-label {
+  box-shadow: 0 0 0pt 2pt #0394ff;
+  background-color: #4CAF50;
+  border: 3px solid #ffffff;
+  color: white;
+}
+
+.radio-label:hover {
+  border: 3px solid #ffffff;
+}
+
+/* Buttons */
+.controller-wrapper {
+  display: flex;
+  order: 3;
+  width: 150px;
+  background-color: #d7dae4;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  justify-content: space-between;
+  border-radius: 8px;
+  border-width: 0;
+  color: #333333;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 10px 12px;
+  text-align: center;
+  transition: all 200ms;
+  vertical-align: baseline;
+  white-space: nowrap;
+  -moz-user-select: none;
+       user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.controller-button {
+  border: none;
+  background: #ffffff;
+  font-size: 24px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/*# sourceMappingURL=style-index.css.map*/
