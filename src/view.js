@@ -415,44 +415,39 @@ initializeCounterInstances(controllerA, "group_a", groupAInstances);
 const controllerB = new Controller("group_b");
 initializeCounterInstances(controllerB, "group_b", groupBInstances);
 
-// Rest API
+// api-fetch
 
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Replace '32' with the actual product ID you're interested in
-//     const productId = '36';
-//     const apiUrl = `/wp-json/mycustom/v1/cart-item-quantity/${productId}`;
+import apiFetch from "@wordpress/api-fetch";
 
-//     fetch(apiUrl)
-//         .then(response => {
-//             if (!response.ok) {
-//                 throw new Error('Network response was not ok');
-//             }
-//             return response.json();
-//         })
-//         .then(data => {
-//             console.log(`Quantity of product ID ${productId} in cart:`, data.quantity);
-//         })
-//         .catch(error => console.error('Error fetching cart item quantity:', error));
-// });
+async function fetchCartData() {
+    try {
+        const cartData = await apiFetch({ path: '/wc/store/v1/cart?_locale=user' });
+        return cartData;
+    } catch (error) {
+        console.error('Error fetching cart data:', error);
+        return null;
+    }
+}
 
-// jQuery.ajax({
-//     url: ajaxurl,
-//     method: 'POST',
-//     data: {
-//         'action': 'cart_get_total_request',
-//     },
-//     success: function(response) {
-//         if (response.success) {
-//             console.log('Total quantity in cart:', response.data.total_quantity);
-//             // You can now update the DOM with this data.
-//         } else {
-//             console.error('Error:', response.data.message);
-//         }
-//     },
-//     error: function(error) {
-//         console.error('AJAX error:', error);
-//     }
-// });
+async function getItemQuantityById(itemId) {
+	const cartData = await fetchCartData();
+	if (cartData && cartData.items) {
+		const item = cartData.items.find((item) => item.id === itemId);
+		if (item) {
+			return item.quantity;
+		} else {
+			console.log("Item not found in cart.");
+			return 0; // or handle as appropriate
+		}
+	} else {
+		console.log("No items in cart.");
+		return 0; // or handle as appropriate
+	}
+}
+
+getItemQuantityById(36).then((quantity) => {
+	console.log(`Quantity of item 36:`, quantity);
+});
 
 // Importing specific exports from test.js
 import { myVariable, myFunction } from "./view-module.js";
@@ -462,11 +457,21 @@ myFunction(); // Outputs: Function called
 
 import domReady from "@wordpress/dom-ready";
 import { render } from "@wordpress/element";
+import { addQueryArgs } from "@wordpress/url";
 
-const App = () => <div>REACT</div>;
+// domReady(function () {
+//     const queryParams = { include: [47, 48] }; // Return posts with ID = 1,2,3.
+// 	apiFetch({ path: addQueryArgs("/wp/v2/pages", queryParams) }).then(
+// 		(posts) => {
+// 			console.log(posts);
+// 		},
+// 	);
+// });
 
-domReady(function () {
-    console.log("dom ready");
-    const container = document.querySelector("#app");
-    // render(<App />, container);
-});
+// const App = () => <div>REACT</div>;
+
+// domReady(function () {
+//     console.log("dom ready");
+//     const container = document.querySelector("#app");
+//     // render(<App />, container);
+// });

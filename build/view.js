@@ -23,13 +23,13 @@ function myFunction() {
 
 /***/ }),
 
-/***/ "react":
-/*!************************!*\
-  !*** external "React" ***!
-  \************************/
+/***/ "@wordpress/api-fetch":
+/*!**********************************!*\
+  !*** external ["wp","apiFetch"] ***!
+  \**********************************/
 /***/ ((module) => {
 
-module.exports = window["React"];
+module.exports = window["wp"]["apiFetch"];
 
 /***/ }),
 
@@ -50,6 +50,16 @@ module.exports = window["wp"]["domReady"];
 /***/ ((module) => {
 
 module.exports = window["wp"]["element"];
+
+/***/ }),
+
+/***/ "@wordpress/url":
+/*!*****************************!*\
+  !*** external ["wp","url"] ***!
+  \*****************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["url"];
 
 /***/ })
 
@@ -128,14 +138,15 @@ var __webpack_exports__ = {};
   !*** ./src/view.js ***!
   \*********************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _view_module_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./view-module.js */ "./src/view-module.js");
 /* harmony import */ var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/dom-ready */ "@wordpress/dom-ready");
 /* harmony import */ var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
-
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_4__);
 /**
  * Use this file for JavaScript code that you want to run in the front-end
  * on posts/pages that contain this block.
@@ -535,6 +546,39 @@ initializeCounterInstances(controllerB, "group_b", groupBInstances);
 //     }
 // });
 
+// api-fetch
+
+
+async function fetchCartData() {
+  try {
+    const cartData = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+      path: '/wc/store/v1/cart?_locale=user'
+    });
+    return cartData;
+  } catch (error) {
+    console.error('Error fetching cart data:', error);
+    return null;
+  }
+}
+async function getItemQuantityById(itemId) {
+  const cartData = await fetchCartData();
+  if (cartData && cartData.items) {
+    const item = cartData.items.find(item => item.id === itemId);
+    if (item) {
+      return item.quantity;
+    } else {
+      console.log("Item not found in cart.");
+      return 0; // or handle as appropriate
+    }
+  } else {
+    console.log("No items in cart.");
+    return 0; // or handle as appropriate
+  }
+}
+getItemQuantityById(36).then(quantity => {
+  console.log(`Quantity of item 36:`, quantity);
+});
+
 // Importing specific exports from test.js
 
 console.log(_view_module_js__WEBPACK_IMPORTED_MODULE_1__.myVariable); // Outputs: Hello World
@@ -542,12 +586,24 @@ console.log(_view_module_js__WEBPACK_IMPORTED_MODULE_1__.myVariable); // Outputs
 
 
 
-const App = () => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "REACT");
-_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2___default()(function () {
-  console.log("dom ready");
-  const container = document.querySelector("#app");
-  // render(<App />, container);
-});
+
+
+// domReady(function () {
+//     const queryParams = { include: [47, 48] }; // Return posts with ID = 1,2,3.
+// 	apiFetch({ path: addQueryArgs("/wp/v2/pages", queryParams) }).then(
+// 		(posts) => {
+// 			console.log(posts);
+// 		},
+// 	);
+// });
+
+// const App = () => <div>REACT</div>;
+
+// domReady(function () {
+//     console.log("dom ready");
+//     const container = document.querySelector("#app");
+//     // render(<App />, container);
+// });
 })();
 
 /******/ })()

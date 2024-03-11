@@ -1,5 +1,4 @@
 <?
-
 /*
  * ajaxurl
  */
@@ -78,24 +77,3 @@ function cart_get_total_request()
 }
 add_action('wp_ajax_cart_get_total_request', 'cart_get_total_request');
 add_action('wp_ajax_nopriv_cart_get_total_request', 'cart_get_total_request');
-
-/*
- * send_php_to_js
- */
-
-// Enqueue your script
-// wp_enqueue_script('test-script', plugin_dir_url(__FILE__) . 'test.js', array('jquery'), '1.0', true);
-
-
-add_action( 'plugins_loaded', 'my_plugin_override' );
-
-function my_plugin_override() {
-}
-
-
-$localized_data_2 = array(
-    // 'ajax_url' => admin_url( 'admin-ajax.php' ),
-    // 'nonce' => wp_create_nonce( 'my-nonce' ),
-    'test' => 'test data',
-);
-wp_localize_script('create-block-rd-shop-product-view-script', 'testData', $localized_data_2);
