@@ -31,36 +31,6 @@ function myFunction() {
 
 module.exports = window["wp"]["apiFetch"];
 
-/***/ }),
-
-/***/ "@wordpress/dom-ready":
-/*!**********************************!*\
-  !*** external ["wp","domReady"] ***!
-  \**********************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["domReady"];
-
-/***/ }),
-
-/***/ "@wordpress/element":
-/*!*********************************!*\
-  !*** external ["wp","element"] ***!
-  \*********************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["element"];
-
-/***/ }),
-
-/***/ "@wordpress/url":
-/*!*****************************!*\
-  !*** external ["wp","url"] ***!
-  \*****************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["url"];
-
 /***/ })
 
 /******/ 	});
@@ -141,12 +111,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
 /* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _view_module_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./view-module.js */ "./src/view-module.js");
-/* harmony import */ var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/dom-ready */ "@wordpress/dom-ready");
-/* harmony import */ var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
-/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_4__);
 /**
  * Use this file for JavaScript code that you want to run in the front-end
  * on posts/pages that contain this block.
@@ -172,6 +136,9 @@ __webpack_require__.r(__webpack_exports__);
 /* eslint-disable no-console */
 console.log("view.js");
 /* eslint-enable no-console */
+
+// App
+
 class EventDispatcher {
   constructor() {
     this.listeners = {};
@@ -378,45 +345,6 @@ class CounterInstance {
   }
 }
 
-// WooCommerce
-
-function addProductToCart(productId, quantity) {
-  console.log(`Adding product ${productId} to the cart`);
-  jQuery.ajax({
-    url: ajaxurl,
-    method: "POST",
-    data: {
-      action: "add_to_cart_request",
-      product_id: productId,
-      quantity: quantity
-    },
-    success: function (data) {
-      console.log(data);
-    },
-    error: function (errorThrown) {
-      window.alert(errorThrown);
-    }
-  });
-}
-function removeProductFromCart(productId, quantity) {
-  console.log(`Removing product ${productId} from the cart`);
-  jQuery.ajax({
-    url: ajaxurl,
-    method: "POST",
-    data: {
-      action: "remove_from_cart_request",
-      product_id: productId,
-      quantity: quantity
-    },
-    success: function (data) {
-      console.log(data);
-    },
-    error: function (errorThrown) {
-      window.alert(errorThrown);
-    }
-  });
-}
-
 // Initialise
 
 GlobalCounterBox.initialize("globalCounterWrapper");
@@ -507,46 +435,46 @@ initializeCounterInstances(controllerA, "group_a", groupAInstances);
 const controllerB = new Controller("group_b");
 initializeCounterInstances(controllerB, "group_b", groupBInstances);
 
-// Rest API
+// WooCommerce AJAX
 
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Replace '32' with the actual product ID you're interested in
-//     const productId = '36';
-//     const apiUrl = `/wp-json/mycustom/v1/cart-item-quantity/${productId}`;
+function addProductToCart(productId, quantity) {
+  console.log(`Adding product ${productId} to the cart`);
+  jQuery.ajax({
+    url: ajaxurl,
+    method: "POST",
+    data: {
+      action: "add_to_cart_request",
+      product_id: productId,
+      quantity: quantity
+    },
+    success: function (data) {
+      console.log(data);
+    },
+    error: function (errorThrown) {
+      window.alert(errorThrown);
+    }
+  });
+}
+function removeProductFromCart(productId, quantity) {
+  console.log(`Removing product ${productId} from the cart`);
+  jQuery.ajax({
+    url: ajaxurl,
+    method: "POST",
+    data: {
+      action: "remove_from_cart_request",
+      product_id: productId,
+      quantity: quantity
+    },
+    success: function (data) {
+      console.log(data);
+    },
+    error: function (errorThrown) {
+      window.alert(errorThrown);
+    }
+  });
+}
 
-//     fetch(apiUrl)
-//         .then(response => {
-//             if (!response.ok) {
-//                 throw new Error('Network response was not ok');
-//             }
-//             return response.json();
-//         })
-//         .then(data => {
-//             console.log(`Quantity of product ID ${productId} in cart:`, data.quantity);
-//         })
-//         .catch(error => console.error('Error fetching cart item quantity:', error));
-// });
-
-// jQuery.ajax({
-//     url: ajaxurl,
-//     method: 'POST',
-//     data: {
-//         'action': 'cart_get_total_request',
-//     },
-//     success: function(response) {
-//         if (response.success) {
-//             console.log('Total quantity in cart:', response.data.total_quantity);
-//             // You can now update the DOM with this data.
-//         } else {
-//             console.error('Error:', response.data.message);
-//         }
-//     },
-//     error: function(error) {
-//         console.error('AJAX error:', error);
-//     }
-// });
-
-// api-fetch
+// @wordpress/api-fetch
 
 
 async function fetchCartData() {
@@ -579,26 +507,17 @@ getItemQuantityById(36).then(quantity => {
   console.log(`Quantity of item 36:`, quantity);
 });
 
-// Importing specific exports from test.js
+// Importing from view-module.js
 
-console.log(_view_module_js__WEBPACK_IMPORTED_MODULE_1__.myVariable); // Outputs: Hello World
-(0,_view_module_js__WEBPACK_IMPORTED_MODULE_1__.myFunction)(); // Outputs: Function called
+console.log(_view_module_js__WEBPACK_IMPORTED_MODULE_1__.myVariable);
+(0,_view_module_js__WEBPACK_IMPORTED_MODULE_1__.myFunction)();
 
+// REACT App, @wordpress/element
 
-
-
-
-// domReady(function () {
-//     const queryParams = { include: [47, 48] }; // Return posts with ID = 1,2,3.
-// 	apiFetch({ path: addQueryArgs("/wp/v2/pages", queryParams) }).then(
-// 		(posts) => {
-// 			console.log(posts);
-// 		},
-// 	);
-// });
+// import { render } from "@wordpress/element";
+// import domReady from "@wordpress/dom-ready";
 
 // const App = () => <div>REACT</div>;
-
 // domReady(function () {
 //     console.log("dom ready");
 //     const container = document.querySelector("#app");

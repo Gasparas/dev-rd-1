@@ -23,6 +23,9 @@
 /* eslint-disable no-console */
 console.log("view.js");
 /* eslint-enable no-console */
+
+// App
+
 class EventDispatcher {
 	constructor() {
 		this.listeners = {};
@@ -287,46 +290,6 @@ class CounterInstance {
 	}
 }
 
-// WooCommerce
-
-function addProductToCart(productId, quantity) {
-	console.log(`Adding product ${productId} to the cart`);
-	jQuery.ajax({
-		url: ajaxurl,
-		method: "POST",
-		data: {
-			action: "add_to_cart_request",
-			product_id: productId,
-			quantity: quantity,
-		},
-		success: function (data) {
-			console.log(data);
-		},
-		error: function (errorThrown) {
-			window.alert(errorThrown);
-		},
-	});
-}
-
-function removeProductFromCart(productId, quantity) {
-	console.log(`Removing product ${productId} from the cart`);
-	jQuery.ajax({
-		url: ajaxurl,
-		method: "POST",
-		data: {
-			action: "remove_from_cart_request",
-			product_id: productId,
-			quantity: quantity,
-		},
-		success: function (data) {
-			console.log(data);
-		},
-		error: function (errorThrown) {
-			window.alert(errorThrown);
-		},
-	});
-}
-
 // Initialise
 
 GlobalCounterBox.initialize("globalCounterWrapper");
@@ -415,7 +378,47 @@ initializeCounterInstances(controllerA, "group_a", groupAInstances);
 const controllerB = new Controller("group_b");
 initializeCounterInstances(controllerB, "group_b", groupBInstances);
 
-// api-fetch
+// WooCommerce AJAX
+
+function addProductToCart(productId, quantity) {
+	console.log(`Adding product ${productId} to the cart`);
+	jQuery.ajax({
+		url: ajaxurl,
+		method: "POST",
+		data: {
+			action: "add_to_cart_request",
+			product_id: productId,
+			quantity: quantity,
+		},
+		success: function (data) {
+			console.log(data);
+		},
+		error: function (errorThrown) {
+			window.alert(errorThrown);
+		},
+	});
+}
+
+function removeProductFromCart(productId, quantity) {
+	console.log(`Removing product ${productId} from the cart`);
+	jQuery.ajax({
+		url: ajaxurl,
+		method: "POST",
+		data: {
+			action: "remove_from_cart_request",
+			product_id: productId,
+			quantity: quantity,
+		},
+		success: function (data) {
+			console.log(data);
+		},
+		error: function (errorThrown) {
+			window.alert(errorThrown);
+		},
+	});
+}
+
+// @wordpress/api-fetch
 
 import apiFetch from "@wordpress/api-fetch";
 
@@ -449,27 +452,18 @@ getItemQuantityById(36).then((quantity) => {
 	console.log(`Quantity of item 36:`, quantity);
 });
 
-// Importing specific exports from test.js
+// Importing from view-module.js
 import { myVariable, myFunction } from "./view-module.js";
 
-console.log(myVariable); // Outputs: Hello World
-myFunction(); // Outputs: Function called
+console.log(myVariable); 
+myFunction(); 
 
-import domReady from "@wordpress/dom-ready";
-import { render } from "@wordpress/element";
-import { addQueryArgs } from "@wordpress/url";
+// REACT App, @wordpress/element
 
-// domReady(function () {
-//     const queryParams = { include: [47, 48] }; // Return posts with ID = 1,2,3.
-// 	apiFetch({ path: addQueryArgs("/wp/v2/pages", queryParams) }).then(
-// 		(posts) => {
-// 			console.log(posts);
-// 		},
-// 	);
-// });
+// import { render } from "@wordpress/element";
+// import domReady from "@wordpress/dom-ready";
 
 // const App = () => <div>REACT</div>;
-
 // domReady(function () {
 //     console.log("dom ready");
 //     const container = document.querySelector("#app");
