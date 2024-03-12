@@ -4,6 +4,8 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
  */
 import { registerBlockType } from '@wordpress/blocks';
+import { v4 as uuidv4 } from 'uuid';
+
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.

@@ -121,9 +121,9 @@ const App = () => {
 		1: {
 			min: 0,
 			max: 10,
-			color: "#22be78",
+			color: "#dac7c1",
 			counterValue: 0,
-			imageUrl: "/wp-content/uploads/2024/03/rd-green.jpg",
+			imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 10.99,
@@ -131,9 +131,9 @@ const App = () => {
 		2: {
 			min: 0,
 			max: 10,
-			color: "#7d63e5",
+			color: "#f29891",
 			counterValue: 0,
-			imageUrl: "/wp-content/uploads/2024/03/rd-vio.jpg",
+			imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 11.99,
@@ -141,9 +141,9 @@ const App = () => {
 		3: {
 			min: 0,
 			max: 10,
-			color: "#e0a84f",
+			color: "#5467ac",
 			counterValue: 0,
-			imageUrl: "/wp-content/uploads/2024/03/rd-gold.jpg",
+			imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 12.99,
@@ -151,9 +151,9 @@ const App = () => {
 		4: {
 			min: 0,
 			max: 10,
-			color: "#eb75a8",
+			color: "#2b6486",
 			counterValue: 0,
-			imageUrl: "/wp-content/uploads/2024/03/rd-pink.jpg",
+			imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 13.99,
@@ -198,8 +198,8 @@ const App = () => {
 
 	return (
 		<EventContextProvider>
-			<div>
-				<div style={{ marginTop: "20px", textAlign: "center" }}>
+			<div style={{padding: "0 0 3em 0"}}>
+				<div style={{ margin: "20px 0", textAlign: "center" }}>
 					<img
 						src={counters[activeCounterId].imageUrl}
 						alt="Active Counter"

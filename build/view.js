@@ -209,36 +209,36 @@ const App = () => {
     1: {
       min: 0,
       max: 10,
-      color: "#22be78",
+      color: "#dac7c1",
       counterValue: 0,
-      imageUrl: "/wp-content/uploads/2024/03/rd-green.jpg",
+      imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
       productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
       price: 10.99
     },
     2: {
       min: 0,
       max: 10,
-      color: "#7d63e5",
+      color: "#f29891",
       counterValue: 0,
-      imageUrl: "/wp-content/uploads/2024/03/rd-vio.jpg",
+      imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
       productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
       price: 11.99
     },
     3: {
       min: 0,
       max: 10,
-      color: "#e0a84f",
+      color: "#5467ac",
       counterValue: 0,
-      imageUrl: "/wp-content/uploads/2024/03/rd-gold.jpg",
+      imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
       productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
       price: 12.99
     },
     4: {
       min: 0,
       max: 10,
-      color: "#eb75a8",
+      color: "#2b6486",
       counterValue: 0,
-      imageUrl: "/wp-content/uploads/2024/03/rd-pink.jpg",
+      imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
       productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
       price: 13.99
     }
@@ -269,9 +269,13 @@ const App = () => {
       }
     }));
   };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventContextProvider, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventContextProvider, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     style: {
-      marginTop: "20px",
+      padding: "0 0 3em 0"
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      margin: "20px 0",
       textAlign: "center"
     }
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
