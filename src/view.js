@@ -84,82 +84,196 @@ const EventContextProvider = ({ children }) => {
 };
 
 // CounterBoxComponent.js
-const CounterBoxComponent = ({ min, max, color, productId, isActive, onActiveChange }) => {
-    const [counterValue, setCounterValue] = useState(0);
-    const { emitEvent } = useEventContext();
-
-    const handleIncrement = () => {
-        if (isActive && counterValue < max) {
-            setCounterValue((prev) => prev + 1);
-            emitEvent('counterChanged', { productId, change: 1 });
-        }
-    };
-
-    const handleDecrement = () => {
-        if (isActive && counterValue > min) {
-            setCounterValue((prev) => prev - 1);
-            emitEvent('counterChanged', { productId, change: -1 });
-        }
-    };
-
-    return (
-        <div style={{ padding: '10px', margin: '5px', border: isActive ? '2px solid blue' : 'none' }}>
-            <input 
-                type="radio" 
-                name="counterGroup" 
-                checked={isActive} 
-                onChange={() => onActiveChange(productId)} 
-                id={`counter-${productId}`} 
-            />
-            <label htmlFor={`counter-${productId}`} style={{ backgroundColor: color }}>
-                Counter {productId}: {counterValue}
-            </label>
-            <button onClick={handleDecrement}>-</button>
-            <button onClick={handleIncrement}>+</button>
-        </div>
-    );
+const CounterBoxComponent = ({
+	color,
+	productId,
+	counterValue,
+	isActive,
+	onActiveChange,
+}) => {
+	return (
+		<div
+			style={{
+				padding: "10px",
+				margin: "5px",
+				border: isActive ? "2px solid blue" : "none",
+				backgroundColor: color,
+				color: "#ffffff",
+			}}
+		>
+			<input
+				type="radio"
+				name="counterGroup"
+				checked={isActive}
+				onChange={() => onActiveChange(productId)}
+				id={`counter-${productId}`}
+			/>
+			<label htmlFor={`counter-${productId}`} style={{}}>
+				{counterValue}
+			</label>
+		</div>
+	);
 };
 
 // App component
 const App = () => {
-	const [activeProductId, setActiveProductId] = useState("1");
+	const initialCounters = {
+		1: {
+			min: 0,
+			max: 10,
+			color: "#22be78",
+			counterValue: 0,
+			imageUrl: "/wp-content/uploads/2024/03/rd-green.jpg",
+			productDescription:
+				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+			price: 10.99,
+		},
+		2: {
+			min: 0,
+			max: 10,
+			color: "#7d63e5",
+			counterValue: 0,
+			imageUrl: "/wp-content/uploads/2024/03/rd-vio.jpg",
+			productDescription:
+				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+			price: 11.99,
+		},
+		3: {
+			min: 0,
+			max: 10,
+			color: "#e0a84f",
+			counterValue: 0,
+			imageUrl: "/wp-content/uploads/2024/03/rd-gold.jpg",
+			productDescription:
+				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+			price: 12.99,
+		},
+		4: {
+			min: 0,
+			max: 10,
+			color: "#eb75a8",
+			counterValue: 0,
+			imageUrl: "/wp-content/uploads/2024/03/rd-pink.jpg",
+			productDescription:
+				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+			price: 13.99,
+		},
+		// Add more counters as needed
+	};
 
-    const handleActiveChange = (productId) => {
-        setActiveProductId(productId);
-    };
+	const [counters, setCounters] = useState(initialCounters);
+	const [activeCounterId, setActiveCounterId] = useState("1");
 
-    return (
-        <EventContextProvider>
-            <div>
-                <h1>Counter Group</h1>
-                <CounterBoxComponent 
-                    min={0} 
-                    max={10} 
-                    color="#e0e0e0" 
-                    productId="1" 
-                    isActive={activeProductId === "1"} 
-                    onActiveChange={handleActiveChange} 
-                />
-                <CounterBoxComponent 
-                    min={0} 
-                    max={10} 
-                    color="#f0f0f0" 
-                    productId="2" 
-                    isActive={activeProductId === "2"} 
-                    onActiveChange={handleActiveChange} 
-                />
-                <CounterBoxComponent 
-                    min={0} 
-                    max={10} 
-                    color="#f0f0f0" 
-                    productId="3" 
-                    isActive={activeProductId === "3"} 
-                    onActiveChange={handleActiveChange} 
-                />
-                {/* Add more CounterBoxComponents as needed, ensuring to pass `isActive` and `onActiveChange` */}
-            </div>
-        </EventContextProvider>
-    );
+	const handleActiveChange = (productId) => {
+		setActiveCounterId(productId);
+	};
+
+	const handleIncrement = () => {
+		console.log("handleIncrement ", activeCounterId);
+		setCounters((prevCounters) => ({
+			...prevCounters,
+			[activeCounterId]: {
+				...prevCounters[activeCounterId],
+				counterValue: Math.min(
+					prevCounters[activeCounterId].counterValue + 1,
+					prevCounters[activeCounterId].max,
+				),
+			},
+		}));
+	};
+
+	const handleDecrement = () => {
+		console.log("handleDecrement ", activeCounterId);
+		setCounters((prevCounters) => ({
+			...prevCounters,
+			[activeCounterId]: {
+				...prevCounters[activeCounterId],
+				counterValue: Math.max(
+					prevCounters[activeCounterId].counterValue - 1,
+					prevCounters[activeCounterId].min,
+				),
+			},
+		}));
+	};
+
+	return (
+		<EventContextProvider>
+			<div>
+				<div style={{ marginTop: "20px", textAlign: "center" }}>
+					<img
+						src={counters[activeCounterId].imageUrl}
+						alt="Active Counter"
+						style={{ maxWidth: "auto", maxHeight: "300px" }}
+					/>
+				</div>
+				<div
+					style={{
+						display: "flex",
+						margin: "20px 0",
+						columnGap: "0.75em",
+						alignItems: "flex-start",
+					}}
+				>
+					<div
+						style={{
+							border: "1px",
+							borderColor: "grey",
+							borderStyle: "solid",
+							padding: "0.5em",
+						}}
+					>
+						{counters[activeCounterId].price}€
+					</div>
+					<div>{counters[activeCounterId].productDescription}</div>
+				</div>
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "center",
+						margin: "20px 0",
+					}}
+				>
+					{Object.keys(counters).map((id) => (
+						<CounterBoxComponent
+							key={id}
+							productId={id}
+							min={counters[id].min}
+							max={counters[id].max}
+							color={counters[id].color}
+							counterValue={counters[id].counterValue}
+							isActive={activeCounterId === id}
+							onActiveChange={handleActiveChange}
+						/>
+					))}
+				</div>
+				<p
+					style={{
+						textAlign: "center",
+						margin: "0",
+					}}
+				>
+					Select colour and quantity
+				</p>
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "center",
+						background: "#d7d7d7",
+						padding: "0.75em 1em",
+						width: "70%",
+						margin: "auto",
+						borderRadius: "8px",
+					}}
+				>
+					<button onClick={handleDecrement}>-</button>
+					<span style={{ margin: "0 10px" }}>
+						{counters[activeCounterId].counterValue}
+					</span>
+					<button onClick={handleIncrement}>+</button>
+				</div>
+			</div>
+		</EventContextProvider>
+	);
 };
 
 const container2 = document.querySelector("#app-1");

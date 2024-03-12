@@ -177,40 +177,19 @@ const EventContextProvider = ({
 
 // CounterBoxComponent.js
 const CounterBoxComponent = ({
-  min,
-  max,
   color,
   productId,
+  counterValue,
   isActive,
   onActiveChange
 }) => {
-  const [counterValue, setCounterValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
-  const {
-    emitEvent
-  } = useEventContext();
-  const handleIncrement = () => {
-    if (isActive && counterValue < max) {
-      setCounterValue(prev => prev + 1);
-      emitEvent('counterChanged', {
-        productId,
-        change: 1
-      });
-    }
-  };
-  const handleDecrement = () => {
-    if (isActive && counterValue > min) {
-      setCounterValue(prev => prev - 1);
-      emitEvent('counterChanged', {
-        productId,
-        change: -1
-      });
-    }
-  };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     style: {
-      padding: '10px',
-      margin: '5px',
-      border: isActive ? '2px solid blue' : 'none'
+      padding: "10px",
+      margin: "5px",
+      border: isActive ? "2px solid blue" : "none",
+      backgroundColor: color,
+      color: "#ffffff"
     }
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
     type: "radio",
@@ -220,44 +199,141 @@ const CounterBoxComponent = ({
     id: `counter-${productId}`
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
     htmlFor: `counter-${productId}`,
-    style: {
-      backgroundColor: color
-    }
-  }, "Counter ", productId, ": ", counterValue), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    onClick: handleDecrement
-  }, "-"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    onClick: handleIncrement
-  }, "+"));
+    style: {}
+  }, counterValue));
 };
 
 // App component
 const App = () => {
-  const [activeProductId, setActiveProductId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("1");
-  const handleActiveChange = productId => {
-    setActiveProductId(productId);
+  const initialCounters = {
+    1: {
+      min: 0,
+      max: 10,
+      color: "#22be78",
+      counterValue: 0,
+      imageUrl: "/wp-content/uploads/2024/03/rd-green.jpg",
+      productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+      price: 10.99
+    },
+    2: {
+      min: 0,
+      max: 10,
+      color: "#7d63e5",
+      counterValue: 0,
+      imageUrl: "/wp-content/uploads/2024/03/rd-vio.jpg",
+      productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+      price: 11.99
+    },
+    3: {
+      min: 0,
+      max: 10,
+      color: "#e0a84f",
+      counterValue: 0,
+      imageUrl: "/wp-content/uploads/2024/03/rd-gold.jpg",
+      productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+      price: 12.99
+    },
+    4: {
+      min: 0,
+      max: 10,
+      color: "#eb75a8",
+      counterValue: 0,
+      imageUrl: "/wp-content/uploads/2024/03/rd-pink.jpg",
+      productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+      price: 13.99
+    }
+    // Add more counters as needed
   };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventContextProvider, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h1", null, "Counter Group"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CounterBoxComponent, {
-    min: 0,
-    max: 10,
-    color: "#e0e0e0",
-    productId: "1",
-    isActive: activeProductId === "1",
+  const [counters, setCounters] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialCounters);
+  const [activeCounterId, setActiveCounterId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("1");
+  const handleActiveChange = productId => {
+    setActiveCounterId(productId);
+  };
+  const handleIncrement = () => {
+    console.log("handleIncrement ", activeCounterId);
+    setCounters(prevCounters => ({
+      ...prevCounters,
+      [activeCounterId]: {
+        ...prevCounters[activeCounterId],
+        counterValue: Math.min(prevCounters[activeCounterId].counterValue + 1, prevCounters[activeCounterId].max)
+      }
+    }));
+  };
+  const handleDecrement = () => {
+    console.log("handleDecrement ", activeCounterId);
+    setCounters(prevCounters => ({
+      ...prevCounters,
+      [activeCounterId]: {
+        ...prevCounters[activeCounterId],
+        counterValue: Math.max(prevCounters[activeCounterId].counterValue - 1, prevCounters[activeCounterId].min)
+      }
+    }));
+  };
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventContextProvider, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      marginTop: "20px",
+      textAlign: "center"
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+    src: counters[activeCounterId].imageUrl,
+    alt: "Active Counter",
+    style: {
+      maxWidth: "auto",
+      maxHeight: "300px"
+    }
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      display: "flex",
+      margin: "20px 0",
+      columnGap: "0.75em",
+      alignItems: "flex-start"
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      border: "1px",
+      borderColor: "grey",
+      borderStyle: "solid",
+      padding: "0.5em"
+    }
+  }, counters[activeCounterId].price, "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, counters[activeCounterId].productDescription)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      display: "flex",
+      justifyContent: "center",
+      margin: "20px 0"
+    }
+  }, Object.keys(counters).map(id => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CounterBoxComponent, {
+    key: id,
+    productId: id,
+    min: counters[id].min,
+    max: counters[id].max,
+    color: counters[id].color,
+    counterValue: counters[id].counterValue,
+    isActive: activeCounterId === id,
     onActiveChange: handleActiveChange
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CounterBoxComponent, {
-    min: 0,
-    max: 10,
-    color: "#f0f0f0",
-    productId: "2",
-    isActive: activeProductId === "2",
-    onActiveChange: handleActiveChange
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CounterBoxComponent, {
-    min: 0,
-    max: 10,
-    color: "#f0f0f0",
-    productId: "3",
-    isActive: activeProductId === "3",
-    onActiveChange: handleActiveChange
-  })));
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+    style: {
+      textAlign: "center",
+      margin: "0"
+    }
+  }, "Select colour and quantity"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      display: "flex",
+      justifyContent: "center",
+      background: "#d7d7d7",
+      padding: "0.75em 1em",
+      width: "70%",
+      margin: "auto",
+      borderRadius: "8px"
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: handleDecrement
+  }, "-"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    style: {
+      margin: "0 10px"
+    }
+  }, counters[activeCounterId].counterValue), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: handleIncrement
+  }, "+"))));
 };
 const container2 = document.querySelector("#app-1");
 (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.render)((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(App, null), container2);

@@ -20,5 +20,8 @@
 		"@wordpress/scripts": "^27.4.0",
 		"browser-sync": "^3.0.2",
 		"concurrently": "^8.2.2"
+	},
+	"dependencies": {
+		"uuid": "^9.0.1"
 	}
 }
