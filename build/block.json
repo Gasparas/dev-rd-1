@@ -10,7 +10,7 @@
   "example": {},
   "supports": {
     "html": false,
-    "multiple": false
+    "multiple": true
   },
   "textdomain": "rd-shop-product",
   "editorScript": "file:./index.js",

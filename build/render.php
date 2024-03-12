@@ -4,7 +4,7 @@
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
  */
 ?>
-<div id="app">
+<!-- <div id="app-1">
 	<div id="globalCounterWrapper"></div>
 	<br>
 	<div id="group_a" class="rd-shop-wrapper">
@@ -18,4 +18,7 @@
 			<img src="/wp-content/uploads/2024/02/61pcyODhE4L._AC_SL1500_.jpg" alt="">
 		</div>
 	</div>
-</div>
+</div> -->
+
+<div id="app-1">
+<div id="app-2">
