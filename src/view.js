@@ -102,6 +102,7 @@ const CounterBoxComponent = ({
 			}}
 		>
 			<input
+				style={{ cursor: "pointer" }}
 				type="radio"
 				name="counterGroup"
 				checked={isActive}
@@ -109,40 +110,37 @@ const CounterBoxComponent = ({
 				id={`counter-${productId}`}
 			/>
 			<label htmlFor={`counter-${productId}`} style={{}}>
-				{counterValue}
+				{counterValue ? counterValue : ""}
 			</label>
 		</div>
 	);
 };
 
 const ProgressBar = ({ totalCounterValue }) => {
-	const progressPercentage = ((totalCounterValue - 0) / (7 - 1)) * 100;
+	const steps = [3, 6, 9, 12, 15];
+	const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
 
-	// Correctly define the steps here within the component
-	// Assuming there are 7 steps (0 to 6)
-	const steps = Array.from({ length: 7 }, (_, index) => index);
+	const progressPercentage = (totalCounterValue / maxStepValue) * 100;
 
 	return (
 		<div className="progress-container">
-            <div
-                className="progress-bar"
-                style={{ width: `${progressPercentage}%` }}
-            ></div>
-            {steps.map((step, index) => { // Correctly include 'index' here as the second parameter
-                const leftPercentage = (step / (steps.length - 1)) * 100;
-                return (
-                    <div
-                        key={step}
-                        className="step-marker"
-                        style={{
-                            left: `${leftPercentage}%`,
-                            // Conditionally set visibility to hide the first and last steps
-                            visibility: index === 0 || index === steps.length - 1 ? 'hidden' : 'visible',
-                        }}
-                    ></div>
-                );
-            })}
-        </div>
+			<div
+				className="progress-bar"
+				style={{ width: `${progressPercentage}%` }}
+			></div>
+			{steps.map((step) => {
+				const leftPercentage = (step / maxStepValue) * 100; // Correct calculation for leftPercentage
+				return (
+					<div
+						key={step}
+						className="step-marker"
+						style={{
+							left: `${leftPercentage}%`,
+						}}
+					></div>
+				);
+			})}
+		</div>
 	);
 };
 
@@ -151,47 +149,43 @@ const App = () => {
 	const initialCounters = {
 		1: {
 			min: 0,
-			max: 10,
-			color: "#dac7c1",
+			max: 20,
+			color: "#deb0a1",
 			counterValue: 0,
-			imageUrl:
-				"https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
+			imageUrl: "/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
-			price: 10.99,
+			price: 8.89,
 		},
 		2: {
 			min: 0,
-			max: 10,
+			max: 20,
 			color: "#f29891",
 			counterValue: 0,
-			imageUrl:
-				"https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
+			imageUrl: "/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
-			price: 11.99,
+			price: 8.89,
 		},
 		3: {
 			min: 0,
-			max: 10,
+			max: 20,
 			color: "#5467ac",
 			counterValue: 0,
-			imageUrl:
-				"https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
+			imageUrl: "/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
-			price: 12.99,
+			price: 8.89,
 		},
 		4: {
 			min: 0,
-			max: 10,
+			max: 20,
 			color: "#2b6486",
 			counterValue: 0,
-			imageUrl:
-				"https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
+			imageUrl: "/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
-			price: 13.99,
+			price: 8.89,
 		},
 		// Add more counters as needed
 	};
@@ -199,9 +193,13 @@ const App = () => {
 	const [counters, setCounters] = useState(initialCounters);
 	const [activeCounterId, setActiveCounterId] = useState("1");
 
-	const totalCounterValue = Object.values(counters).reduce(
-		(total, counter) => total + counter.counterValue,
-		0,
+	const totalValues = Object.values(counters).reduce(
+		(acc, counter) => {
+			acc.totalCounterValue += counter.counterValue;
+			acc.totalPrice += counter.counterValue * counter.price;
+			return acc;
+		},
+		{ totalCounterValue: 0, totalPrice: 0 },
 	);
 
 	const handleActiveChange = (productId) => {
@@ -239,10 +237,66 @@ const App = () => {
 	return (
 		<EventContextProvider>
 			<div style={{ padding: "0 0 3em 0" }}>
-				<ProgressBar totalCounterValue={totalCounterValue}></ProgressBar>
-				<div style={{ marginTop: "20px" }}>
-					<strong>Total Counters Value: {totalCounterValue}</strong>
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						borderRadius: "4px",
+						alignItems: "center",
+						height: "",
+						background: "#0092FB",
+						padding: "0.5em 1em 2em 1em",
+					}}
+				>
+					<div style={{ margin: "10px 0", color: "#fff" }}>
+						Buy more & save more
+					</div>
+					<ProgressBar
+						totalCounterValue={totalValues.totalCounterValue}
+					></ProgressBar>
 				</div>
+				<div
+					style={{
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "space-around",
+						color: "#ffffff",
+						background: "#0092FB",
+						margin: "10px 0",
+						padding: "0.5em",
+						borderRadius: "4px",
+					}}
+				>
+					<div>{totalValues.totalPrice.toFixed(2)}€</div>
+					<div
+						style={{
+							background: "#ffffff",
+							color: "#000000",
+							padding: "0.2em",
+							borderRadius: "4px",
+						}}
+					>
+						-00% OFF
+					</div>
+					<div style={{ display: "flex", columnGap: "0.5em" }}>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "center",
+								background: "#ffffff",
+								color: "#000",
+								borderRadius: "50%",
+								width: "27px",
+								height: "auto",
+							}}
+						>
+							<span>{totalValues.totalCounterValue}</span>
+						</div>
+						<div>View Order</div>
+					</div>
+				</div>
+				<div style={{ marginTop: "20px" }}></div>
+				<div style={{ marginTop: "20px" }}></div>
 				<div style={{ margin: "20px 0", textAlign: "center" }}>
 					<img
 						src={counters[activeCounterId].imageUrl}
@@ -253,7 +307,7 @@ const App = () => {
 				<div
 					style={{
 						display: "flex",
-						margin: "20px 0",
+						margin: "10px 0",
 						columnGap: "0.75em",
 						alignItems: "flex-start",
 					}}
@@ -268,13 +322,15 @@ const App = () => {
 					>
 						{counters[activeCounterId].price}€
 					</div>
-					<div>{counters[activeCounterId].productDescription}</div>
+					<div style={{ fontSize: "14px" }}>
+						{counters[activeCounterId].productDescription}
+					</div>
 				</div>
 				<div
 					style={{
 						display: "flex",
 						justifyContent: "center",
-						margin: "20px 0",
+						margin: "10px 0 0 0",
 					}}
 				>
 					{Object.keys(counters).map((id) => (
@@ -293,7 +349,7 @@ const App = () => {
 				<p
 					style={{
 						textAlign: "center",
-						margin: "0",
+						margin: "5px 0",
 					}}
 				>
 					Select colour and quantity
@@ -304,16 +360,28 @@ const App = () => {
 						justifyContent: "center",
 						background: "#d7d7d7",
 						padding: "0.75em 1em",
-						width: "70%",
+						width: "200px",
 						margin: "auto",
 						borderRadius: "8px",
 					}}
 				>
-					<button onClick={handleDecrement}>-</button>
+					<button
+						style={{ cursor: "pointer", height: "30px", width: "30px" }}
+						onClick={handleDecrement}
+					>
+						-
+					</button>
 					<span style={{ margin: "0 10px" }}>
-						{counters[activeCounterId].counterValue}
+						{counters[activeCounterId].counterValue > 0
+							? counters[activeCounterId].counterValue
+							: ""}
 					</span>
-					<button onClick={handleIncrement}>+</button>
+					<button
+						style={{ cursor: "pointer", height: "30px", width: "30px" }}
+						onClick={handleIncrement}
+					>
+						+
+					</button>
 				</div>
 			</div>
 		</EventContextProvider>
