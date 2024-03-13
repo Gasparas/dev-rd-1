@@ -202,6 +202,37 @@ const CounterBoxComponent = ({
     style: {}
   }, counterValue));
 };
+const ProgressBar = ({
+  totalCounterValue
+}) => {
+  const progressPercentage = (totalCounterValue - 0) / (7 - 1) * 100;
+
+  // Correctly define the steps here within the component
+  // Assuming there are 7 steps (0 to 6)
+  const steps = Array.from({
+    length: 7
+  }, (_, index) => index);
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "progress-container"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "progress-bar",
+    style: {
+      width: `${progressPercentage}%`
+    }
+  }), steps.map((step, index) => {
+    // Correctly include 'index' here as the second parameter
+    const leftPercentage = step / (steps.length - 1) * 100;
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      key: step,
+      className: "step-marker",
+      style: {
+        left: `${leftPercentage}%`,
+        // Conditionally set visibility to hide the first and last steps
+        visibility: index === 0 || index === steps.length - 1 ? 'hidden' : 'visible'
+      }
+    });
+  }));
+};
 
 // App component
 const App = () => {
@@ -246,6 +277,7 @@ const App = () => {
   };
   const [counters, setCounters] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialCounters);
   const [activeCounterId, setActiveCounterId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("1");
+  const totalCounterValue = Object.values(counters).reduce((total, counter) => total + counter.counterValue, 0);
   const handleActiveChange = productId => {
     setActiveCounterId(productId);
   };
@@ -273,7 +305,13 @@ const App = () => {
     style: {
       padding: "0 0 3em 0"
     }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProgressBar, {
+    totalCounterValue: totalCounterValue
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      marginTop: "20px"
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("strong", null, "Total Counters Value: ", totalCounterValue)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     style: {
       margin: "20px 0",
       textAlign: "center"

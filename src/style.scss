@@ -6,8 +6,34 @@
  */
 
 
+ .progress-container {
+	position: relative;
+	width: 100%;
+	height: 7px;
+	background-color: #e0e0e0;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.progress-bar {
+	height: 7px;
+	background-color: #ff91e2;
+	border-radius: 8px;
+}
+
+.step-marker {
+	position: absolute;
+	bottom: 0px;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background-color: #ff43cd;
+	transform: translateX(-50%);
+}
+
 main {
 	background-color: #ffffff;
+	padding: "";
 }
 
 .wp-block-create-block-rd-shop-product {
@@ -23,7 +49,7 @@ main {
 	align-items: center;
 }
 
-.rd-shop-wrapper>* {
+.rd-shop-wrapper > * {
 	margin: 0 0.5em;
 }
 
@@ -45,9 +71,9 @@ main {
 	margin: 0 0 1em 0;
 }
 
-// 
-// 
-// 
+//
+//
+//
 
 .radio-container {
 	display: flex;
@@ -75,9 +101,9 @@ main {
 	color: #ffffff;
 }
 
-.radio-button:checked+.radio-label {
+.radio-button:checked + .radio-label {
 	box-shadow: 0 0 0pt 2pt #0394ff;
-	background-color: #4CAF50;
+	background-color: #4caf50;
 	border: 3px solid #ffffff;
 	// border-spacing: 4px 2px;
 	color: white;
@@ -101,7 +127,8 @@ main {
 	border-width: 0;
 	color: #333333;
 	// cursor: pointer;
-	font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial,
+		sans-serif;
 	font-size: 14px;
 	font-weight: 500;
 	line-height: 20px;

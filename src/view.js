@@ -115,6 +115,37 @@ const CounterBoxComponent = ({
 	);
 };
 
+const ProgressBar = ({ totalCounterValue }) => {
+	const progressPercentage = ((totalCounterValue - 0) / (7 - 1)) * 100;
+
+	// Correctly define the steps here within the component
+	// Assuming there are 7 steps (0 to 6)
+	const steps = Array.from({ length: 7 }, (_, index) => index);
+
+	return (
+		<div className="progress-container">
+            <div
+                className="progress-bar"
+                style={{ width: `${progressPercentage}%` }}
+            ></div>
+            {steps.map((step, index) => { // Correctly include 'index' here as the second parameter
+                const leftPercentage = (step / (steps.length - 1)) * 100;
+                return (
+                    <div
+                        key={step}
+                        className="step-marker"
+                        style={{
+                            left: `${leftPercentage}%`,
+                            // Conditionally set visibility to hide the first and last steps
+                            visibility: index === 0 || index === steps.length - 1 ? 'hidden' : 'visible',
+                        }}
+                    ></div>
+                );
+            })}
+        </div>
+	);
+};
+
 // App component
 const App = () => {
 	const initialCounters = {
@@ -123,7 +154,8 @@ const App = () => {
 			max: 10,
 			color: "#dac7c1",
 			counterValue: 0,
-			imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
+			imageUrl:
+				"https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 10.99,
@@ -133,7 +165,8 @@ const App = () => {
 			max: 10,
 			color: "#f29891",
 			counterValue: 0,
-			imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
+			imageUrl:
+				"https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 11.99,
@@ -143,7 +176,8 @@ const App = () => {
 			max: 10,
 			color: "#5467ac",
 			counterValue: 0,
-			imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
+			imageUrl:
+				"https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 12.99,
@@ -153,7 +187,8 @@ const App = () => {
 			max: 10,
 			color: "#2b6486",
 			counterValue: 0,
-			imageUrl: "https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
+			imageUrl:
+				"https://shop-royaldenta-lt-staging.local/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 13.99,
@@ -163,6 +198,11 @@ const App = () => {
 
 	const [counters, setCounters] = useState(initialCounters);
 	const [activeCounterId, setActiveCounterId] = useState("1");
+
+	const totalCounterValue = Object.values(counters).reduce(
+		(total, counter) => total + counter.counterValue,
+		0,
+	);
 
 	const handleActiveChange = (productId) => {
 		setActiveCounterId(productId);
@@ -198,7 +238,11 @@ const App = () => {
 
 	return (
 		<EventContextProvider>
-			<div style={{padding: "0 0 3em 0"}}>
+			<div style={{ padding: "0 0 3em 0" }}>
+				<ProgressBar totalCounterValue={totalCounterValue}></ProgressBar>
+				<div style={{ marginTop: "20px" }}>
+					<strong>Total Counters Value: {totalCounterValue}</strong>
+				</div>
 				<div style={{ margin: "20px 0", textAlign: "center" }}>
 					<img
 						src={counters[activeCounterId].imageUrl}
