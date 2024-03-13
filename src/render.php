@@ -3,22 +3,10 @@
 /**
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
  */
-?>
-<!-- <div id="app-1">
-	<div id="globalCounterWrapper"></div>
-	<br>
-	<div id="group_a" class="rd-shop-wrapper">
-		<div class="image-container">
-			<img src="/wp-content/uploads/2024/02/61pcyODhE4L._AC_SL1500_.jpg" alt="">
-		</div>
-	</div>
-	<br>
-	<div id="group_b" class="rd-shop-wrapper">
-		<div class="image-container">
-			<img src="/wp-content/uploads/2024/02/61pcyODhE4L._AC_SL1500_.jpg" alt="">
-		</div>
-	</div>
-</div> -->
 
-<div id="app-1">
-<div id="app-2">
+$unique_id = wp_unique_id('app-id-');
+?>
+
+<div id="<?php echo esc_attr($unique_id); ?>" class="app-container">
+	<?php echo esc_attr($unique_id); ?>
+</div>

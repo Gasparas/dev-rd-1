@@ -46,6 +46,7 @@ console.log("view.js");
 // };
 
 import {
+	createRoot,
 	render,
 	createContext,
 	useContext,
@@ -388,5 +389,24 @@ const App = () => {
 	);
 };
 
-const container2 = document.querySelector("#app-1");
-render(<App />, container2);
+// const container2 = document.querySelector("#app-1");
+// render(<App />, container2);
+// const containers = document.querySelectorAll('.app-container');
+
+// Define your component
+const App2 = ({ containerId }) => {
+	return (
+		<>
+			<p>Container ID: {containerId}</p>
+		</>
+	);
+};
+
+// Select all containers
+const containers = document.querySelectorAll(".app-container");
+
+// Render a React component to each container
+containers.forEach((container) => {
+	const root = createRoot(container); // Create a root for each container
+	root.render(<App2 containerId={container.id} />); // Render the App component to this container
+});

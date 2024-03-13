@@ -447,8 +447,28 @@ const App = () => {
     onClick: handleIncrement
   }, "+"))));
 };
-const container2 = document.querySelector("#app-1");
-(0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.render)((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(App, null), container2);
+
+// const container2 = document.querySelector("#app-1");
+// render(<App />, container2);
+// const containers = document.querySelectorAll('.app-container');
+
+// Define your component
+const App2 = ({
+  containerId
+}) => {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Container ID: ", containerId));
+};
+
+// Select all containers
+const containers = document.querySelectorAll(".app-container");
+
+// Render a React component to each container
+containers.forEach(container => {
+  const root = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createRoot)(container); // Create a root for each container
+  root.render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(App2, {
+    containerId: container.id
+  })); // Render the App component to this container
+});
 })();
 
 /******/ })()
