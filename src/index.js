@@ -31,8 +31,8 @@ registerBlockType( metadata.name, {
 
 	attributes: {
         productId: {
-            type: 'number',
-            default: 0,
+            type: 'string',
+            default: 'Product IDs',
         },
     },
 	

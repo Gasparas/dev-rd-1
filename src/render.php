@@ -5,41 +5,57 @@
  */
 
 $react_unique_id = wp_unique_id('app-id-');
-$product_id = $attributes['productId'];
-$product = wc_get_product($product_id);
+$product_ids_string = $attributes['productId']; // Assuming this is a string like "36,32,27"
+$product_ids = explode(',', $product_ids_string); // Convert the string to an array of IDs
+$products_data = []; // Initialize an array to hold the data for all products
 
-if (!$product) {
-	echo '<div>Product not found.</div>';
-	return;
-} else {
-	// Retrieve the global 'color' attribute.
-	$color_terms = wc_get_product_terms($product->get_id(), 'pa_color', array('fields' => 'names'));
-	// If there are any color terms assigned to the product, implode them into a string.
-	$color = !empty($color_terms) ? implode(', ', $color_terms) : '';
-	// Assuming $product is an instance of WC_Product
-	$featured_image_id = $product->get_image_id(); // ID of the featured image
-	$gallery_image_ids = $product->get_gallery_image_ids(); // IDs of gallery images
-	// Check if there is a featured image and prepend it to the gallery image IDs array
-	if ($featured_image_id) {
-		array_unshift($gallery_image_ids, $featured_image_id);
+foreach ($product_ids as $product_id) {
+	$product = wc_get_product(trim($product_id)); // Use trim to remove any whitespace from the ID
+
+	if (!$product) {
+		// Handle the case where a product is not found. For simplicity, continue to the next product ID.
+		continue;
 	}
-	// Convert image IDs to URLs
+
+	// Retrieve product details
+	$color_terms = wc_get_product_terms($product->get_id(), 'pa_color', array('fields' => 'names'));
+	$color = !empty($color_terms) ? implode(', ', $color_terms) : '';
+
+	// Get the image URLs
+	$featured_image_id = $product->get_image_id();
+	$gallery_image_ids = $product->get_gallery_image_ids();
+	if ($featured_image_id) {
+		array_unshift($gallery_image_ids, $featured_image_id); // Prepend the featured image ID
+	}
+
 	$image_urls = array_map(function ($id) {
 		return wp_get_attachment_url($id);
-	}, $gallery_image_ids); // $gallery_image_ids now possibly includes the featured image ID at the start
+	}, $gallery_image_ids);
 
+	// Compile the product data
+	$product_data = [
+		'id' => $product_id,
+		'title' => $product->get_name(),
+		'price' => $product->get_price(),
+		'color' => $color,
+		'productDescription' => $product->get_description(),
+		'imageUrls' => $image_urls,
+		'min' => 0,
+		'max' => 20,
+		'counterValue' => 0,
+	];
+
+	// Append this product's data to the products data array
+	$products_data[] = $product_data;
 }
 
-$product_data = array(
-	'title' => $product->get_name(),
-	'price' => $product->get_price(),
-	'color' => $color,
-	'imageUrls' => $image_urls,
-);
-
 ?>
+<div id="app-1"></div>
+<script type="application/json" class="product-data">
+	<?php echo wp_json_encode($products_data); ?>
+</script>
 <div id="<?php echo esc_attr($react_unique_id); ?>" class="react-container">
-	<script type="application/json" class="product-data">
-		<?php echo wp_json_encode($product_data); ?>
-	</script>
+	<p>
+		react-container
+	</p>
 </div>

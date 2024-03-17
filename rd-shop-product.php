@@ -28,9 +28,6 @@ include_once('ajax.php');
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
 
-
-
-
 function rd_shop_product_rd_shop_product_block_init()
 {
 	register_block_type(

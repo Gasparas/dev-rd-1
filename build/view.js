@@ -184,12 +184,10 @@ const CounterBoxComponent = ({
   onActiveChange
 }) => {
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "radio-button-wrapper",
     style: {
-      padding: "10px",
-      margin: "5px",
       border: isActive ? "2px solid blue" : "none",
-      backgroundColor: color,
-      color: "#ffffff"
+      backgroundColor: color
     }
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
     style: {
@@ -232,7 +230,10 @@ const ProgressBar = ({
 };
 
 // App component
-const App = () => {
+const App1 = ({
+  containerId,
+  productData
+}) => {
   const initialCounters = {
     1: {
       min: 0,
@@ -305,104 +306,33 @@ const App = () => {
       }
     }));
   };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventContextProvider, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      padding: "0 0 3em 0"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      borderRadius: "4px",
-      alignItems: "center",
-      height: "",
-      background: "#0092FB",
-      padding: "0.5em 1em 2em 1em"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      margin: "10px 0",
-      color: "#fff"
-    }
-  }, "Buy more & save more"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProgressBar, {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventContextProvider, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "progress-bar-wrapper"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProgressBar, {
     totalCounterValue: totalValues.totalCounterValue
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-around",
-      color: "#ffffff",
-      background: "#0092FB",
-      margin: "10px 0",
-      padding: "0.5em",
-      borderRadius: "4px"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, totalValues.totalPrice.toFixed(2), "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      background: "#ffffff",
-      color: "#000000",
-      padding: "0.2em",
-      borderRadius: "4px"
-    }
-  }, "-00% OFF"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      display: "flex",
-      columnGap: "0.5em"
-    }
+    className: "order-totals-wrapper"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      display: "flex",
-      justifyContent: "center",
-      background: "#ffffff",
-      color: "#000",
-      borderRadius: "50%",
-      width: "27px",
-      height: "auto"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, totalValues.totalCounterValue)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "View Order"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      marginTop: "20px"
-    }
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      marginTop: "20px"
-    }
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      margin: "20px 0",
-      textAlign: "center"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+    className: "order-value"
+  }, totalValues.totalPrice.toFixed(2), "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "order-discount"
+  }, "-00% OFF"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "order-items"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "count"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, totalValues.totalCounterValue)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "View Order"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
     src: counters[activeCounterId].imageUrls,
     alt: "Active Counter",
     style: {
       maxWidth: "auto",
-      maxHeight: "300px"
+      maxHeight: "60px"
     }
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      display: "flex",
-      margin: "10px 0",
-      columnGap: "0.75em",
-      alignItems: "flex-start"
-    }
+    className: "description-wrapper"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      border: "1px",
-      borderColor: "grey",
-      borderStyle: "solid",
-      padding: "0.5em"
-    }
-  }, counters[activeCounterId].price, "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      fontSize: "14px"
-    }
-  }, counters[activeCounterId].productDescription)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      display: "flex",
-      justifyContent: "center",
-      margin: "10px 0 0 0"
-    }
+    className: "price"
+  }, counters[activeCounterId].price, "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, counters[activeCounterId].productDescription)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "counters-wrapper"
   }, Object.keys(counters).map(id => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CounterBoxComponent, {
     key: id,
     productId: id,
@@ -412,46 +342,38 @@ const App = () => {
     counterValue: counters[id].counterValue,
     isActive: activeCounterId === id,
     onActiveChange: handleActiveChange
-  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
-    style: {
-      textAlign: "center",
-      margin: "5px 0"
-    }
-  }, "Select colour and quantity"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      display: "flex",
-      justifyContent: "center",
-      background: "#d7d7d7",
-      padding: "0.75em 1em",
-      width: "200px",
-      margin: "auto",
-      borderRadius: "8px"
-    }
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "increment-decrement-wrapper"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    style: {
-      cursor: "pointer",
-      height: "30px",
-      width: "30px"
-    },
     onClick: handleDecrement
-  }, "-"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
-    style: {
-      margin: "0 10px"
-    }
-  }, counters[activeCounterId].counterValue > 0 ? counters[activeCounterId].counterValue : ""), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    style: {
-      cursor: "pointer",
-      height: "30px",
-      width: "30px"
-    },
+  }, "-"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, counters[activeCounterId].counterValue > 0 ? counters[activeCounterId].counterValue : ""), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     onClick: handleIncrement
   }, "+"))));
 };
+document.addEventListener("DOMContentLoaded", () => {
+  // Assuming each .react-container is supposed to have a .product-data script associated with it
+  const containers = document.querySelectorAll(".react-container");
 
-// const container2 = document.querySelector("#app-1");
-// render(<App />, container2);
+  // Render a React component to each container
+  containers.forEach(container => {
+    // Attempt to find a .product-data script within the current container
+    const dataElement = container.querySelector(".product-data");
+    const productData = dataElement ? JSON.parse(dataElement.textContent) : null;
+    const root = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createRoot)(container); // Create a root for each container
+    // Pass both the containerId and productData to the App2 component
+    root.render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(App1, {
+      containerId: container.id,
+      productData: productData
+    }));
+  });
+});
+// const container = document.querySelector("#app-1");
+// render(<App1 />, container);
 
-// Define your component
+//
+// App2
+//
+
 const App2 = ({
   containerId,
   productData
@@ -483,23 +405,24 @@ const App2 = ({
     }
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Container ID: ", containerId), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ImageViewer, null), productData && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, productData.title), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Price: ", productData.price), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Color: ", productData.color), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Image: ", productData.imageUrls)));
 };
-document.addEventListener("DOMContentLoaded", () => {
-  // Assuming each .react-container is supposed to have a .product-data script associated with it
-  const containers = document.querySelectorAll(".react-container");
 
-  // Render a React component to each container
-  containers.forEach(container => {
-    // Attempt to find a .product-data script within the current container
-    const dataElement = container.querySelector(".product-data");
-    const productData = dataElement ? JSON.parse(dataElement.textContent) : null;
-    const root = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createRoot)(container); // Create a root for each container
-    // Pass both the containerId and productData to the App2 component
-    root.render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(App2, {
-      containerId: container.id,
-      productData: productData
-    }));
-  });
-});
+// document.addEventListener("DOMContentLoaded", () => {
+// 	// Assuming each .react-container is supposed to have a .product-data script associated with it
+// 	const containers = document.querySelectorAll(".react-container");
+
+// 	// Render a React component to each container
+// 	containers.forEach((container) => {
+// 		// Attempt to find a .product-data script within the current container
+// 		const dataElement = container.querySelector(".product-data");
+// 		const productData = dataElement
+// 			? JSON.parse(dataElement.textContent)
+// 			: null;
+
+// 		const root = createRoot(container); // Create a root for each container
+// 		// Pass both the containerId and productData to the App2 component
+// 		root.render(<App2 containerId={container.id} productData={productData} />);
+// 	});
+// });
 })();
 
 /******/ })()

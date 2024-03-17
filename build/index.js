@@ -58,7 +58,7 @@ function Edit({
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.PlainText, {
     value: attributes.productId.toString(),
     onChange: value => setAttributes({
-      productId: parseInt(value, 10) || 0
+      productId: value
     }),
     placeholder: "Enter Product ID"
   }));
@@ -109,8 +109,8 @@ __webpack_require__.r(__webpack_exports__);
 (0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__.registerBlockType)(_block_json__WEBPACK_IMPORTED_MODULE_3__.name, {
   attributes: {
     productId: {
-      type: 'number',
-      default: 0
+      type: 'string',
+      default: 'Product IDs'
     }
   },
   /**

@@ -34,9 +34,7 @@ export default function Edit({ attributes, setAttributes }) {
 		<div>
 			<PlainText
 				value={attributes.productId.toString()}
-				onChange={(value) =>
-					setAttributes({ productId: parseInt(value, 10) || 0 })
-				}
+				onChange={(value) => setAttributes({ productId: value })}
 				placeholder="Enter Product ID"
 			/>
 		</div>
