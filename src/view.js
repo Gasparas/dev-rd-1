@@ -153,7 +153,7 @@ const App = () => {
 			max: 20,
 			color: "#deb0a1",
 			counterValue: 0,
-			imageUrl: "/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
+			imageUrls: "/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 8.89,
@@ -163,7 +163,7 @@ const App = () => {
 			max: 20,
 			color: "#f29891",
 			counterValue: 0,
-			imageUrl: "/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
+			imageUrls: "/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 8.89,
@@ -173,7 +173,7 @@ const App = () => {
 			max: 20,
 			color: "#5467ac",
 			counterValue: 0,
-			imageUrl: "/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
+			imageUrls: "/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 8.89,
@@ -183,7 +183,7 @@ const App = () => {
 			max: 20,
 			color: "#2b6486",
 			counterValue: 0,
-			imageUrl: "/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
+			imageUrls: "/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
 			productDescription:
 				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
 			price: 8.89,
@@ -300,7 +300,7 @@ const App = () => {
 				<div style={{ marginTop: "20px" }}></div>
 				<div style={{ margin: "20px 0", textAlign: "center" }}>
 					<img
-						src={counters[activeCounterId].imageUrl}
+						src={counters[activeCounterId].imageUrls}
 						alt="Active Counter"
 						style={{ maxWidth: "auto", maxHeight: "300px" }}
 					/>
@@ -391,22 +391,91 @@ const App = () => {
 
 // const container2 = document.querySelector("#app-1");
 // render(<App />, container2);
-// const containers = document.querySelectorAll('.app-container');
 
 // Define your component
-const App2 = ({ containerId }) => {
+const App2 = ({ containerId, productData }) => {
+	const ImageZoom = () => {
+		return (
+			<div className="product-image-wrapper">
+				<img src={productData.imageUrls} alt="" className="product-image" />
+			</div>
+		);
+	};
+
+	const ImageViewer = () => {
+		const [selectedImage, setSelectedImage] = useState(
+			productData.imageUrls[0],
+		);
+
+		return (
+			<div style={{ display: "flex", justifyContent: "center", maxWidth: "100%", marginTop: "20px" }}>
+				<div
+					style={{
+						marginRight: "10px",
+						display: "flex",
+						flexDirection: "column",
+					}}
+				>
+					{productData.imageUrls.map((url, index) => (
+						<img
+							key={index}
+							src={url}
+							alt={`Thumbnail ${index}`}
+							style={{
+								width: "40px",
+								height: "auto",
+								marginBottom: "10px",
+								cursor: "pointer",
+								borderStyle: "solid",
+								borderWidth: "1px",
+								borderRadius: "4px"
+							}}
+							onClick={() => setSelectedImage(url)} // Click to change the image
+							onMouseEnter={() => setSelectedImage(url)} // Hover to change the image
+						/>
+					))}
+				</div>
+				<div >
+					<img
+						src={selectedImage}
+						alt="Selected"
+						style={{ maxWidth: "400px", width: "100%", height: "auto" }}
+					/>
+				</div>
+			</div>
+		);
+	};
+
 	return (
-		<>
+		<div style={{ background: "white", wordBreak: "break-all" }}>
 			<p>Container ID: {containerId}</p>
-		</>
+			<ImageViewer></ImageViewer>
+			{productData && (
+				<>
+					<h2>{productData.title}</h2>
+					<p>Price: {productData.price}</p>
+					<p>Color: {productData.color}</p>
+					<p>Image: {productData.imageUrls}</p>
+				</>
+			)}
+		</div>
 	);
 };
 
-// Select all containers
-const containers = document.querySelectorAll(".app-container");
+document.addEventListener("DOMContentLoaded", () => {
+	// Assuming each .react-container is supposed to have a .product-data script associated with it
+	const containers = document.querySelectorAll(".react-container");
 
-// Render a React component to each container
-containers.forEach((container) => {
-	const root = createRoot(container); // Create a root for each container
-	root.render(<App2 containerId={container.id} />); // Render the App component to this container
+	// Render a React component to each container
+	containers.forEach((container) => {
+		// Attempt to find a .product-data script within the current container
+		const dataElement = container.querySelector(".product-data");
+		const productData = dataElement
+			? JSON.parse(dataElement.textContent)
+			: null;
+
+		const root = createRoot(container); // Create a root for each container
+		// Pass both the containerId and productData to the App2 component
+		root.render(<App2 containerId={container.id} productData={productData} />);
+	});
 });

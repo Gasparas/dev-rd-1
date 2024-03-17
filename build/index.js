@@ -51,10 +51,17 @@ __webpack_require__.r(__webpack_exports__);
  *
  * @return {Element} Element to render.
  */
-function Edit() {
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
-    ...(0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)()
-  }, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Rd Shop Product – hello from the editor!', 'rd-shop-product'));
+function Edit({
+  attributes,
+  setAttributes
+}) {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.PlainText, {
+    value: attributes.productId.toString(),
+    onChange: value => setAttributes({
+      productId: parseInt(value, 10) || 0
+    }),
+    placeholder: "Enter Product ID"
+  }));
 }
 
 /***/ }),
@@ -100,6 +107,12 @@ __webpack_require__.r(__webpack_exports__);
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
  */
 (0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__.registerBlockType)(_block_json__WEBPACK_IMPORTED_MODULE_3__.name, {
+  attributes: {
+    productId: {
+      type: 'number',
+      default: 0
+    }
+  },
   /**
    * @see ./edit.js
    */

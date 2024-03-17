@@ -239,7 +239,7 @@ const App = () => {
       max: 20,
       color: "#deb0a1",
       counterValue: 0,
-      imageUrl: "/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
+      imageUrls: "/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
       productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
       price: 8.89
     },
@@ -248,7 +248,7 @@ const App = () => {
       max: 20,
       color: "#f29891",
       counterValue: 0,
-      imageUrl: "/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
+      imageUrls: "/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
       productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
       price: 8.89
     },
@@ -257,7 +257,7 @@ const App = () => {
       max: 20,
       color: "#5467ac",
       counterValue: 0,
-      imageUrl: "/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
+      imageUrls: "/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
       productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
       price: 8.89
     },
@@ -266,7 +266,7 @@ const App = () => {
       max: 20,
       color: "#2b6486",
       counterValue: 0,
-      imageUrl: "/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
+      imageUrls: "/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
       productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
       price: 8.89
     }
@@ -373,7 +373,7 @@ const App = () => {
       textAlign: "center"
     }
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-    src: counters[activeCounterId].imageUrl,
+    src: counters[activeCounterId].imageUrls,
     alt: "Active Counter",
     style: {
       maxWidth: "auto",
@@ -450,24 +450,85 @@ const App = () => {
 
 // const container2 = document.querySelector("#app-1");
 // render(<App />, container2);
-// const containers = document.querySelectorAll('.app-container');
 
 // Define your component
 const App2 = ({
-  containerId
+  containerId,
+  productData
 }) => {
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Container ID: ", containerId));
+  const ImageZoom = () => {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "product-image-wrapper"
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+      src: productData.imageUrls,
+      alt: "",
+      className: "product-image"
+    }));
+  };
+  const ImageViewer = () => {
+    const [selectedImage, setSelectedImage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(productData.imageUrls[0]);
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      style: {
+        display: "flex",
+        justifyContent: "center",
+        maxWidth: "100%",
+        marginTop: "20px"
+      }
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      style: {
+        marginRight: "10px",
+        display: "flex",
+        flexDirection: "column"
+      }
+    }, productData.imageUrls.map((url, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+      key: index,
+      src: url,
+      alt: `Thumbnail ${index}`,
+      style: {
+        width: "40px",
+        height: "auto",
+        marginBottom: "10px",
+        cursor: "pointer",
+        borderStyle: "solid",
+        borderWidth: "1px",
+        borderRadius: "4px"
+      },
+      onClick: () => setSelectedImage(url) // Click to change the image
+      ,
+      onMouseEnter: () => setSelectedImage(url) // Hover to change the image
+    }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+      src: selectedImage,
+      alt: "Selected",
+      style: {
+        maxWidth: "400px",
+        width: "100%",
+        height: "auto"
+      }
+    })));
+  };
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      background: "white",
+      wordBreak: "break-all"
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Container ID: ", containerId), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ImageViewer, null), productData && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, productData.title), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Price: ", productData.price), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Color: ", productData.color), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Image: ", productData.imageUrls)));
 };
+document.addEventListener("DOMContentLoaded", () => {
+  // Assuming each .react-container is supposed to have a .product-data script associated with it
+  const containers = document.querySelectorAll(".react-container");
 
-// Select all containers
-const containers = document.querySelectorAll(".app-container");
-
-// Render a React component to each container
-containers.forEach(container => {
-  const root = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createRoot)(container); // Create a root for each container
-  root.render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(App2, {
-    containerId: container.id
-  })); // Render the App component to this container
+  // Render a React component to each container
+  containers.forEach(container => {
+    // Attempt to find a .product-data script within the current container
+    const dataElement = container.querySelector(".product-data");
+    const productData = dataElement ? JSON.parse(dataElement.textContent) : null;
+    const root = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createRoot)(container); // Create a root for each container
+    // Pass both the containerId and productData to the App2 component
+    root.render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(App2, {
+      containerId: container.id,
+      productData: productData
+    }));
+  });
 });
 })();
 

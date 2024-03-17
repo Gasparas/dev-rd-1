@@ -27,14 +27,23 @@ include_once('ajax.php');
  *
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
+
+
+
+
 function rd_shop_product_rd_shop_product_block_init()
 {
-	register_block_type(__DIR__ . '/build');
+	register_block_type(
+		__DIR__ . '/build',
+		array(
+			// 'render_callback' => 'render_block_json_data',
+		)
+	);
 }
 add_action('init', 'rd_shop_product_rd_shop_product_block_init');
 
-// 
-add_filter( 'woocommerce_store_api_disable_nonce_check', '__return_true' );
+// REST API
+add_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
 
 // function my_custom_data_for_blocks() {
 //     // Check if the current screen is the block editor.
@@ -56,3 +65,25 @@ add_filter( 'woocommerce_store_api_disable_nonce_check', '__return_true' );
 // }
 // add_action('enqueue_block_editor_assets', 'my_custom_data_for_blocks');
 
+// add_action('admin_notices', 'list_registered_image_sizes');
+
+// function list_registered_image_sizes()
+// {
+// 	global $_wp_additional_image_sizes;
+// 	$sizes = array();
+// 	foreach (get_intermediate_image_sizes() as $_size) {
+// 		if (in_array($_size, array('thumbnail', 'medium', 'large'))) {
+// 			$sizes[$_size]['width'] = get_option($_size . '_size_w');
+// 			$sizes[$_size]['height'] = get_option($_size . '_size_h');
+// 			$sizes[$_size]['crop'] = (bool)get_option($_size . '_crop');
+// 		} elseif (isset($_wp_additional_image_sizes[$_size])) {
+// 			$sizes[$_size] = array(
+// 				'width' => $_wp_additional_image_sizes[$_size]['width'],
+// 				'height' => $_wp_additional_image_sizes[$_size]['height'],
+// 				'crop' => $_wp_additional_image_sizes[$_size]['crop'],
+// 			);
+// 		}
+// 	}
+
+// 	echo '<pre>' . print_r($sizes, true) . '</pre>';
+// }

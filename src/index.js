@@ -28,6 +28,14 @@ import metadata from './block.json';
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
  */
 registerBlockType( metadata.name, {
+
+	attributes: {
+        productId: {
+            type: 'number',
+            default: 0,
+        },
+    },
+	
 	/**
 	 * @see ./edit.js
 	 */
