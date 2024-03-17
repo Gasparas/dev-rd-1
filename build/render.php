@@ -50,11 +50,10 @@ foreach ($product_ids as $product_id) {
 }
 
 ?>
-<div id="app-1"></div>
-<script type="application/json" class="product-data">
-	<?php echo wp_json_encode($products_data); ?>
-</script>
 <div id="<?php echo esc_attr($react_unique_id); ?>" class="react-container">
+	<script type="application/json" class="product-data">
+		<?php echo wp_json_encode($products_data); ?>
+	</script>
 	<p>
 		react-container
 	</p>

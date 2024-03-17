@@ -150,8 +150,6 @@ console.log("view.js");
 // };
 
 
-
-// EventContext.js
 const EventContext = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createContext)();
 const useEventContext = () => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useContext)(EventContext);
 const EventContextProvider = ({
@@ -203,6 +201,117 @@ const CounterBoxComponent = ({
     style: {}
   }, counterValue ? counterValue : ""));
 };
+const ImageViewer = ({
+  productData
+}) => {
+  const [selectedImage, setSelectedImage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(productData.imageUrls[0]);
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "image-viewer-wrapper"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "thumbnails-wrapper"
+  }, productData.imageUrls.map((url, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+    key: index,
+    src: url,
+    alt: `Thumbnail ${index}`,
+    onClick: () => setSelectedImage(url) // Click to change the image
+    ,
+    onMouseEnter: () => setSelectedImage(url) // Hover to change the image
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "full-size-wrapper"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+    src: selectedImage,
+    alt: "Selected"
+  })));
+};
+const ProductList = ({
+  productData
+}) => {
+  // Assuming productData is an array of product objects
+  // and each product object now includes a 'counterValue' property
+
+  // State to track all products, including their counter values
+  const [products, setProducts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(productData);
+
+  // Function to handle incrementing a product's counter
+  const incrementCounter = productId => {
+    setProducts(products => products.map(product => {
+      if (product.id === productId) {
+        return {
+          ...product,
+          counterValue: product.counterValue + 1
+        };
+      }
+      return product;
+    }));
+  };
+
+  // Function to handle decrementing a product's counter
+  const decrementCounter = productId => {
+    setProducts(products => products.map(product => {
+      if (product.id === productId && product.counterValue > 0) {
+        return {
+          ...product,
+          counterValue: product.counterValue - 1
+        };
+      }
+      return product;
+    }));
+  };
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, products.map(product => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    key: product.id
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, product.title), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CounterBoxComponent, {
+    counterValue: product.counterValue,
+    onIncrement: () => incrementCounter(product.id),
+    onDecrement: () => decrementCounter(product.id)
+  }))));
+};
+const App = ({
+  productData
+}) => {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductList, {
+    productData: productData
+  }));
+};
+document.addEventListener("DOMContentLoaded", () => {
+  // Select all containers
+  const containers = document.querySelectorAll(".react-container");
+  containers.forEach(container => {
+    // Find the .product-data script within this specific container
+    const dataElement = container.querySelector(".product-data");
+    const productData = JSON.parse(dataElement.textContent);
+
+    // Create a root for this container and render the ProductList with its data
+    const root = ReactDOM.createRoot(container); // Pass 'container' directly
+    // root.render(<App productData={productData} />);
+  });
+});
+
+// document.addEventListener("DOMContentLoaded", () => {
+// 	// Assuming each .react-container is supposed to have a .product-data script associated with it
+// 	const containers = document.querySelectorAll(".react-container");
+
+// 	// Render a React component to each container
+// 	containers.forEach((container) => {
+// 		// Attempt to find a .product-data script within the current container
+// 		const dataElement = container.querySelector(".product-data");
+// 		const productData = dataElement
+// 			? JSON.parse(dataElement.textContent)
+// 			: null;
+
+// 		const root = createRoot(container); // Create a root for each container
+// 		// Pass both the containerId and productData to the App2 component
+// 		root.render(<ProductList containerId={container.id} productData={productData} />);
+// 	});
+// });
+
+//
+//
+// App1
+//
+//
+
+// EventContext.js
+
 const ProgressBar = ({
   totalCounterValue
 }) => {
@@ -350,23 +459,24 @@ const App1 = ({
     onClick: handleIncrement
   }, "+"))));
 };
-document.addEventListener("DOMContentLoaded", () => {
-  // Assuming each .react-container is supposed to have a .product-data script associated with it
-  const containers = document.querySelectorAll(".react-container");
 
-  // Render a React component to each container
-  containers.forEach(container => {
-    // Attempt to find a .product-data script within the current container
-    const dataElement = container.querySelector(".product-data");
-    const productData = dataElement ? JSON.parse(dataElement.textContent) : null;
-    const root = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createRoot)(container); // Create a root for each container
-    // Pass both the containerId and productData to the App2 component
-    root.render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(App1, {
-      containerId: container.id,
-      productData: productData
-    }));
-  });
-});
+// document.addEventListener("DOMContentLoaded", () => {
+// 	// Assuming each .react-container is supposed to have a .product-data script associated with it
+// 	const containers = document.querySelectorAll(".react-container");
+
+// 	// Render a React component to each container
+// 	containers.forEach((container) => {
+// 		// Attempt to find a .product-data script within the current container
+// 		const dataElement = container.querySelector(".product-data");
+// 		const productData = dataElement
+// 		? JSON.parse(dataElement.textContent)
+// 		: null;
+
+// 		const root = createRoot(container); // Create a root for each container
+// 		// Pass both the containerId and productData to the App2 component
+// 		root.render(<App1 containerId={container.id} productData={productData} />);
+// 	});
+// });
 // const container = document.querySelector("#app-1");
 // render(<App1 />, container);
 
