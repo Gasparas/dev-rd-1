@@ -394,52 +394,28 @@ const App = () => {
 
 // Define your component
 const App2 = ({ containerId, productData }) => {
-	const ImageZoom = () => {
-		return (
-			<div className="product-image-wrapper">
-				<img src={productData.imageUrls} alt="" className="product-image" />
-			</div>
-		);
-	};
-
+	
 	const ImageViewer = () => {
 		const [selectedImage, setSelectedImage] = useState(
 			productData.imageUrls[0],
 		);
-
 		return (
-			<div style={{ display: "flex", justifyContent: "center", maxWidth: "100%", marginTop: "20px" }}>
-				<div
-					style={{
-						marginRight: "10px",
-						display: "flex",
-						flexDirection: "column",
-					}}
-				>
+			<div className="image-viewer-wrapper">
+				<div className="thumbnails-wrapper">
 					{productData.imageUrls.map((url, index) => (
 						<img
 							key={index}
 							src={url}
 							alt={`Thumbnail ${index}`}
-							style={{
-								width: "40px",
-								height: "auto",
-								marginBottom: "10px",
-								cursor: "pointer",
-								borderStyle: "solid",
-								borderWidth: "1px",
-								borderRadius: "4px"
-							}}
 							onClick={() => setSelectedImage(url)} // Click to change the image
 							onMouseEnter={() => setSelectedImage(url)} // Hover to change the image
 						/>
 					))}
 				</div>
-				<div >
+				<div className="full-size-wrapper">
 					<img
 						src={selectedImage}
-						alt="Selected"
-						style={{ maxWidth: "400px", width: "100%", height: "auto" }}
+						alt="Selected"						
 					/>
 				</div>
 			</div>

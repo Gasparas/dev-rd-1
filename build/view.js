@@ -456,54 +456,24 @@ const App2 = ({
   containerId,
   productData
 }) => {
-  const ImageZoom = () => {
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      className: "product-image-wrapper"
-    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-      src: productData.imageUrls,
-      alt: "",
-      className: "product-image"
-    }));
-  };
   const ImageViewer = () => {
     const [selectedImage, setSelectedImage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(productData.imageUrls[0]);
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      style: {
-        display: "flex",
-        justifyContent: "center",
-        maxWidth: "100%",
-        marginTop: "20px"
-      }
+      className: "image-viewer-wrapper"
     }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      style: {
-        marginRight: "10px",
-        display: "flex",
-        flexDirection: "column"
-      }
+      className: "thumbnails-wrapper"
     }, productData.imageUrls.map((url, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
       key: index,
       src: url,
       alt: `Thumbnail ${index}`,
-      style: {
-        width: "40px",
-        height: "auto",
-        marginBottom: "10px",
-        cursor: "pointer",
-        borderStyle: "solid",
-        borderWidth: "1px",
-        borderRadius: "4px"
-      },
       onClick: () => setSelectedImage(url) // Click to change the image
       ,
       onMouseEnter: () => setSelectedImage(url) // Hover to change the image
-    }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+    }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "full-size-wrapper"
+    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
       src: selectedImage,
-      alt: "Selected",
-      style: {
-        maxWidth: "400px",
-        width: "100%",
-        height: "auto"
-      }
+      alt: "Selected"
     })));
   };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
