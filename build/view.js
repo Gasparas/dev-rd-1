@@ -124,415 +124,397 @@ __webpack_require__.r(__webpack_exports__);
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
  */
 
-/* eslint-disable no-console */
 console.log("view.js");
-/* eslint-enable no-console */
 
-// import apiFetch from "@wordpress/api-fetch";
-
-// const addToCart = async (productId, quantity = 1) => {
-// 	try {
-// 		const response = await apiFetch({
-// 			path: `wc/store/cart/add-item`, // Adjust according to the correct Store API endpoint
-// 			method: "POST",
-// 			data: {
-// 				id: productId,
-// 				quantity,
-// 			},
-// 		});
-
-// 		console.log("Product added to cart:", response);
-// 		return response;
-// 	} catch (error) {
-// 		console.error("Error adding product to cart:", error);
-// 		return null;
-// 	}
-// };
-
-
-const EventContext = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createContext)();
-const useEventContext = () => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useContext)(EventContext);
-const EventContextProvider = ({
-  children
-}) => {
-  const [listeners, setListeners] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)({});
-  const subscribeToEvent = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useCallback)((eventName, callback) => {
-    setListeners(prev => ({
-      ...prev,
-      [eventName]: [...(prev[eventName] || []), callback]
-    }));
-  }, []);
-  const emitEvent = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useCallback)((eventName, data) => {
-    listeners[eventName]?.forEach(callback => callback(data));
-  }, [listeners]);
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventContext.Provider, {
-    value: {
-      subscribeToEvent,
-      emitEvent
-    }
-  }, children);
-};
-
-// CounterBoxComponent.js
-const CounterBoxComponent = ({
-  color,
-  productId,
-  counterValue,
-  isActive,
-  onActiveChange
-}) => {
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "radio-button-wrapper",
+function ProductIdBox({
+  selectedProductId
+}) {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Selected Product ID: ", selectedProductId);
+}
+function TogglerBox({
+  products,
+  onProductSelect,
+  selectedProductId
+}) {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, products.map(product => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    key: product.id,
+    onClick: () => onProductSelect(product.id),
     style: {
-      border: isActive ? "2px solid blue" : "none",
-      backgroundColor: color
+      fontWeight: product.id === selectedProductId ? "bold" : "normal"
     }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
-    style: {
-      cursor: "pointer"
-    },
-    type: "radio",
-    name: "counterGroup",
-    checked: isActive,
-    onChange: () => onActiveChange(productId),
-    id: `counter-${productId}`
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
-    htmlFor: `counter-${productId}`,
-    style: {}
-  }, counterValue ? counterValue : ""));
-};
-const ImageViewer = ({
-  productData
-}) => {
-  const [selectedImage, setSelectedImage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(productData.imageUrls[0]);
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "image-viewer-wrapper"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "thumbnails-wrapper"
-  }, productData.imageUrls.map((url, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-    key: index,
-    src: url,
-    alt: `Thumbnail ${index}`,
-    onClick: () => setSelectedImage(url) // Click to change the image
-    ,
-    onMouseEnter: () => setSelectedImage(url) // Hover to change the image
-  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "full-size-wrapper"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-    src: selectedImage,
-    alt: "Selected"
-  })));
-};
-const ProductList = ({
-  productData
-}) => {
-  // Assuming productData is an array of product objects
-  // and each product object now includes a 'counterValue' property
-
-  // State to track all products, including their counter values
-  const [products, setProducts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(productData);
-
-  // Function to handle incrementing a product's counter
-  const incrementCounter = productId => {
-    setProducts(products => products.map(product => {
-      if (product.id === productId) {
-        return {
-          ...product,
-          counterValue: product.counterValue + 1
-        };
-      }
-      return product;
-    }));
+  }, product.counterValue)));
+}
+function AdjusterBox({
+  initialValue,
+  onValueChange
+}) {
+  const [value, setValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialValue);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+  const handleIncrement = () => {
+    const newValue = value + 1;
+    setValue(newValue);
+    onValueChange(newValue);
   };
-
-  // Function to handle decrementing a product's counter
-  const decrementCounter = productId => {
-    setProducts(products => products.map(product => {
-      if (product.id === productId && product.counterValue > 0) {
-        return {
-          ...product,
-          counterValue: product.counterValue - 1
-        };
-      }
-      return product;
-    }));
+  const handleDecrement = () => {
+    const newValue = value - 1;
+    setValue(newValue);
+    onValueChange(newValue);
   };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, products.map(product => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    key: product.id
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, product.title), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CounterBoxComponent, {
-    counterValue: product.counterValue,
-    onIncrement: () => incrementCounter(product.id),
-    onDecrement: () => decrementCounter(product.id)
-  }))));
-};
-const App = ({
-  productData
-}) => {
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductList, {
-    productData: productData
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: handleDecrement
+  }, "-"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, value), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: handleIncrement
+  }, "+"));
+}
+function ProductDisplay({
+  data
+}) {
+  const [products, setProducts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+  const [selectedProductId, setSelectedProductId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("");
+  const [counterValue, setCounterValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    const selectedProduct = products.find(product => product.id === selectedProductId);
+    setCounterValue(selectedProduct ? selectedProduct.counterValue : 0);
+  }, [products, selectedProductId]);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    const parsedData = JSON.parse(data);
+    setProducts(parsedData);
+    if (parsedData.length > 0) {
+      // Set the first product's ID as selected by default
+      setSelectedProductId(parsedData[0].id);
+    }
+  }, [data]);
+  const handleCounterChange = newValue => {
+    // Update the counterValue for the selected product
+    const updatedProducts = products.map(product => product.id === selectedProductId ? {
+      ...product,
+      counterValue: newValue
+    } : product);
+    setProducts(updatedProducts);
+  };
+  const handleProductSelect = id => {
+    setSelectedProductId(id);
+  };
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductIdBox, {
+    selectedProductId: selectedProductId
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TogglerBox, {
+    products: products,
+    onProductSelect: handleProductSelect,
+    selectedProductId: selectedProductId
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(AdjusterBox, {
+    initialValue: counterValue,
+    onValueChange: handleCounterChange
   }));
-};
-document.addEventListener("DOMContentLoaded", () => {
-  // Select all containers
-  const containers = document.querySelectorAll(".react-container");
-  containers.forEach(container => {
-    // Find the .product-data script within this specific container
-    const dataElement = container.querySelector(".product-data");
-    const productData = JSON.parse(dataElement.textContent);
-
-    // Create a root for this container and render the ProductList with its data
-    const root = ReactDOM.createRoot(container); // Pass 'container' directly
-    // root.render(<App productData={productData} />);
-  });
+}
+document.querySelectorAll(".react-container").forEach(container => {
+  const dataScript = container.querySelector(".product-data");
+  if (dataScript) {
+    ReactDOM.createRoot(container).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductDisplay, {
+      data: dataScript.textContent
+    }));
+  }
 });
 
-// document.addEventListener("DOMContentLoaded", () => {
-// 	// Assuming each .react-container is supposed to have a .product-data script associated with it
-// 	const containers = document.querySelectorAll(".react-container");
-
-// 	// Render a React component to each container
-// 	containers.forEach((container) => {
-// 		// Attempt to find a .product-data script within the current container
-// 		const dataElement = container.querySelector(".product-data");
-// 		const productData = dataElement
-// 			? JSON.parse(dataElement.textContent)
-// 			: null;
-
-// 		const root = createRoot(container); // Create a root for each container
-// 		// Pass both the containerId and productData to the App2 component
-// 		root.render(<ProductList containerId={container.id} productData={productData} />);
-// 	});
-// });
-
 //
+// import apiFetch from "@wordpress/api-fetch";
+//
+
+/*
+
+const addToCart = async (productId, quantity = 1) => {
+	try {
+		const response = await apiFetch({
+			path: `wc/store/cart/add-item`, // Adjust according to the correct Store API endpoint
+			method: "POST",
+			data: {
+				id: productId,
+				quantity,
+			},
+		});
+
+		console.log("Product added to cart:", response);
+		return response;
+	} catch (error) {
+		console.error("Error adding product to cart:", error);
+		return null;
+	}
+};
+
+*/
+
 //
 // App1
 //
-//
 
-// EventContext.js
+/*
 
-const ProgressBar = ({
-  totalCounterValue
-}) => {
-  const steps = [3, 6, 9, 12, 15];
-  const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
+const ProgressBar = ({ totalCounterValue }) => {
+	const steps = [3, 6, 9, 12, 15];
+	const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
 
-  const progressPercentage = totalCounterValue / maxStepValue * 100;
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "progress-container"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "progress-bar",
-    style: {
-      width: `${progressPercentage}%`
-    }
-  }), steps.map(step => {
-    const leftPercentage = step / maxStepValue * 100; // Correct calculation for leftPercentage
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      key: step,
-      className: "step-marker",
-      style: {
-        left: `${leftPercentage}%`
-      }
-    });
-  }));
+	const progressPercentage = (totalCounterValue / maxStepValue) * 100;
+
+	return (
+		<div className="progress-container">
+			<div
+				className="progress-bar"
+				style={{ width: `${progressPercentage}%` }}
+			></div>
+			{steps.map((step) => {
+				const leftPercentage = (step / maxStepValue) * 100; // Correct calculation for leftPercentage
+				return (
+					<div
+						key={step}
+						className="step-marker"
+						style={{
+							left: `${leftPercentage}%`,
+						}}
+					></div>
+				);
+			})}
+		</div>
+	);
 };
 
 // App component
-const App1 = ({
-  containerId,
-  productData
-}) => {
-  const initialCounters = {
-    1: {
-      min: 0,
-      max: 20,
-      color: "#deb0a1",
-      counterValue: 0,
-      imageUrls: "/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
-      productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
-      price: 8.89
-    },
-    2: {
-      min: 0,
-      max: 20,
-      color: "#f29891",
-      counterValue: 0,
-      imageUrls: "/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
-      productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
-      price: 8.89
-    },
-    3: {
-      min: 0,
-      max: 20,
-      color: "#5467ac",
-      counterValue: 0,
-      imageUrls: "/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
-      productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
-      price: 8.89
-    },
-    4: {
-      min: 0,
-      max: 20,
-      color: "#2b6486",
-      counterValue: 0,
-      imageUrls: "/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
-      productDescription: "Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
-      price: 8.89
-    }
-    // Add more counters as needed
-  };
-  const [counters, setCounters] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialCounters);
-  const [activeCounterId, setActiveCounterId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("1");
-  const totalValues = Object.values(counters).reduce((acc, counter) => {
-    acc.totalCounterValue += counter.counterValue;
-    acc.totalPrice += counter.counterValue * counter.price;
-    return acc;
-  }, {
-    totalCounterValue: 0,
-    totalPrice: 0
-  });
-  const handleActiveChange = productId => {
-    setActiveCounterId(productId);
-  };
-  const handleIncrement = () => {
-    console.log("handleIncrement ", activeCounterId);
-    setCounters(prevCounters => ({
-      ...prevCounters,
-      [activeCounterId]: {
-        ...prevCounters[activeCounterId],
-        counterValue: Math.min(prevCounters[activeCounterId].counterValue + 1, prevCounters[activeCounterId].max)
-      }
-    }));
-  };
-  const handleDecrement = () => {
-    console.log("handleDecrement ", activeCounterId);
-    setCounters(prevCounters => ({
-      ...prevCounters,
-      [activeCounterId]: {
-        ...prevCounters[activeCounterId],
-        counterValue: Math.max(prevCounters[activeCounterId].counterValue - 1, prevCounters[activeCounterId].min)
-      }
-    }));
-  };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(EventContextProvider, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "progress-bar-wrapper"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProgressBar, {
-    totalCounterValue: totalValues.totalCounterValue
-  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "order-totals-wrapper"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "order-value"
-  }, totalValues.totalPrice.toFixed(2), "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "order-discount"
-  }, "-00% OFF"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "order-items"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "count"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, totalValues.totalCounterValue)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "View Order"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-    src: counters[activeCounterId].imageUrls,
-    alt: "Active Counter",
-    style: {
-      maxWidth: "auto",
-      maxHeight: "60px"
-    }
-  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "description-wrapper"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "price"
-  }, counters[activeCounterId].price, "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, counters[activeCounterId].productDescription)), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "counters-wrapper"
-  }, Object.keys(counters).map(id => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CounterBoxComponent, {
-    key: id,
-    productId: id,
-    min: counters[id].min,
-    max: counters[id].max,
-    color: counters[id].color,
-    counterValue: counters[id].counterValue,
-    isActive: activeCounterId === id,
-    onActiveChange: handleActiveChange
-  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "increment-decrement-wrapper"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    onClick: handleDecrement
-  }, "-"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, counters[activeCounterId].counterValue > 0 ? counters[activeCounterId].counterValue : ""), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    onClick: handleIncrement
-  }, "+"))));
+const App1 = ({ containerId, productData }) => {
+	const initialCounters = {
+		1: {
+			min: 0,
+			max: 20,
+			color: "#deb0a1",
+			counterValue: 0,
+			imageUrls: "/wp-content/uploads/2024/03/61pcyODhE4L._AC_SX679_.jpg",
+			productDescription:
+				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+			price: 8.89,
+		},
+		2: {
+			min: 0,
+			max: 20,
+			color: "#f29891",
+			counterValue: 0,
+			imageUrls: "/wp-content/uploads/2024/03/61pWFSOfb-L._AC_SX679_.jpg",
+			productDescription:
+				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+			price: 8.89,
+		},
+		3: {
+			min: 0,
+			max: 20,
+			color: "#5467ac",
+			counterValue: 0,
+			imageUrls: "/wp-content/uploads/2024/03/61QN62tdqhL._AC_SX679_.jpg",
+			productDescription:
+				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+			price: 8.89,
+		},
+		4: {
+			min: 0,
+			max: 20,
+			color: "#2b6486",
+			counterValue: 0,
+			imageUrls: "/wp-content/uploads/2024/03/613AaVICUCL._AC_SX679_.jpg",
+			productDescription:
+				"Silver infused Extra Soft Toothbrush for Adults - Dual Length Bristles for Interdental Cleaning.",
+			price: 8.89,
+		},
+		// Add more counters as needed
+	};
+
+	const [counters, setCounters] = useState(initialCounters);
+	const [activeCounterId, setActiveCounterId] = useState("1");
+
+	const totalValues = Object.values(counters).reduce(
+		(acc, counter) => {
+			acc.totalCounterValue += counter.counterValue;
+			acc.totalPrice += counter.counterValue * counter.price;
+			return acc;
+		},
+		{ totalCounterValue: 0, totalPrice: 0 },
+	);
+
+	const handleActiveChange = (productId) => {
+		setActiveCounterId(productId);
+	};
+
+	const handleIncrement = () => {
+		console.log("handleIncrement ", activeCounterId);
+		setCounters((prevCounters) => ({
+			...prevCounters,
+			[activeCounterId]: {
+				...prevCounters[activeCounterId],
+				counterValue: Math.min(
+					prevCounters[activeCounterId].counterValue + 1,
+					prevCounters[activeCounterId].max,
+				),
+			},
+		}));
+	};
+
+	const handleDecrement = () => {
+		console.log("handleDecrement ", activeCounterId);
+		setCounters((prevCounters) => ({
+			...prevCounters,
+			[activeCounterId]: {
+				...prevCounters[activeCounterId],
+				counterValue: Math.max(
+					prevCounters[activeCounterId].counterValue - 1,
+					prevCounters[activeCounterId].min,
+				),
+			},
+		}));
+	};
+
+	return (
+		<EventContextProvider>
+			<div>
+				<div className="progress-bar-wrapper">
+					<ProgressBar
+						totalCounterValue={totalValues.totalCounterValue}
+					></ProgressBar>
+				</div>
+				<div className="order-totals-wrapper">
+					<div className="order-value">
+						{totalValues.totalPrice.toFixed(2)}€
+					</div>
+					<div className="order-discount">-00% OFF</div>
+					<div className="order-items">
+						<div className="count">
+							<span>{totalValues.totalCounterValue}</span>
+						</div>
+						<div>View Order</div>
+					</div>
+				</div>
+				<div>
+					<img
+						src={counters[activeCounterId].imageUrls}
+						alt="Active Counter"
+						style={{ maxWidth: "auto", maxHeight: "60px" }}
+					/>
+				</div>
+				<div className="description-wrapper">
+					<div className="price">{counters[activeCounterId].price}€</div>
+					<p>{counters[activeCounterId].productDescription}</p>
+				</div>
+				<div className="counters-wrapper">
+					{Object.keys(counters).map((id) => (
+						<CounterBoxComponent
+							key={id}
+							productId={id}
+							min={counters[id].min}
+							max={counters[id].max}
+							color={counters[id].color}
+							counterValue={counters[id].counterValue}
+							isActive={activeCounterId === id}
+							onActiveChange={handleActiveChange}
+						/>
+					))}
+				</div>
+				<div className="increment-decrement-wrapper">
+					<button onClick={handleDecrement}>-</button>
+					<span>
+						{counters[activeCounterId].counterValue > 0
+							? counters[activeCounterId].counterValue
+							: ""}
+					</span>
+					<button onClick={handleIncrement}>+</button>
+				</div>
+			</div>
+		</EventContextProvider>
+	);
 };
 
-// document.addEventListener("DOMContentLoaded", () => {
-// 	// Assuming each .react-container is supposed to have a .product-data script associated with it
-// 	const containers = document.querySelectorAll(".react-container");
+document.addEventListener("DOMContentLoaded", () => {
+	// Assuming each .react-container is supposed to have a .product-data script associated with it
+	const containers = document.querySelectorAll(".react-container");
 
-// 	// Render a React component to each container
-// 	containers.forEach((container) => {
-// 		// Attempt to find a .product-data script within the current container
-// 		const dataElement = container.querySelector(".product-data");
-// 		const productData = dataElement
-// 		? JSON.parse(dataElement.textContent)
-// 		: null;
+	// Render a React component to each container
+	containers.forEach((container) => {
+		// Attempt to find a .product-data script within the current container
+		const dataElement = container.querySelector(".product-data");
+		const productData = dataElement
+		? JSON.parse(dataElement.textContent)
+		: null;
 
-// 		const root = createRoot(container); // Create a root for each container
-// 		// Pass both the containerId and productData to the App2 component
-// 		root.render(<App1 containerId={container.id} productData={productData} />);
-// 	});
-// });
-// const container = document.querySelector("#app-1");
-// render(<App1 />, container);
+		const root = createRoot(container); // Create a root for each container
+		// Pass both the containerId and productData to the App2 component
+		root.render(<App1 containerId={container.id} productData={productData} />);
+	});
+});
+const container = document.querySelector("#app-1");
+render(<App1 />, container);
+
+*/
 
 //
 // App2
 //
 
-const App2 = ({
-  containerId,
-  productData
-}) => {
-  const ImageViewer = () => {
-    const [selectedImage, setSelectedImage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(productData.imageUrls[0]);
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      className: "image-viewer-wrapper"
-    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      className: "thumbnails-wrapper"
-    }, productData.imageUrls.map((url, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-      key: index,
-      src: url,
-      alt: `Thumbnail ${index}`,
-      onClick: () => setSelectedImage(url) // Click to change the image
-      ,
-      onMouseEnter: () => setSelectedImage(url) // Hover to change the image
-    }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      className: "full-size-wrapper"
-    }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-      src: selectedImage,
-      alt: "Selected"
-    })));
-  };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      background: "white",
-      wordBreak: "break-all"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Container ID: ", containerId), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ImageViewer, null), productData && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h2", null, productData.title), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Price: ", productData.price), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Color: ", productData.color), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Image: ", productData.imageUrls)));
+/*
+
+const App2 = ({ containerId, productData }) => {
+	const ImageViewer = () => {
+		const [selectedImage, setSelectedImage] = useState(
+			productData.imageUrls[0],
+		);
+		return (
+			<div className="image-viewer-wrapper">
+				<div className="thumbnails-wrapper">
+					{productData.imageUrls.map((url, index) => (
+						<img
+							key={index}
+							src={url}
+							alt={`Thumbnail ${index}`}
+							onClick={() => setSelectedImage(url)} // Click to change the image
+							onMouseEnter={() => setSelectedImage(url)} // Hover to change the image
+						/>
+					))}
+				</div>
+				<div className="full-size-wrapper">
+					<img src={selectedImage} alt="Selected" />
+				</div>
+			</div>
+		);
+	};
+
+	return (
+		<div style={{ background: "white", wordBreak: "break-all" }}>
+			<p>Container ID: {containerId}</p>
+			<ImageViewer></ImageViewer>
+			{productData && (
+				<>
+					<h2>{productData.title}</h2>
+					<p>Price: {productData.price}</p>
+					<p>Color: {productData.color}</p>
+					<p>Image: {productData.imageUrls}</p>
+				</>
+			)}
+		</div>
+	);
 };
 
-// document.addEventListener("DOMContentLoaded", () => {
-// 	// Assuming each .react-container is supposed to have a .product-data script associated with it
-// 	const containers = document.querySelectorAll(".react-container");
+document.addEventListener("DOMContentLoaded", () => {
+	// Assuming each .react-container is supposed to have a .product-data script associated with it
+	const containers = document.querySelectorAll(".react-container");
 
-// 	// Render a React component to each container
-// 	containers.forEach((container) => {
-// 		// Attempt to find a .product-data script within the current container
-// 		const dataElement = container.querySelector(".product-data");
-// 		const productData = dataElement
-// 			? JSON.parse(dataElement.textContent)
-// 			: null;
+	// Render a React component to each container
+	containers.forEach((container) => {
+		// Attempt to find a .product-data script within the current container
+		const dataElement = container.querySelector(".product-data");
+		const productData = dataElement
+			? JSON.parse(dataElement.textContent)
+			: null;
 
-// 		const root = createRoot(container); // Create a root for each container
-// 		// Pass both the containerId and productData to the App2 component
-// 		root.render(<App2 containerId={container.id} productData={productData} />);
-// 	});
-// });
+		const root = createRoot(container); // Create a root for each container
+		// Pass both the containerId and productData to the App2 component
+		root.render(<App2 containerId={container.id} productData={productData} />);
+	});
+});
+
+*/
 })();
 
 /******/ })()

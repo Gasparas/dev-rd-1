@@ -20,30 +20,7 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
  */
 
-/* eslint-disable no-console */
 console.log("view.js");
-/* eslint-enable no-console */
-
-// import apiFetch from "@wordpress/api-fetch";
-
-// const addToCart = async (productId, quantity = 1) => {
-// 	try {
-// 		const response = await apiFetch({
-// 			path: `wc/store/cart/add-item`, // Adjust according to the correct Store API endpoint
-// 			method: "POST",
-// 			data: {
-// 				id: productId,
-// 				quantity,
-// 			},
-// 		});
-
-// 		console.log("Product added to cart:", response);
-// 		return response;
-// 	} catch (error) {
-// 		console.error("Error adding product to cart:", error);
-// 		return null;
-// 	}
-// };
 
 import {
 	createRoot,
@@ -55,184 +32,150 @@ import {
 	useCallback,
 } from "@wordpress/element";
 
-const EventContext = createContext();
+function ProductIdBox({ selectedProductId }) {
+	return <div>Selected Product ID: {selectedProductId}</div>;
+}
 
-const useEventContext = () => useContext(EventContext);
-
-const EventContextProvider = ({ children }) => {
-	const [listeners, setListeners] = useState({});
-
-	const subscribeToEvent = useCallback((eventName, callback) => {
-		setListeners((prev) => ({
-			...prev,
-			[eventName]: [...(prev[eventName] || []), callback],
-		}));
-	}, []);
-
-	const emitEvent = useCallback(
-		(eventName, data) => {
-			listeners[eventName]?.forEach((callback) => callback(data));
-		},
-		[listeners],
-	);
-
+function TogglerBox({ products, onProductSelect, selectedProductId }) {
 	return (
-		<EventContext.Provider value={{ subscribeToEvent, emitEvent }}>
-			{children}
-		</EventContext.Provider>
-	);
-};
-
-// CounterBoxComponent.js
-const CounterBoxComponent = ({
-	color,
-	productId,
-	counterValue,
-	isActive,
-	onActiveChange,
-}) => {
-	return (
-		<div
-			className="radio-button-wrapper"
-			style={{
-				border: isActive ? "2px solid blue" : "none",
-				backgroundColor: color,
-			}}
-		>
-			<input
-				style={{ cursor: "pointer" }}
-				type="radio"
-				name="counterGroup"
-				checked={isActive}
-				onChange={() => onActiveChange(productId)}
-				id={`counter-${productId}`}
-			/>
-			<label htmlFor={`counter-${productId}`} style={{}}>
-				{counterValue ? counterValue : ""}
-			</label>
+		<div>
+			{products.map((product) => (
+				<button
+					key={product.id}
+					onClick={() => onProductSelect(product.id)}
+					style={{
+						fontWeight: product.id === selectedProductId ? "bold" : "normal",
+					}}
+				>
+					{product.counterValue}
+				</button>
+			))}
 		</div>
 	);
-};
+}
 
-const ImageViewer = ({ productData }) => {
-	const [selectedImage, setSelectedImage] = useState(productData.imageUrls[0]);
+function AdjusterBox({ initialValue, onValueChange }) {
+	const [value, setValue] = useState(initialValue);
 
-	return (
-		<div className="image-viewer-wrapper">
-			<div className="thumbnails-wrapper">
-				{productData.imageUrls.map((url, index) => (
-					<img
-						key={index}
-						src={url}
-						alt={`Thumbnail ${index}`}
-						onClick={() => setSelectedImage(url)} // Click to change the image
-						onMouseEnter={() => setSelectedImage(url)} // Hover to change the image
-					/>
-				))}
-			</div>
-			<div className="full-size-wrapper">
-				<img src={selectedImage} alt="Selected" />
-			</div>
-		</div>
-	);
-};
+	useEffect(() => {
+		setValue(initialValue);
+	}, [initialValue]);
 
-const ProductList = ({ productData }) => {
-	// Assuming productData is an array of product objects
-	// and each product object now includes a 'counterValue' property
-
-	// State to track all products, including their counter values
-	const [products, setProducts] = useState(productData);
-
-	// Function to handle incrementing a product's counter
-	const incrementCounter = (productId) => {
-		setProducts((products) =>
-			products.map((product) => {
-				if (product.id === productId) {
-					return { ...product, counterValue: product.counterValue + 1 };
-				}
-				return product;
-			}),
-		);
+	const handleIncrement = () => {
+		const newValue = value + 1;
+		setValue(newValue);
+		onValueChange(newValue);
 	};
 
-	// Function to handle decrementing a product's counter
-	const decrementCounter = (productId) => {
-		setProducts((products) =>
-			products.map((product) => {
-				if (product.id === productId && product.counterValue > 0) {
-					return { ...product, counterValue: product.counterValue - 1 };
-				}
-				return product;
-			}),
-		);
+	const handleDecrement = () => {
+		const newValue = value - 1;
+		setValue(newValue);
+		onValueChange(newValue);
 	};
 
 	return (
 		<div>
-			{products.map((product) => (
-				<div key={product.id}>
-					<h3>{product.title}</h3>
-					{/* Render a CounterBoxComponent for each product */}
-					<CounterBoxComponent
-						counterValue={product.counterValue}
-						onIncrement={() => incrementCounter(product.id)}
-						onDecrement={() => decrementCounter(product.id)}
-					/>
-				</div>
-			))}
+			<button onClick={handleDecrement}>-</button>
+			<span>{value}</span>
+			<button onClick={handleIncrement}>+</button>
 		</div>
 	);
-};
+}
 
-const App = ({ productData }) => {
+function ProductDisplay({ data }) {
+	const [products, setProducts] = useState([]);
+	const [selectedProductId, setSelectedProductId] = useState("");
+	const [counterValue, setCounterValue] = useState(0);
+
+	useEffect(() => {
+		const selectedProduct = products.find(
+			(product) => product.id === selectedProductId,
+		);
+		setCounterValue(selectedProduct ? selectedProduct.counterValue : 0);
+	}, [products, selectedProductId]);
+
+	useEffect(() => {
+		const parsedData = JSON.parse(data);
+		setProducts(parsedData);
+		if (parsedData.length > 0) {
+			// Set the first product's ID as selected by default
+			setSelectedProductId(parsedData[0].id);
+		}
+	}, [data]);
+
+	const handleCounterChange = (newValue) => {
+		// Update the counterValue for the selected product
+		const updatedProducts = products.map((product) =>
+			product.id === selectedProductId
+				? { ...product, counterValue: newValue }
+				: product,
+		);
+		setProducts(updatedProducts);
+	};
+
+	const handleProductSelect = (id) => {
+		setSelectedProductId(id);
+	};
+
 	return (
-		<>
-			<ProductList productData={productData} />
-		</>
+		<div>
+			{/* Render TogglerBox and pass products to it */}
+			<ProductIdBox selectedProductId={selectedProductId} />
+			<TogglerBox
+				products={products}
+				onProductSelect={handleProductSelect}
+				selectedProductId={selectedProductId}
+			/>
+			{/* Render ProductIdBox to display the selected product's ID */}
+			<AdjusterBox
+				initialValue={counterValue}
+				onValueChange={handleCounterChange}
+			/>
+		</div>
 	);
-};
+}
 
-document.addEventListener("DOMContentLoaded", () => {
-	// Select all containers
-	const containers = document.querySelectorAll(".react-container");
-
-	containers.forEach((container) => {
-		// Find the .product-data script within this specific container
-		const dataElement = container.querySelector(".product-data");
-		const productData = JSON.parse(dataElement.textContent);
-
-		// Create a root for this container and render the ProductList with its data
-		const root = ReactDOM.createRoot(container); // Pass 'container' directly
-		// root.render(<App productData={productData} />);
-	}); 
+document.querySelectorAll(".react-container").forEach((container) => {
+	const dataScript = container.querySelector(".product-data");
+	if (dataScript) {
+		ReactDOM.createRoot(container).render(
+			<ProductDisplay data={dataScript.textContent} />,
+		);
+	}
 });
 
-// document.addEventListener("DOMContentLoaded", () => {
-// 	// Assuming each .react-container is supposed to have a .product-data script associated with it
-// 	const containers = document.querySelectorAll(".react-container");
-
-// 	// Render a React component to each container
-// 	containers.forEach((container) => {
-// 		// Attempt to find a .product-data script within the current container
-// 		const dataElement = container.querySelector(".product-data");
-// 		const productData = dataElement
-// 			? JSON.parse(dataElement.textContent)
-// 			: null;
-
-// 		const root = createRoot(container); // Create a root for each container
-// 		// Pass both the containerId and productData to the App2 component
-// 		root.render(<ProductList containerId={container.id} productData={productData} />);
-// 	});
-// });
-
 //
+// import apiFetch from "@wordpress/api-fetch";
+//
+
+/*
+
+const addToCart = async (productId, quantity = 1) => {
+	try {
+		const response = await apiFetch({
+			path: `wc/store/cart/add-item`, // Adjust according to the correct Store API endpoint
+			method: "POST",
+			data: {
+				id: productId,
+				quantity,
+			},
+		});
+
+		console.log("Product added to cart:", response);
+		return response;
+	} catch (error) {
+		console.error("Error adding product to cart:", error);
+		return null;
+	}
+};
+
+*/
+
 //
 // App1
 //
-//
 
-// EventContext.js
+/*
 
 const ProgressBar = ({ totalCounterValue }) => {
 	const steps = [3, 6, 9, 12, 15];
@@ -411,29 +354,33 @@ const App1 = ({ containerId, productData }) => {
 	);
 };
 
-// document.addEventListener("DOMContentLoaded", () => {
-// 	// Assuming each .react-container is supposed to have a .product-data script associated with it
-// 	const containers = document.querySelectorAll(".react-container");
+document.addEventListener("DOMContentLoaded", () => {
+	// Assuming each .react-container is supposed to have a .product-data script associated with it
+	const containers = document.querySelectorAll(".react-container");
 
-// 	// Render a React component to each container
-// 	containers.forEach((container) => {
-// 		// Attempt to find a .product-data script within the current container
-// 		const dataElement = container.querySelector(".product-data");
-// 		const productData = dataElement
-// 		? JSON.parse(dataElement.textContent)
-// 		: null;
+	// Render a React component to each container
+	containers.forEach((container) => {
+		// Attempt to find a .product-data script within the current container
+		const dataElement = container.querySelector(".product-data");
+		const productData = dataElement
+		? JSON.parse(dataElement.textContent)
+		: null;
 
-// 		const root = createRoot(container); // Create a root for each container
-// 		// Pass both the containerId and productData to the App2 component
-// 		root.render(<App1 containerId={container.id} productData={productData} />);
-// 	});
-// });
-// const container = document.querySelector("#app-1");
-// render(<App1 />, container);
+		const root = createRoot(container); // Create a root for each container
+		// Pass both the containerId and productData to the App2 component
+		root.render(<App1 containerId={container.id} productData={productData} />);
+	});
+});
+const container = document.querySelector("#app-1");
+render(<App1 />, container);
+
+*/
 
 //
 // App2
 //
+
+/*
 
 const App2 = ({ containerId, productData }) => {
 	const ImageViewer = () => {
@@ -476,20 +423,22 @@ const App2 = ({ containerId, productData }) => {
 	);
 };
 
-// document.addEventListener("DOMContentLoaded", () => {
-// 	// Assuming each .react-container is supposed to have a .product-data script associated with it
-// 	const containers = document.querySelectorAll(".react-container");
+document.addEventListener("DOMContentLoaded", () => {
+	// Assuming each .react-container is supposed to have a .product-data script associated with it
+	const containers = document.querySelectorAll(".react-container");
 
-// 	// Render a React component to each container
-// 	containers.forEach((container) => {
-// 		// Attempt to find a .product-data script within the current container
-// 		const dataElement = container.querySelector(".product-data");
-// 		const productData = dataElement
-// 			? JSON.parse(dataElement.textContent)
-// 			: null;
+	// Render a React component to each container
+	containers.forEach((container) => {
+		// Attempt to find a .product-data script within the current container
+		const dataElement = container.querySelector(".product-data");
+		const productData = dataElement
+			? JSON.parse(dataElement.textContent)
+			: null;
 
-// 		const root = createRoot(container); // Create a root for each container
-// 		// Pass both the containerId and productData to the App2 component
-// 		root.render(<App2 containerId={container.id} productData={productData} />);
-// 	});
-// });
+		const root = createRoot(container); // Create a root for each container
+		// Pass both the containerId and productData to the App2 component
+		root.render(<App2 containerId={container.id} productData={productData} />);
+	});
+});
+
+*/
