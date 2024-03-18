@@ -126,6 +126,40 @@ __webpack_require__.r(__webpack_exports__);
 
 console.log("view.js");
 
+
+/** global JavaScript object to have a shared state across multiple roots */
+window.sharedState = {
+  totalCounterValue: 0
+};
+window.setTotalCounterValue = value => {
+  window.sharedState.totalCounterValue = value;
+  window.dispatchEvent(new CustomEvent("stateChange", {
+    detail: window.sharedState
+  }));
+};
+window.addToTotalCounterValue = amount => {
+  window.setTotalCounterValue(window.sharedState.totalCounterValue + amount);
+};
+window.subtractFromTotalCounterValue = amount => {
+  window.setTotalCounterValue(window.sharedState.totalCounterValue - amount);
+};
+/** */
+
+const TotalAmountBox = () => {
+  const [total, setTotal] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(window.sharedState.totalCounterValue);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    const handleStateChange = event => {
+      setTotal(event.detail.totalCounterValue);
+    };
+    window.addEventListener("stateChange", handleStateChange);
+
+    // Clean up listener
+    return () => {
+      window.removeEventListener("stateChange", handleStateChange);
+    };
+  }, []);
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Total Counter Value: ", total);
+};
 function ProductIdBox({
   selectedProductId
 }) {
@@ -156,11 +190,13 @@ function AdjusterBox({
     const newValue = value + 1;
     setValue(newValue);
     onValueChange(newValue);
+    window.addToTotalCounterValue(1);
   };
   const handleDecrement = () => {
     const newValue = value - 1;
     setValue(newValue);
     onValueChange(newValue);
+    window.subtractFromTotalCounterValue(1);
   };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     onClick: handleDecrement
@@ -208,6 +244,21 @@ function ProductDisplay({
     onValueChange: handleCounterChange
   }));
 }
+
+// Step 1: Create a new container element for TotalAmountBox
+const totalAmountBoxContainer = document.createElement("div");
+totalAmountBoxContainer.id = "total-amount-box-container";
+
+// Step 2: Append the new container to the <main> element
+const mainElement = document.querySelector(".entry-content");
+if (mainElement) {
+  mainElement.prepend(totalAmountBoxContainer);
+} else {
+  console.error("The TotalAmountBox element was not found in the document.");
+}
+
+// Step 3: Mount TotalAmountBox to the new container
+ReactDOM.createRoot(totalAmountBoxContainer).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TotalAmountBox, null));
 document.querySelectorAll(".react-container").forEach(container => {
   const dataScript = container.querySelector(".product-data");
   if (dataScript) {
