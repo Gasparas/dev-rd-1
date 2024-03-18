@@ -76,7 +76,7 @@ function AdjusterBox({ initialValue, onValueChange }) {
 	return (
 		<div>
 			<button onClick={handleDecrement}>-</button>
-			<span>{value}</span>
+			<span> {value} </span>
 			<button onClick={handleIncrement}>+</button>
 		</div>
 	);

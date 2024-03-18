@@ -164,7 +164,7 @@ function AdjusterBox({
   };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     onClick: handleDecrement
-  }, "-"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, value), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+  }, "-"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, " ", value, " "), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     onClick: handleIncrement
   }, "+"));
 }
