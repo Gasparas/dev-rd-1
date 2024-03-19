@@ -143,29 +143,6 @@ __webpack_require__.r(__webpack_exports__);
 console.log("view.js");
 
 
-
-// const ProductGallery = ({ selectedProductId }) => {
-// 	const [selectedImage, setSelectedImage] = useState(productData.imageUrls[0]);
-// 	return (
-// 		<div className="image-viewer-wrapper">
-// 			<div className="thumbnails-wrapper">
-// 				{productData.imageUrls.map((url, index) => (
-// 					<img
-// 						key={index}
-// 						src={url}
-// 						alt={`Thumbnail ${index}`}
-// 						onClick={() => setSelectedImage(url)} // Click to change the image
-// 						onMouseEnter={() => setSelectedImage(url)} // Hover to change the image
-// 					/>
-// 				))}
-// 			</div>
-// 			<div className="full-size-wrapper">
-// 				<img src={selectedImage} alt="Selected" />
-// 			</div>
-// 		</div>
-// 	);
-// };
-
 const ProductGallery = ({
   selectedProductId,
   productsData
