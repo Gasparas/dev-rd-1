@@ -33,6 +33,68 @@ import {
 } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 
+// const ProductGallery = ({ selectedProductId }) => {
+// 	const [selectedImage, setSelectedImage] = useState(productData.imageUrls[0]);
+// 	return (
+// 		<div className="image-viewer-wrapper">
+// 			<div className="thumbnails-wrapper">
+// 				{productData.imageUrls.map((url, index) => (
+// 					<img
+// 						key={index}
+// 						src={url}
+// 						alt={`Thumbnail ${index}`}
+// 						onClick={() => setSelectedImage(url)} // Click to change the image
+// 						onMouseEnter={() => setSelectedImage(url)} // Hover to change the image
+// 					/>
+// 				))}
+// 			</div>
+// 			<div className="full-size-wrapper">
+// 				<img src={selectedImage} alt="Selected" />
+// 			</div>
+// 		</div>
+// 	);
+// };
+
+const ProductGallery = ({ selectedProductId, productsData }) => {
+	// Assuming productsData is the array of products passed as a prop or obtained from context
+	// const { productsData } = useContext(ProductsContext); // If using context
+
+	const selectedProductData = productsData.find(
+		(product) => product.id === selectedProductId,
+	);
+
+	// Initialize selectedImage with the first image of the selected product or a default value
+	const [selectedImage, setSelectedImage] = useState(
+		selectedProductData?.imageUrls[0] || "",
+	);
+
+	useEffect(() => {
+		// Update selectedImage when selectedProductId changes
+		setSelectedImage(selectedProductData?.imageUrls[0] || "");
+	}, [selectedProductId, selectedProductData]);
+
+	if (!selectedProductData) return <div>No product selected</div>; // Or any other fallback UI
+
+	return (
+		<div className="image-viewer-wrapper">
+			<div className="thumbnails-wrapper">
+				{selectedProductData.imageUrls.map((url, index) => (
+					<img
+						key={index}
+						src={url}
+						alt={`Thumbnail ${index}`}
+						onClick={() => setSelectedImage(url)} // Click to change the image
+						onMouseEnter={() => setSelectedImage(url)} // Hover to change the image
+					/>
+				))}
+			</div>
+			<div className="full-size-wrapper">
+				<img src={selectedImage} alt="Selected" />
+			</div>
+		</div>
+	);
+};
+
 function ProductIdBox({ selectedProductId }) {
 	return <div>Selected Product ID: {selectedProductId}</div>;
 }
@@ -86,10 +148,12 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 	};
 
 	const handleDecrement = async () => {
-		const newValue = value - 1;
-		setValue(newValue);
-		onValueChange(newValue);
-		removeProductFromCart_AJAX(productId, 1);
+		if (value > 0) {
+			const newValue = value - 1;
+			setValue(newValue);
+			onValueChange(newValue);
+			removeProductFromCart_AJAX(productId, 1);
+		}
 	};
 
 	// const handleDecrement = async () => {
@@ -155,6 +219,10 @@ function ProductDisplay({ data }) {
 	return (
 		<div>
 			{/* Render TogglerBox and pass products to it */}
+			<ProductGallery
+				selectedProductId={selectedProductId}
+				productsData={products}
+			></ProductGallery>
 			<ProductIdBox selectedProductId={selectedProductId} />
 			<TogglerBox
 				products={products}

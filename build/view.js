@@ -143,6 +143,64 @@ __webpack_require__.r(__webpack_exports__);
 console.log("view.js");
 
 
+
+// const ProductGallery = ({ selectedProductId }) => {
+// 	const [selectedImage, setSelectedImage] = useState(productData.imageUrls[0]);
+// 	return (
+// 		<div className="image-viewer-wrapper">
+// 			<div className="thumbnails-wrapper">
+// 				{productData.imageUrls.map((url, index) => (
+// 					<img
+// 						key={index}
+// 						src={url}
+// 						alt={`Thumbnail ${index}`}
+// 						onClick={() => setSelectedImage(url)} // Click to change the image
+// 						onMouseEnter={() => setSelectedImage(url)} // Hover to change the image
+// 					/>
+// 				))}
+// 			</div>
+// 			<div className="full-size-wrapper">
+// 				<img src={selectedImage} alt="Selected" />
+// 			</div>
+// 		</div>
+// 	);
+// };
+
+const ProductGallery = ({
+  selectedProductId,
+  productsData
+}) => {
+  // Assuming productsData is the array of products passed as a prop or obtained from context
+  // const { productsData } = useContext(ProductsContext); // If using context
+
+  const selectedProductData = productsData.find(product => product.id === selectedProductId);
+
+  // Initialize selectedImage with the first image of the selected product or a default value
+  const [selectedImage, setSelectedImage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(selectedProductData?.imageUrls[0] || "");
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    // Update selectedImage when selectedProductId changes
+    setSelectedImage(selectedProductData?.imageUrls[0] || "");
+  }, [selectedProductId, selectedProductData]);
+  if (!selectedProductData) return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "No product selected"); // Or any other fallback UI
+
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "image-viewer-wrapper"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "thumbnails-wrapper"
+  }, selectedProductData.imageUrls.map((url, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+    key: index,
+    src: url,
+    alt: `Thumbnail ${index}`,
+    onClick: () => setSelectedImage(url) // Click to change the image
+    ,
+    onMouseEnter: () => setSelectedImage(url) // Hover to change the image
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "full-size-wrapper"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+    src: selectedImage,
+    alt: "Selected"
+  })));
+};
 function ProductIdBox({
   selectedProductId
 }) {
@@ -194,10 +252,12 @@ function AdjusterBox({
     await addToCart(productId);
   };
   const handleDecrement = async () => {
-    const newValue = value - 1;
-    setValue(newValue);
-    onValueChange(newValue);
-    removeProductFromCart_AJAX(productId, 1);
+    if (value > 0) {
+      const newValue = value - 1;
+      setValue(newValue);
+      onValueChange(newValue);
+      removeProductFromCart_AJAX(productId, 1);
+    }
   };
 
   // const handleDecrement = async () => {
@@ -251,7 +311,10 @@ function ProductDisplay({
   const handleProductSelect = id => {
     setSelectedProductId(id);
   };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductIdBox, {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductGallery, {
+    selectedProductId: selectedProductId,
+    productsData: products
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductIdBox, {
     selectedProductId: selectedProductId
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TogglerBox, {
     products: products,
