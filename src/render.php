@@ -42,7 +42,7 @@ foreach ($product_ids as $product_id) {
 		'imageUrls' => $image_urls,
 		'min' => 0,
 		'max' => 20,
-		'counterValue' => 0,
+		'counterValue' => 2,
 	];
 
 	// Append this product's data to the products data array
