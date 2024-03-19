@@ -186,15 +186,6 @@ const ProductGallery = ({
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "image-viewer-wrapper"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "thumbnails-wrapper"
-  }, selectedProductData.imageUrls.map((url, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-    key: index,
-    src: url,
-    alt: `Thumbnail ${index}`,
-    onClick: () => setSelectedImage(url) // Click to change the image
-    ,
-    onMouseEnter: () => setSelectedImage(url) // Hover to change the image
-  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "full-size-wrapper"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
     src: selectedImage,
