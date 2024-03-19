@@ -33,6 +33,135 @@ import {
 } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 
+/**
+ *
+ */
+
+const CartItems = () => {
+	const [cartItems, setCartItems] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState(null);
+
+	const fetchCartItems = () => {
+		setIsLoading(true);
+		setError(null);
+
+		apiFetch({ path: "/wc/store/cart/items" })
+			.then((items) => {
+				setCartItems(items);
+				setIsLoading(false);
+			})
+			.catch((error) => {
+				console.error("Error fetching cart items:", error);
+				setError("Failed to fetch cart items.");
+				setIsLoading(false);
+			});
+	};
+
+	const incrementItem = (productId) => {
+		setIsLoading(true);
+
+		// Assuming the quantity to add is always 1 for simplicity
+		const itemData = {
+			id: productId,
+			quantity: 1,
+		};
+
+		apiFetch({
+			path: "/wc/store/cart/add-item",
+			method: "POST",
+			data: itemData,
+		})
+			.then(() => {
+				fetchCartItems(); // Refresh the cart items to reflect the change
+			})
+			.catch((error) => {
+				console.error("Error incrementing item:", error);
+				setError("Failed to increment item.");
+				setIsLoading(false);
+			});
+	};
+
+	const decrementItem = (itemKey) => {
+		setIsLoading(true);
+
+		// Find the current item in the cart
+		const item = cartItems.find((item) => item.key === itemKey);
+		if (!item) {
+			// If item not found, exit early
+			console.error("Item not found in cart:", itemKey);
+			setIsLoading(false);
+			return;
+		}
+
+		if (item.quantity === 1) {
+			// If the item's quantity is 1, remove it from the cart
+			const itemData = {
+				key: itemKey,
+			};
+
+			apiFetch({
+				path: "/wc/store/cart/remove-item",
+				method: "POST",
+				data: itemData,
+			})
+				.then(() => {
+					fetchCartItems(); // Refresh the cart items to reflect the change
+				})
+				.catch((error) => {
+					console.error("Error removing item:", error);
+					setError("Failed to remove item.");
+					setIsLoading(false);
+				});
+		} else {
+			// If the item's quantity is greater than 1, decrement its quantity
+			const itemData = {
+				key: itemKey,
+				quantity: item.quantity - 1,
+			};
+
+			apiFetch({
+				path: "/wc/store/cart/update-item",
+				method: "POST",
+				data: itemData,
+			})
+				.then(() => {
+					fetchCartItems(); // Refresh the cart items to reflect the change
+				})
+				.catch((error) => {
+					console.error("Error decrementing item:", error);
+					setError("Failed to decrement item.");
+					setIsLoading(false);
+				});
+		}
+	};
+
+	return (
+		<div>
+			<button onClick={fetchCartItems} disabled={isLoading}>
+				{isLoading ? "Loading..." : "Fetch Cart Items"}
+			</button>
+			{error && <p>Error: {error}</p>}
+			<ul>
+				{cartItems.map((item) => (
+					<li key={item.key}>
+						{item.name} - Quantity: {item.quantity}
+						<button onClick={() => incrementItem(item.id)}>+</button>
+						<button onClick={() => decrementItem(item.key)}>-</button>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+};
+
+const container = document.querySelector("#root-one");
+ReactDOM.createRoot(container).render(<CartItems />);
+
+/**
+ *
+ */
+
 const ProductGallery = ({ selectedProductId, productsData }) => {
 	// Assuming productsData is the array of products passed as a prop or obtained from context
 	// const { productsData } = useContext(ProductsContext); // If using context
@@ -132,7 +261,7 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 			const newValue = value - 1;
 			setValue(newValue);
 			onValueChange(newValue);
-			removeProductFromCart_AJAX(productId, 1);
+			// removeProductFromCart_AJAX(productId, 1);
 		}
 	};
 

@@ -143,6 +143,113 @@ __webpack_require__.r(__webpack_exports__);
 console.log("view.js");
 
 
+
+/**
+ *
+ */
+
+const CartItems = () => {
+  const [cartItems, setCartItems] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+  const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+  const [error, setError] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+  const fetchCartItems = () => {
+    setIsLoading(true);
+    setError(null);
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+      path: "/wc/store/cart/items"
+    }).then(items => {
+      setCartItems(items);
+      setIsLoading(false);
+    }).catch(error => {
+      console.error("Error fetching cart items:", error);
+      setError("Failed to fetch cart items.");
+      setIsLoading(false);
+    });
+  };
+  const incrementItem = productId => {
+    setIsLoading(true);
+
+    // Assuming the quantity to add is always 1 for simplicity
+    const itemData = {
+      id: productId,
+      quantity: 1
+    };
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+      path: "/wc/store/cart/add-item",
+      method: "POST",
+      data: itemData
+    }).then(() => {
+      fetchCartItems(); // Refresh the cart items to reflect the change
+    }).catch(error => {
+      console.error("Error incrementing item:", error);
+      setError("Failed to increment item.");
+      setIsLoading(false);
+    });
+  };
+  const decrementItem = itemKey => {
+    setIsLoading(true);
+
+    // Find the current item in the cart
+    const item = cartItems.find(item => item.key === itemKey);
+    if (!item) {
+      // If item not found, exit early
+      console.error("Item not found in cart:", itemKey);
+      setIsLoading(false);
+      return;
+    }
+    if (item.quantity === 1) {
+      // If the item's quantity is 1, remove it from the cart
+      const itemData = {
+        key: itemKey
+      };
+      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+        path: "/wc/store/cart/remove-item",
+        method: "POST",
+        data: itemData
+      }).then(() => {
+        fetchCartItems(); // Refresh the cart items to reflect the change
+      }).catch(error => {
+        console.error("Error removing item:", error);
+        setError("Failed to remove item.");
+        setIsLoading(false);
+      });
+    } else {
+      // If the item's quantity is greater than 1, decrement its quantity
+      const itemData = {
+        key: itemKey,
+        quantity: item.quantity - 1
+      };
+      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+        path: "/wc/store/cart/update-item",
+        method: "POST",
+        data: itemData
+      }).then(() => {
+        fetchCartItems(); // Refresh the cart items to reflect the change
+      }).catch(error => {
+        console.error("Error decrementing item:", error);
+        setError("Failed to decrement item.");
+        setIsLoading(false);
+      });
+    }
+  };
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: fetchCartItems,
+    disabled: isLoading
+  }, isLoading ? "Loading..." : "Fetch Cart Items"), error && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Error: ", error), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", null, cartItems.map(item => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", {
+    key: item.key
+  }, item.name, " - Quantity: ", item.quantity, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: () => incrementItem(item.id)
+  }, "+"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: () => decrementItem(item.key)
+  }, "-")))));
+};
+const container = document.querySelector("#root-one");
+ReactDOM.createRoot(container).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CartItems, null));
+
+/**
+ *
+ */
+
 const ProductGallery = ({
   selectedProductId,
   productsData
@@ -224,7 +331,7 @@ function AdjusterBox({
       const newValue = value - 1;
       setValue(newValue);
       onValueChange(newValue);
-      removeProductFromCart_AJAX(productId, 1);
+      // removeProductFromCart_AJAX(productId, 1);
     }
   };
 
