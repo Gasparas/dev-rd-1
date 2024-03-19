@@ -12,6 +12,16 @@ module.exports = window["React"];
 
 /***/ }),
 
+/***/ "@wordpress/api-fetch":
+/*!**********************************!*\
+  !*** external ["wp","apiFetch"] ***!
+  \**********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["apiFetch"];
+
+/***/ }),
+
 /***/ "@wordpress/element":
 /*!*********************************!*\
   !*** external ["wp","element"] ***!
@@ -97,10 +107,16 @@ var __webpack_exports__ = {};
   !*** ./src/view.js ***!
   \*********************/
 __webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   addToCart: () => (/* binding */ addToCart),
+/* harmony export */   removeProductFromCart: () => (/* binding */ removeProductFromCart)
+/* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2__);
 
 /**
  * Use this file for JavaScript code that you want to run in the front-end
@@ -126,6 +142,7 @@ __webpack_require__.r(__webpack_exports__);
 
 console.log("view.js");
 
+
 function ProductIdBox({
   selectedProductId
 }) {
@@ -145,22 +162,57 @@ function TogglerBox({
   }, product.counterValue)));
 }
 function AdjusterBox({
+  productId,
   initialValue,
   onValueChange
 }) {
   const [value, setValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialValue);
+  const [cartItemKey, setCartItemKey] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("");
+
+  // Fetch the cart contents to find the current item's quantity and key when the component mounts or productId changes
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    console.log("useEffect with productId dependency triggered", productId);
+    const loadCartItemDetails = async () => {
+      const items = await fetchCartContents();
+      const item = items.find(item => item.product_id === productId); // Adjust to match your actual data structure
+      if (item) {
+        setValue(item.quantity);
+        setCartItemKey(item.key); // Store the cart item key for later use
+      }
+    };
+    loadCartItemDetails();
+  }, [productId]);
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     setValue(initialValue);
   }, [initialValue]);
-  const handleIncrement = () => {
+  const handleIncrement = async () => {
     const newValue = value + 1;
     setValue(newValue);
     onValueChange(newValue);
+    await addToCart(productId);
   };
-  const handleDecrement = () => {
-    const newValue = value - 1;
-    setValue(newValue);
-    onValueChange(newValue);
+
+  // const handleDecrement = async () => {
+  // 	const newValue = value - 1;
+  // 	setValue(newValue);
+  // 	onValueChange(newValue);
+  // 	await removeFromCart(productId);
+  // };
+
+  const handleDecrement = async () => {
+    if (value > 1) {
+      // Decrement quantity logic here
+      const newValue = value - 1;
+      setValue(newValue);
+      onValueChange(newValue);
+      // Potentially update cart via an API call, not covered here
+      setValue(prevQuantity => prevQuantity - 1);
+    } else if (value === 1) {
+      // If quantity is 1, then decrementing should remove the item from the cart
+      await removeProductFromCart(cartItemKey);
+      setValue(0); // Update quantity state to reflect removal
+      // Optionally, signal to parent components that the item has been removed
+    }
   };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     onClick: handleDecrement
@@ -204,6 +256,7 @@ function ProductDisplay({
     onProductSelect: handleProductSelect,
     selectedProductId: selectedProductId
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(AdjusterBox, {
+    productId: selectedProductId,
     initialValue: counterValue,
     onValueChange: handleCounterChange
   }));
@@ -217,32 +270,57 @@ document.querySelectorAll(".react-container").forEach(container => {
   }
 });
 
-//
-// import apiFetch from "@wordpress/api-fetch";
-//
+/**
+ *  WooCommerce API
+ */
 
-/*
-
-const addToCart = async (productId, quantity = 1) => {
-	try {
-		const response = await apiFetch({
-			path: `wc/store/cart/add-item`, // Adjust according to the correct Store API endpoint
-			method: "POST",
-			data: {
-				id: productId,
-				quantity,
-			},
-		});
-
-		console.log("Product added to cart:", response);
-		return response;
-	} catch (error) {
-		console.error("Error adding product to cart:", error);
-		return null;
-	}
+const addToCart = async productId => {
+  try {
+    const response = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+      path: `wc/store/cart/add-item`,
+      method: "POST",
+      data: {
+        id: productId,
+        quantity: 1
+      }
+    });
+    console.log("Product added to cart:", response);
+    return response;
+  } catch (error) {
+    console.error("Error adding product to cart:", error);
+    return null;
+  }
 };
-
-*/
+const fetchCartContents = async () => {
+  console.log("Calling fetchCartContents");
+  try {
+    const cartContents = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+      path: "/wc/store/cart",
+      method: "GET"
+    });
+    return cartContents.items;
+  } catch (error) {
+    console.error("Error fetching cart contents:", error);
+    throw error;
+  }
+};
+const removeProductFromCart = async cartItemKey => {
+  try {
+    const response = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+      path: "/wc/store/cart/remove-item",
+      // Ensure this endpoint is correct
+      method: "POST",
+      data: {
+        key: cartItemKey
+      }
+    });
+    console.log("Product removed from cart:", response);
+    return response;
+  } catch (error) {
+    console.error("Error removing product from cart:", error);
+    throw error;
+  }
+};
 
 //
 // App1

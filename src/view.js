@@ -31,6 +31,7 @@ import {
 	useEffect,
 	useCallback,
 } from "@wordpress/element";
+import apiFetch from "@wordpress/api-fetch";
 
 function ProductIdBox({ selectedProductId }) {
 	return <div>Selected Product ID: {selectedProductId}</div>;
@@ -54,23 +55,57 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 	);
 }
 
-function AdjusterBox({ initialValue, onValueChange }) {
+function AdjusterBox({ productId, initialValue, onValueChange }) {
 	const [value, setValue] = useState(initialValue);
+	const [cartItemKey, setCartItemKey] = useState("");
+
+	// Fetch the cart contents to find the current item's quantity and key when the component mounts or productId changes
+	useEffect(() => {
+		console.log("useEffect with productId dependency triggered", productId);
+		const loadCartItemDetails = async () => {
+			const items = await fetchCartContents();
+			const item = items.find((item) => item.product_id === productId); // Adjust to match your actual data structure
+			if (item) {
+				setValue(item.quantity);
+				setCartItemKey(item.key); // Store the cart item key for later use
+			}
+		};
+
+		loadCartItemDetails();
+	}, [productId]);
 
 	useEffect(() => {
 		setValue(initialValue);
 	}, [initialValue]);
 
-	const handleIncrement = () => {
+	const handleIncrement = async () => {
 		const newValue = value + 1;
 		setValue(newValue);
 		onValueChange(newValue);
+		await addToCart(productId);
 	};
 
-	const handleDecrement = () => {
-		const newValue = value - 1;
-		setValue(newValue);
-		onValueChange(newValue);
+	// const handleDecrement = async () => {
+	// 	const newValue = value - 1;
+	// 	setValue(newValue);
+	// 	onValueChange(newValue);
+	// 	await removeFromCart(productId);
+	// };
+
+	const handleDecrement = async () => {
+		if (value > 1) {
+			// Decrement quantity logic here
+			const newValue = value - 1;
+			setValue(newValue);
+			onValueChange(newValue);
+			// Potentially update cart via an API call, not covered here
+			setValue((prevQuantity) => prevQuantity - 1);
+		} else if (value === 1) {
+			// If quantity is 1, then decrementing should remove the item from the cart
+			await removeProductFromCart(cartItemKey);
+			setValue(0); // Update quantity state to reflect removal
+			// Optionally, signal to parent components that the item has been removed
+		}
 	};
 
 	return (
@@ -128,6 +163,7 @@ function ProductDisplay({ data }) {
 			/>
 			{/* Render ProductIdBox to display the selected product's ID */}
 			<AdjusterBox
+				productId={selectedProductId}
 				initialValue={counterValue}
 				onValueChange={handleCounterChange}
 			/>
@@ -144,20 +180,18 @@ document.querySelectorAll(".react-container").forEach((container) => {
 	}
 });
 
-//
-// import apiFetch from "@wordpress/api-fetch";
-//
+/**
+ *  WooCommerce API
+ */
 
-/*
-
-const addToCart = async (productId, quantity = 1) => {
+export const addToCart = async (productId) => {
 	try {
 		const response = await apiFetch({
-			path: `wc/store/cart/add-item`, // Adjust according to the correct Store API endpoint
+			path: `wc/store/cart/add-item`,
 			method: "POST",
 			data: {
 				id: productId,
-				quantity,
+				quantity: 1,
 			},
 		});
 
@@ -169,7 +203,37 @@ const addToCart = async (productId, quantity = 1) => {
 	}
 };
 
-*/
+const fetchCartContents = async () => {
+	console.log("Calling fetchCartContents");
+	try {
+		const cartContents = await apiFetch({
+			path: "/wc/store/cart",
+			method: "GET",
+		});
+		return cartContents.items;
+	} catch (error) {
+		console.error("Error fetching cart contents:", error);
+		throw error;
+	}
+};
+
+export const removeProductFromCart = async (cartItemKey) => {
+	try {
+		const response = await apiFetch({
+			path: "/wc/store/cart/remove-item", // Ensure this endpoint is correct
+			method: "POST",
+			data: {
+				key: cartItemKey,
+			},
+		});
+
+		console.log("Product removed from cart:", response);
+		return response;
+	} catch (error) {
+		console.error("Error removing product from cart:", error);
+		throw error;
+	}
+};
 
 //
 // App1
