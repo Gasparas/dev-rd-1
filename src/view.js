@@ -60,19 +60,19 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 	const [cartItemKey, setCartItemKey] = useState("");
 
 	// Fetch the cart contents to find the current item's quantity and key when the component mounts or productId changes
-	useEffect(() => {
-		console.log("useEffect with productId dependency triggered", productId);
-		const loadCartItemDetails = async () => {
-			const items = await fetchCartContents();
-			const item = items.find((item) => item.product_id === productId); // Adjust to match your actual data structure
-			if (item) {
-				setValue(item.quantity);
-				setCartItemKey(item.key); // Store the cart item key for later use
-			}
-		};
+	// useEffect(() => {
+	// 	console.log("useEffect with productId dependency triggered", productId);
+	// 	const loadCartItemDetails = async () => {
+	// 		const items = await fetchCartContents();
+	// 		const item = items.find((item) => item.product_id === productId); // Adjust to match your actual data structure
+	// 		if (item) {
+	// 			setValue(item.quantity);
+	// 			setCartItemKey(item.key); // Store the cart item key for later use
+	// 		}
+	// 	};
 
-		loadCartItemDetails();
-	}, [productId]);
+	// 	loadCartItemDetails();
+	// }, [productId]);
 
 	useEffect(() => {
 		setValue(initialValue);
@@ -85,28 +85,28 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 		await addToCart(productId);
 	};
 
-	// const handleDecrement = async () => {
-	// 	const newValue = value - 1;
-	// 	setValue(newValue);
-	// 	onValueChange(newValue);
-	// 	await removeFromCart(productId);
-	// };
-
 	const handleDecrement = async () => {
-		if (value > 1) {
-			// Decrement quantity logic here
-			const newValue = value - 1;
-			setValue(newValue);
-			onValueChange(newValue);
-			// Potentially update cart via an API call, not covered here
-			setValue((prevQuantity) => prevQuantity - 1);
-		} else if (value === 1) {
-			// If quantity is 1, then decrementing should remove the item from the cart
-			await removeProductFromCart(cartItemKey);
-			setValue(0); // Update quantity state to reflect removal
-			// Optionally, signal to parent components that the item has been removed
-		}
+		const newValue = value - 1;
+		setValue(newValue);
+		onValueChange(newValue);
+		removeProductFromCart_AJAX(productId, 1);
 	};
+
+	// const handleDecrement = async () => {
+	// 	if (value > 1) {
+	// 		// Decrement quantity logic here
+	// 		const newValue = value - 1;
+	// 		setValue(newValue);
+	// 		onValueChange(newValue);
+	// 		// Potentially update cart via an API call, not covered here
+	// 		setValue((prevQuantity) => prevQuantity - 1);
+	// 	} else if (value === 1) {
+	// 		// If quantity is 1, then decrementing should remove the item from the cart
+	// 		await removeProductFromCart(cartItemKey);
+	// 		setValue(0); // Update quantity state to reflect removal
+	// 		// Optionally, signal to parent components that the item has been removed
+	// 	}
+	// };
 
 	return (
 		<div>
@@ -217,22 +217,41 @@ const fetchCartContents = async () => {
 	}
 };
 
-export const removeProductFromCart = async (cartItemKey) => {
-	try {
-		const response = await apiFetch({
-			path: "/wc/store/cart/remove-item", // Ensure this endpoint is correct
-			method: "POST",
-			data: {
-				key: cartItemKey,
-			},
-		});
+// export const removeProductFromCart = async (cartItemKey) => {
+// 	try {
+// 		const response = await apiFetch({
+// 			path: "/wc/store/cart/remove-item", // Ensure this endpoint is correct
+// 			method: "POST",
+// 			data: {
+// 				key: cartItemKey,
+// 			},
+// 		});
 
-		console.log("Product removed from cart:", response);
-		return response;
-	} catch (error) {
-		console.error("Error removing product from cart:", error);
-		throw error;
-	}
+// 		console.log("Product removed from cart:", response);
+// 		return response;
+// 	} catch (error) {
+// 		console.error("Error removing product from cart:", error);
+// 		throw error;
+// 	}
+// };
+
+export const removeProductFromCart_AJAX = (productId, quantity) => {
+	console.log(`Removing product ${productId} from the cart`);
+	jQuery.ajax({
+		url: ajaxurl,
+		method: "POST",
+		data: {
+			action: "remove_from_cart_request",
+			product_id: productId,
+			quantity: quantity,
+		},
+		success: function (data) {
+			console.log(data);
+		},
+		error: function (errorThrown) {
+			window.alert(errorThrown);
+		},
+	});
 };
 
 //

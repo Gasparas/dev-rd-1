@@ -109,7 +109,7 @@ var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   addToCart: () => (/* binding */ addToCart),
-/* harmony export */   removeProductFromCart: () => (/* binding */ removeProductFromCart)
+/* harmony export */   removeProductFromCart_AJAX: () => (/* binding */ removeProductFromCart_AJAX)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
@@ -170,18 +170,20 @@ function AdjusterBox({
   const [cartItemKey, setCartItemKey] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("");
 
   // Fetch the cart contents to find the current item's quantity and key when the component mounts or productId changes
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    console.log("useEffect with productId dependency triggered", productId);
-    const loadCartItemDetails = async () => {
-      const items = await fetchCartContents();
-      const item = items.find(item => item.product_id === productId); // Adjust to match your actual data structure
-      if (item) {
-        setValue(item.quantity);
-        setCartItemKey(item.key); // Store the cart item key for later use
-      }
-    };
-    loadCartItemDetails();
-  }, [productId]);
+  // useEffect(() => {
+  // 	console.log("useEffect with productId dependency triggered", productId);
+  // 	const loadCartItemDetails = async () => {
+  // 		const items = await fetchCartContents();
+  // 		const item = items.find((item) => item.product_id === productId); // Adjust to match your actual data structure
+  // 		if (item) {
+  // 			setValue(item.quantity);
+  // 			setCartItemKey(item.key); // Store the cart item key for later use
+  // 		}
+  // 	};
+
+  // 	loadCartItemDetails();
+  // }, [productId]);
+
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     setValue(initialValue);
   }, [initialValue]);
@@ -191,29 +193,29 @@ function AdjusterBox({
     onValueChange(newValue);
     await addToCart(productId);
   };
+  const handleDecrement = async () => {
+    const newValue = value - 1;
+    setValue(newValue);
+    onValueChange(newValue);
+    removeProductFromCart_AJAX(productId, 1);
+  };
 
   // const handleDecrement = async () => {
-  // 	const newValue = value - 1;
-  // 	setValue(newValue);
-  // 	onValueChange(newValue);
-  // 	await removeFromCart(productId);
+  // 	if (value > 1) {
+  // 		// Decrement quantity logic here
+  // 		const newValue = value - 1;
+  // 		setValue(newValue);
+  // 		onValueChange(newValue);
+  // 		// Potentially update cart via an API call, not covered here
+  // 		setValue((prevQuantity) => prevQuantity - 1);
+  // 	} else if (value === 1) {
+  // 		// If quantity is 1, then decrementing should remove the item from the cart
+  // 		await removeProductFromCart(cartItemKey);
+  // 		setValue(0); // Update quantity state to reflect removal
+  // 		// Optionally, signal to parent components that the item has been removed
+  // 	}
   // };
 
-  const handleDecrement = async () => {
-    if (value > 1) {
-      // Decrement quantity logic here
-      const newValue = value - 1;
-      setValue(newValue);
-      onValueChange(newValue);
-      // Potentially update cart via an API call, not covered here
-      setValue(prevQuantity => prevQuantity - 1);
-    } else if (value === 1) {
-      // If quantity is 1, then decrementing should remove the item from the cart
-      await removeProductFromCart(cartItemKey);
-      setValue(0); // Update quantity state to reflect removal
-      // Optionally, signal to parent components that the item has been removed
-    }
-  };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     onClick: handleDecrement
   }, "-"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, " ", value, " "), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
@@ -304,22 +306,42 @@ const fetchCartContents = async () => {
     throw error;
   }
 };
-const removeProductFromCart = async cartItemKey => {
-  try {
-    const response = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-      path: "/wc/store/cart/remove-item",
-      // Ensure this endpoint is correct
-      method: "POST",
-      data: {
-        key: cartItemKey
-      }
-    });
-    console.log("Product removed from cart:", response);
-    return response;
-  } catch (error) {
-    console.error("Error removing product from cart:", error);
-    throw error;
-  }
+
+// export const removeProductFromCart = async (cartItemKey) => {
+// 	try {
+// 		const response = await apiFetch({
+// 			path: "/wc/store/cart/remove-item", // Ensure this endpoint is correct
+// 			method: "POST",
+// 			data: {
+// 				key: cartItemKey,
+// 			},
+// 		});
+
+// 		console.log("Product removed from cart:", response);
+// 		return response;
+// 	} catch (error) {
+// 		console.error("Error removing product from cart:", error);
+// 		throw error;
+// 	}
+// };
+
+const removeProductFromCart_AJAX = (productId, quantity) => {
+  console.log(`Removing product ${productId} from the cart`);
+  jQuery.ajax({
+    url: ajaxurl,
+    method: "POST",
+    data: {
+      action: "remove_from_cart_request",
+      product_id: productId,
+      quantity: quantity
+    },
+    success: function (data) {
+      console.log(data);
+    },
+    error: function (errorThrown) {
+      window.alert(errorThrown);
+    }
+  });
 };
 
 //
