@@ -276,7 +276,7 @@ const ProductGallery = ({
     alt: "Selected"
   })));
 };
-function ProductIdBox({
+function ProductInfoBox({
   selectedProductId
 }) {
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Selected Product ID: ", selectedProductId);
@@ -389,7 +389,7 @@ function ProductDisplay({
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductGallery, {
     selectedProductId: selectedProductId,
     productsData: products
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductIdBox, {
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductInfoBox, {
     selectedProductId: selectedProductId
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TogglerBox, {
     products: products,

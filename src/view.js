@@ -204,7 +204,7 @@ const ProductGallery = ({ selectedProductId, productsData }) => {
 	);
 };
 
-function ProductIdBox({ selectedProductId }) {
+function ProductInfoBox({ selectedProductId }) {
 	return <div>Selected Product ID: {selectedProductId}</div>;
 }
 
@@ -332,13 +332,13 @@ function ProductDisplay({ data }) {
 				selectedProductId={selectedProductId}
 				productsData={products}
 			></ProductGallery>
-			<ProductIdBox selectedProductId={selectedProductId} />
+			<ProductInfoBox selectedProductId={selectedProductId} />
 			<TogglerBox
 				products={products}
 				onProductSelect={handleProductSelect}
 				selectedProductId={selectedProductId}
 			/>
-			{/* Render ProductIdBox to display the selected product's ID */}
+			{/* Render ProductInfoBox to display the selected product's ID */}
 			<AdjusterBox
 				productId={selectedProductId}
 				initialValue={counterValue}
