@@ -17,6 +17,17 @@ foreach ($product_ids as $product_id) {
 		continue;
 	}
 
+	// Initialize counterValue as 0
+	$counterValue = 0;
+
+	// Check if the product is in the cart and update counterValue to the quantity
+	foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
+		if ($cart_item['product_id'] == $product_id) {
+			$counterValue = $cart_item['quantity'];
+			break; // Stop the loop once the product is found
+		}
+	}
+
 	// Retrieve product details
 	$color_terms = wc_get_product_terms($product->get_id(), 'pa_color', array('fields' => 'names'));
 	$color = !empty($color_terms) ? implode(', ', $color_terms) : '';
@@ -34,7 +45,7 @@ foreach ($product_ids as $product_id) {
 
 	// Compile the product data
 	$product_data = [
-		'id' => $product_id,
+		'id' => (int)$product_id,
 		'title' => $product->get_name(),
 		'price' => $product->get_price(),
 		'color' => $color,
@@ -42,7 +53,7 @@ foreach ($product_ids as $product_id) {
 		'imageUrls' => $image_urls,
 		'min' => 0,
 		'max' => 20,
-		'counterValue' => 0,
+		'counterValue' => $counterValue, // Set to the current quantity in the cart
 	];
 
 	// Append this product's data to the products data array

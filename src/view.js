@@ -84,9 +84,10 @@ const CartItems = () => {
 
 	const decrementItem = (itemKey) => {
 		setIsLoading(true);
-
+		console.log(cartItems);
 		// Find the current item in the cart
 		const item = cartItems.find((item) => item.key === itemKey);
+		// console.log(item);
 		if (!item) {
 			// If item not found, exit early
 			console.error("Item not found in cart:", itemKey);
@@ -114,6 +115,7 @@ const CartItems = () => {
 					setIsLoading(false);
 				});
 		} else {
+			// console.log(itemKey);
 			// If the item's quantity is greater than 1, decrement its quantity
 			const itemData = {
 				key: itemKey,
@@ -155,8 +157,8 @@ const CartItems = () => {
 	);
 };
 
-const container = document.querySelector("#root-one");
-ReactDOM.createRoot(container).render(<CartItems />);
+// const container = document.querySelector("#root-one");
+// ReactDOM.createRoot(container).render(<CartItems />);
 
 /**
  *
@@ -222,39 +224,144 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 	);
 }
 
-function AdjusterBox({ initialValue, onValueChange }) {
+function AdjusterBox({ productId, initialValue, onValueChange }) {
 	const [value, setValue] = useState(initialValue);
+	const [cartItems, setCartItems] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState(null);
 
 	useEffect(() => {
 		setValue(initialValue);
 	}, [initialValue]);
 
-	const handleIncrement = async () => {
+	useEffect(() => {
+		apiFetchCartItems();
+	}, []);
+
+	const apiFetchCartItems = () => {
+		setIsLoading(true);
+		setError(null);
+
+		apiFetch({ path: "/wc/store/cart/items" })
+			.then((items) => {
+				setCartItems(items);
+				setIsLoading(false);
+			})
+			.catch((error) => {
+				console.error("Error fetching cart items:", error);
+				setError("Failed to fetch cart items.");
+				setIsLoading(false);
+			});
+	};
+
+	const apiAddToCart = (productId) => {
+		setIsLoading(true);
+
+		const itemData = {
+			id: productId,
+			quantity: 1,
+		};
+
+		apiFetch({
+			path: "/wc/store/cart/add-item",
+			method: "POST",
+			data: itemData,
+		})
+			.then(() => {
+				apiFetchCartItems(); // Refresh the cart items to reflect the change
+				console.log(`Add to cart: ${productId}`);
+			})
+			.catch((error) => {
+				console.error("Error incrementing item:", error);
+				setError("Failed to increment item.");
+				setIsLoading(false);
+			});
+	};
+
+	const apiRemoveFromCart = (productId) => {
+		setIsLoading(true);
+
+		// Find the current item in the cart
+		const item = cartItems.find(item => item.id === productId);
+		if (!item) {
+			// If item not found, exit early
+			console.error("Item not found in cart:", productId);
+			setIsLoading(false);
+			return;
+		}
+
+		if (item.quantity === 1) {
+			// If the item's quantity is 1, remove it from the cart
+			const itemData = {
+				key: item.key,
+			};
+
+			apiFetch({
+				path: "/wc/store/cart/remove-item",
+				method: "POST",
+				data: itemData,
+			})
+				.then(() => {
+					apiFetchCartItems(); // Refresh the cart items to reflect the change
+					console.log(`Remove from cart: ${productId}`);
+				})
+				.catch((error) => {
+					console.error("Error removing item:", error);
+					setError("Failed to remove item.");
+					setIsLoading(false);
+				});
+		} else {
+			// If the item's quantity is greater than 1, decrement its quantity
+			const itemData = {
+				key: item.key,
+				quantity: item.quantity - 1,
+			};
+
+			apiFetch({
+				path: "/wc/store/cart/update-item",
+				method: "POST",
+				data: itemData,
+			})
+				.then(() => {
+					apiFetchCartItems(); // Refresh the cart items to reflect the change
+					console.log(`Decrease cart quantity: ${productId}`);
+				})
+				.catch((error) => {
+					console.error("Error decrementing item:", error);
+					setError("Failed to decrement item.");
+					setIsLoading(false);
+				});
+		}
+	};
+
+	const handleIncrement = () => {
 		const newValue = value + 1;
 		setValue(newValue);
 		onValueChange(newValue);
+		apiAddToCart(productId);
 	};
 
-	const handleDecrement = async () => {
+	const handleDecrement = () => {
 		if (value > 0) {
 			const newValue = value - 1;
 			setValue(newValue);
 			onValueChange(newValue);
+			apiRemoveFromCart(productId);
 		}
 	};
 
 	return (
 		<div>
-			<button onClick={handleDecrement}>-</button>
+			<button onClick={handleDecrement} disabled={isLoading}>{isLoading ? "-" : "-"}</button>
 			<span> {value} </span>
-			<button onClick={handleIncrement}>+</button>
+			<button onClick={handleIncrement} disabled={isLoading}>{isLoading ? "+" : "+"}</button>
 		</div>
 	);
 }
 
 function ProductDisplay({ data }) {
 	const [products, setProducts] = useState([]);
-	const [selectedProductId, setSelectedProductId] = useState("");
+	const [selectedProductId, setSelectedProductId] = useState(null);
 	const [counterValue, setCounterValue] = useState(0);
 
 	useEffect(() => {
@@ -279,6 +386,7 @@ function ProductDisplay({ data }) {
 				? { ...product, counterValue: newValue }
 				: product,
 		);
+		// console.log(updatedProducts);
 		setProducts(updatedProducts);
 	};
 
@@ -311,6 +419,7 @@ document.querySelectorAll(".react-container").forEach((container) => {
 	const jsonDataElement = container.querySelector(".product-data");
 	if (jsonDataElement) {
 		const jsonData = JSON.parse(jsonDataElement.textContent || "[]");
+		console.log('mount', jsonData);
 		ReactDOM.createRoot(container).render(<ProductDisplay data={jsonData} />);
 	}
 });
