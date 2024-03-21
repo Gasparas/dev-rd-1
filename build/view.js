@@ -250,13 +250,10 @@ ReactDOM.createRoot(container).render((0,react__WEBPACK_IMPORTED_MODULE_0__.crea
  *
  */
 
-const ProductGallery = ({
+function ProductGallery({
   selectedProductId,
   productsData
-}) => {
-  // Assuming productsData is the array of products passed as a prop or obtained from context
-  // const { productsData } = useContext(ProductsContext); // If using context
-
+}) {
   const selectedProductData = productsData.find(product => product.id === selectedProductId);
 
   // Initialize selectedImage with the first image of the selected product or a default value
@@ -275,7 +272,7 @@ const ProductGallery = ({
     src: selectedImage,
     alt: "Selected"
   })));
-};
+}
 function ProductInfoBox({
   selectedProductId
 }) {
@@ -295,28 +292,10 @@ function TogglerBox({
   }, product.counterValue)));
 }
 function AdjusterBox({
-  productId,
   initialValue,
   onValueChange
 }) {
   const [value, setValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialValue);
-  const [cartItemKey, setCartItemKey] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("");
-
-  // Fetch the cart contents to find the current item's quantity and key when the component mounts or productId changes
-  // useEffect(() => {
-  // 	console.log("useEffect with productId dependency triggered", productId);
-  // 	const loadCartItemDetails = async () => {
-  // 		const items = await fetchCartContents();
-  // 		const item = items.find((item) => item.product_id === productId); // Adjust to match your actual data structure
-  // 		if (item) {
-  // 			setValue(item.quantity);
-  // 			setCartItemKey(item.key); // Store the cart item key for later use
-  // 		}
-  // 	};
-
-  // 	loadCartItemDetails();
-  // }, [productId]);
-
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     setValue(initialValue);
   }, [initialValue]);
@@ -324,33 +303,14 @@ function AdjusterBox({
     const newValue = value + 1;
     setValue(newValue);
     onValueChange(newValue);
-    await addToCart(productId);
   };
   const handleDecrement = async () => {
     if (value > 0) {
       const newValue = value - 1;
       setValue(newValue);
       onValueChange(newValue);
-      // removeProductFromCart_AJAX(productId, 1);
     }
   };
-
-  // const handleDecrement = async () => {
-  // 	if (value > 1) {
-  // 		// Decrement quantity logic here
-  // 		const newValue = value - 1;
-  // 		setValue(newValue);
-  // 		onValueChange(newValue);
-  // 		// Potentially update cart via an API call, not covered here
-  // 		setValue((prevQuantity) => prevQuantity - 1);
-  // 	} else if (value === 1) {
-  // 		// If quantity is 1, then decrementing should remove the item from the cart
-  // 		await removeProductFromCart(cartItemKey);
-  // 		setValue(0); // Update quantity state to reflect removal
-  // 		// Optionally, signal to parent components that the item has been removed
-  // 	}
-  // };
-
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     onClick: handleDecrement
   }, "-"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, " ", value, " "), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
@@ -368,11 +328,10 @@ function ProductDisplay({
     setCounterValue(selectedProduct ? selectedProduct.counterValue : 0);
   }, [products, selectedProductId]);
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    const parsedData = JSON.parse(data);
-    setProducts(parsedData);
-    if (parsedData.length > 0) {
+    setProducts(data); // Directly use the data prop which is now an array
+    if (data.length > 0) {
       // Set the first product's ID as selected by default
-      setSelectedProductId(parsedData[0].id);
+      setSelectedProductId(data[0].id);
     }
   }, [data]);
   const handleCounterChange = newValue => {
@@ -402,10 +361,11 @@ function ProductDisplay({
   }));
 }
 document.querySelectorAll(".react-container").forEach(container => {
-  const dataScript = container.querySelector(".product-data");
-  if (dataScript) {
+  const jsonDataElement = container.querySelector(".product-data");
+  if (jsonDataElement) {
+    const jsonData = JSON.parse(jsonDataElement.textContent || "[]");
     ReactDOM.createRoot(container).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductDisplay, {
-      data: dataScript.textContent
+      data: jsonData
     }));
   }
 });

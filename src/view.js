@@ -162,10 +162,7 @@ ReactDOM.createRoot(container).render(<CartItems />);
  *
  */
 
-const ProductGallery = ({ selectedProductId, productsData }) => {
-	// Assuming productsData is the array of products passed as a prop or obtained from context
-	// const { productsData } = useContext(ProductsContext); // If using context
-
+function ProductGallery({ selectedProductId, productsData }) {
 	const selectedProductData = productsData.find(
 		(product) => product.id === selectedProductId,
 	);
@@ -184,25 +181,24 @@ const ProductGallery = ({ selectedProductId, productsData }) => {
 
 	return (
 		<div className="image-viewer-wrapper">
-			{/*  
-			<div className="thumbnails-wrapper">
+			{/* <div className="thumbnails-wrapper">
 				{selectedProductData.imageUrls.map((url, index) => (
 					<img
 						key={index}
 						src={url}
 						alt={`Thumbnail ${index}`}
+						className={selectedImage === url ? "selected-thumbnail" : ""}
 						onClick={() => setSelectedImage(url)} // Click to change the image
 						onMouseEnter={() => setSelectedImage(url)} // Hover to change the image
 					/>
 				))}
-			</div>
-			*/}
+			</div> */}
 			<div className="full-size-wrapper">
 				<img src={selectedImage} alt="Selected" />
 			</div>
 		</div>
 	);
-};
+}
 
 function ProductInfoBox({ selectedProductId }) {
 	return <div>Selected Product ID: {selectedProductId}</div>;
@@ -226,24 +222,8 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 	);
 }
 
-function AdjusterBox({ productId, initialValue, onValueChange }) {
+function AdjusterBox({ initialValue, onValueChange }) {
 	const [value, setValue] = useState(initialValue);
-	const [cartItemKey, setCartItemKey] = useState("");
-
-	// Fetch the cart contents to find the current item's quantity and key when the component mounts or productId changes
-	// useEffect(() => {
-	// 	console.log("useEffect with productId dependency triggered", productId);
-	// 	const loadCartItemDetails = async () => {
-	// 		const items = await fetchCartContents();
-	// 		const item = items.find((item) => item.product_id === productId); // Adjust to match your actual data structure
-	// 		if (item) {
-	// 			setValue(item.quantity);
-	// 			setCartItemKey(item.key); // Store the cart item key for later use
-	// 		}
-	// 	};
-
-	// 	loadCartItemDetails();
-	// }, [productId]);
 
 	useEffect(() => {
 		setValue(initialValue);
@@ -253,7 +233,6 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 		const newValue = value + 1;
 		setValue(newValue);
 		onValueChange(newValue);
-		await addToCart(productId);
 	};
 
 	const handleDecrement = async () => {
@@ -261,25 +240,8 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 			const newValue = value - 1;
 			setValue(newValue);
 			onValueChange(newValue);
-			// removeProductFromCart_AJAX(productId, 1);
 		}
 	};
-
-	// const handleDecrement = async () => {
-	// 	if (value > 1) {
-	// 		// Decrement quantity logic here
-	// 		const newValue = value - 1;
-	// 		setValue(newValue);
-	// 		onValueChange(newValue);
-	// 		// Potentially update cart via an API call, not covered here
-	// 		setValue((prevQuantity) => prevQuantity - 1);
-	// 	} else if (value === 1) {
-	// 		// If quantity is 1, then decrementing should remove the item from the cart
-	// 		await removeProductFromCart(cartItemKey);
-	// 		setValue(0); // Update quantity state to reflect removal
-	// 		// Optionally, signal to parent components that the item has been removed
-	// 	}
-	// };
 
 	return (
 		<div>
@@ -303,11 +265,10 @@ function ProductDisplay({ data }) {
 	}, [products, selectedProductId]);
 
 	useEffect(() => {
-		const parsedData = JSON.parse(data);
-		setProducts(parsedData);
-		if (parsedData.length > 0) {
+		setProducts(data); // Directly use the data prop which is now an array
+		if (data.length > 0) {
 			// Set the first product's ID as selected by default
-			setSelectedProductId(parsedData[0].id);
+			setSelectedProductId(data[0].id);
 		}
 	}, [data]);
 
@@ -327,7 +288,6 @@ function ProductDisplay({ data }) {
 
 	return (
 		<div>
-			{/* Render TogglerBox and pass products to it */}
 			<ProductGallery
 				selectedProductId={selectedProductId}
 				productsData={products}
@@ -338,7 +298,6 @@ function ProductDisplay({ data }) {
 				onProductSelect={handleProductSelect}
 				selectedProductId={selectedProductId}
 			/>
-			{/* Render ProductInfoBox to display the selected product's ID */}
 			<AdjusterBox
 				productId={selectedProductId}
 				initialValue={counterValue}
@@ -349,11 +308,10 @@ function ProductDisplay({ data }) {
 }
 
 document.querySelectorAll(".react-container").forEach((container) => {
-	const dataScript = container.querySelector(".product-data");
-	if (dataScript) {
-		ReactDOM.createRoot(container).render(
-			<ProductDisplay data={dataScript.textContent} />,
-		);
+	const jsonDataElement = container.querySelector(".product-data");
+	if (jsonDataElement) {
+		const jsonData = JSON.parse(jsonDataElement.textContent || "[]");
+		ReactDOM.createRoot(container).render(<ProductDisplay data={jsonData} />);
 	}
 });
 
