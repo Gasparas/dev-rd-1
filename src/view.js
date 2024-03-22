@@ -33,132 +33,9 @@ import {
 } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 
-/**
- *
- */
-
-const CartItems = () => {
-	const [cartItems, setCartItems] = useState([]);
-	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState(null);
-
-	const fetchCartItems = () => {
-		setIsLoading(true);
-		setError(null);
-
-		apiFetch({ path: "/wc/store/cart/items" })
-			.then((items) => {
-				setCartItems(items);
-				setIsLoading(false);
-			})
-			.catch((error) => {
-				console.error("Error fetching cart items:", error);
-				setError("Failed to fetch cart items.");
-				setIsLoading(false);
-			});
-	};
-
-	const incrementItem = (productId) => {
-		setIsLoading(true);
-
-		// Assuming the quantity to add is always 1 for simplicity
-		const itemData = {
-			id: productId,
-			quantity: 1,
-		};
-
-		apiFetch({
-			path: "/wc/store/cart/add-item",
-			method: "POST",
-			data: itemData,
-		})
-			.then(() => {
-				fetchCartItems(); // Refresh the cart items to reflect the change
-			})
-			.catch((error) => {
-				console.error("Error incrementing item:", error);
-				setError("Failed to increment item.");
-				setIsLoading(false);
-			});
-	};
-
-	const decrementItem = (itemKey) => {
-		setIsLoading(true);
-		console.log(cartItems);
-		// Find the current item in the cart
-		const item = cartItems.find((item) => item.key === itemKey);
-		// console.log(item);
-		if (!item) {
-			// If item not found, exit early
-			console.error("Item not found in cart:", itemKey);
-			setIsLoading(false);
-			return;
-		}
-
-		if (item.quantity === 1) {
-			// If the item's quantity is 1, remove it from the cart
-			const itemData = {
-				key: itemKey,
-			};
-
-			apiFetch({
-				path: "/wc/store/cart/remove-item",
-				method: "POST",
-				data: itemData,
-			})
-				.then(() => {
-					fetchCartItems(); // Refresh the cart items to reflect the change
-				})
-				.catch((error) => {
-					console.error("Error removing item:", error);
-					setError("Failed to remove item.");
-					setIsLoading(false);
-				});
-		} else {
-			// console.log(itemKey);
-			// If the item's quantity is greater than 1, decrement its quantity
-			const itemData = {
-				key: itemKey,
-				quantity: item.quantity - 1,
-			};
-
-			apiFetch({
-				path: "/wc/store/cart/update-item",
-				method: "POST",
-				data: itemData,
-			})
-				.then(() => {
-					fetchCartItems(); // Refresh the cart items to reflect the change
-				})
-				.catch((error) => {
-					console.error("Error decrementing item:", error);
-					setError("Failed to decrement item.");
-					setIsLoading(false);
-				});
-		}
-	};
-
-	return (
-		<div>
-			<button onClick={fetchCartItems} disabled={isLoading}>
-				{isLoading ? "Loading..." : "Fetch Cart Items"}
-			</button>
-			{error && <p>Error: {error}</p>}
-			<ul>
-				{cartItems.map((item) => (
-					<li key={item.key}>
-						{item.name} - Quantity: {item.quantity}
-						<button onClick={() => incrementItem(item.id)}>+</button>
-						<button onClick={() => decrementItem(item.key)}>-</button>
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-};
-
-// const container = document.querySelector("#root-one");
-// ReactDOM.createRoot(container).render(<CartItems />);
+function GlobalTotal() {
+	
+}
 
 /**
  *
@@ -202,7 +79,7 @@ function ProductGallery({ selectedProductId, productsData }) {
 	);
 }
 
-function ProductInfoBox({ selectedProductId }) {
+function InfoBox({ selectedProductId }) {
 	return <div>Selected Product ID: {selectedProductId}</div>;
 }
 
@@ -400,7 +277,7 @@ function ProductDisplay({ data }) {
 				selectedProductId={selectedProductId}
 				productsData={products}
 			></ProductGallery>
-			<ProductInfoBox selectedProductId={selectedProductId} />
+			<InfoBox selectedProductId={selectedProductId} />
 			<TogglerBox
 				products={products}
 				onProductSelect={handleProductSelect}
@@ -419,84 +296,10 @@ document.querySelectorAll(".react-container").forEach((container) => {
 	const jsonDataElement = container.querySelector(".product-data");
 	if (jsonDataElement) {
 		const jsonData = JSON.parse(jsonDataElement.textContent || "[]");
-		console.log('mount', jsonData);
+		console.log('Mount data', jsonData);
 		ReactDOM.createRoot(container).render(<ProductDisplay data={jsonData} />);
 	}
 });
-
-/**
- *  WooCommerce API
- */
-
-export const addToCart = async (productId) => {
-	try {
-		const response = await apiFetch({
-			path: `wc/store/cart/add-item`,
-			method: "POST",
-			data: {
-				id: productId,
-				quantity: 1,
-			},
-		});
-
-		console.log("Product added to cart:", response);
-		return response;
-	} catch (error) {
-		console.error("Error adding product to cart:", error);
-		return null;
-	}
-};
-
-const fetchCartContents = async () => {
-	console.log("Calling fetchCartContents");
-	try {
-		const cartContents = await apiFetch({
-			path: "/wc/store/cart",
-			method: "GET",
-		});
-		return cartContents.items;
-	} catch (error) {
-		console.error("Error fetching cart contents:", error);
-		throw error;
-	}
-};
-
-// export const removeProductFromCart = async (cartItemKey) => {
-// 	try {
-// 		const response = await apiFetch({
-// 			path: "/wc/store/cart/remove-item", // Ensure this endpoint is correct
-// 			method: "POST",
-// 			data: {
-// 				key: cartItemKey,
-// 			},
-// 		});
-
-// 		console.log("Product removed from cart:", response);
-// 		return response;
-// 	} catch (error) {
-// 		console.error("Error removing product from cart:", error);
-// 		throw error;
-// 	}
-// };
-
-export const removeProductFromCart_AJAX = (productId, quantity) => {
-	console.log(`Removing product ${productId} from the cart`);
-	jQuery.ajax({
-		url: ajaxurl,
-		method: "POST",
-		data: {
-			action: "remove_from_cart_request",
-			product_id: productId,
-			quantity: quantity,
-		},
-		success: function (data) {
-			console.log(data);
-		},
-		error: function (errorThrown) {
-			window.alert(errorThrown);
-		},
-	});
-};
 
 //
 // App1
