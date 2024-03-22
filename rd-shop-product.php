@@ -84,3 +84,7 @@ add_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
 
 // 	echo '<pre>' . print_r($sizes, true) . '</pre>';
 // }
+
+function myMessage() {
+	echo "Hello world!";
+  }

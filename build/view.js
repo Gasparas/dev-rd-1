@@ -141,6 +141,9 @@ console.log("view.js");
 
 function GlobalTotal() {}
 
+// const container = document.querySelector("#root-temp");
+// ReactDOM.createRoot(container).render(<CartItems />);
+
 /**
  *
  */
