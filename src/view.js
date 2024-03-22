@@ -32,13 +32,165 @@ import {
 	useCallback,
 } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
+import { create } from "zustand";
 
-function GlobalTotal() {
-	
+const useStore = create((set) => ({
+	cartUpdateTrigger: 0, // A simple counter to track cart updates
+	triggerCartUpdate: () =>
+		set((state) => ({ cartUpdateTrigger: state.cartUpdateTrigger + 1 })),
+}));
+
+function CartTotalItems() {
+	const cartUpdateTrigger = useStore((state) => state.cartUpdateTrigger);
+	const [totalItems, setTotalItems] = useState(0);
+	const [totalPrice, setTotalPrice] = useState(0);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState(null);
+
+	const [steps, setSteps] = useState([2, 4, 6]); // Example steps
+	const [currentStep, setCurrentStep] = useState(null);
+	const [appliedCoupon, setAppliedCoupon] = useState("");
+
+	// const [couponApplied, setCouponApplied] = useState(false);
+
+	useEffect(() => {
+		determineCurrentStep();
+		fetchCart();
+	}, [cartUpdateTrigger]);
+
+	useEffect(() => {
+		fetchCart();
+	}, []);
+
+	useEffect(() => {
+		determineCurrentStep();
+	}, [totalItems]); // Re-run when totalItems or steps array changes
+
+	const applyCoupon = (couponCode) => {
+		console.log(`Applying coupon: ${couponCode}`);
+		return apiFetch({
+			path: "/wc/store/v1/cart/apply-coupon",
+			method: "POST",
+			data: { code: couponCode },
+		})
+			.then((response) => {
+				console.log(`Coupon ${couponCode} applied.`);
+				setAppliedCoupon(couponCode); // Update the applied coupon
+				return response; // Return response for chaining
+			})
+			.catch((error) => {
+				console.error(`Error applying coupon ${couponCode}:`, error);
+				throw error; // Re-throw for catch chaining
+			});
+	};
+
+	const removeCoupon = (couponCode) => {
+		console.log(`Removing coupon: ${couponCode}`);
+		return apiFetch({
+			path: "/wc/store/v1/cart/remove-coupon",
+			method: "POST",
+			data: { code: couponCode },
+		})
+			.then((response) => {
+				console.log(`Coupon ${couponCode} removed.`);
+				setAppliedCoupon(""); // Clear the applied coupon
+				return response; // Return response for chaining
+			})
+			.catch((error) => {
+				console.error(`Error removing coupon ${couponCode}:`, error);
+				throw error; // Re-throw for catch chaining
+			});
+	};
+
+	const determineCurrentStep = () => {
+		let foundStep = null;
+		// Iterate over steps to find the highest step not exceeding totalItems
+		for (let step of steps) {
+		  if (totalItems >= step) {
+			foundStep = step;
+		  } else {
+			break; // Break early as steps are sorted
+		  }
+		}
+	  
+		// Determine the step index if a step was found; otherwise, handle stepIndex as null
+		const stepIndex = foundStep !== null ? steps.indexOf(foundStep) + 1 : null;
+		
+		// Check if we are moving down to step 0 and need to remove any existing coupon
+		if (stepIndex === null && appliedCoupon) {
+		  console.log(`Removing coupon, as moving to step 0 from step: ${currentStep}`);
+		  removeCoupon(appliedCoupon)
+			.then(() => {
+			  setAppliedCoupon('');
+			  console.log('Coupon removed as we are at step 0.');
+			})
+			.catch(error => {
+			  console.error('Error removing coupon:', error);
+			});
+		  setCurrentStep(null);
+		  return;
+		}
+	  
+		const newCouponCode = stepIndex ? `coupon-step-${stepIndex}` : null;
+	  
+		if (stepIndex !== currentStep) {
+		  setCurrentStep(stepIndex);
+		  console.log(`Current step: ${stepIndex} for total items: ${totalItems}`);
+	  
+		  // Chain removal and application of coupons only if there's a valid step
+		  if (newCouponCode && (appliedCoupon !== newCouponCode)) {
+			const couponOperation = appliedCoupon ?
+			  removeCoupon(appliedCoupon).then(() => applyCoupon(newCouponCode)) :
+			  applyCoupon(newCouponCode);
+	  
+			couponOperation.then(() => {
+			  console.log('Coupon operation completed.');
+			}).catch(error => {
+			  console.error('Coupon operation failed:', error);
+			});
+		  }
+		}
+	  };
+
+	const fetchCart = () => {
+		apiFetch({ path: "/wc/store/cart" }) // Adjusted to an endpoint that returns full cart details
+			.then((cart) => {
+				// Assuming the response includes totalItems and total price directly
+				const totalQuantity = cart.items.reduce(
+					(acc, item) => acc + item.quantity,
+					0,
+				);
+				setTotalItems(totalQuantity);
+
+				// Directly use the total price from the cart object
+				const totalPrice = parseFloat(cart.totals.total_price) / 100;
+				setTotalPrice(totalPrice);
+
+				setIsLoading(false);
+			})
+			.catch((err) => {
+				console.error("Error fetching cart:", err);
+				setError("Failed to fetch cart.");
+				setIsLoading(false);
+			});
+	};
+
+	if (isLoading) return <div>Loading cart items...</div>;
+	if (error) return <div>Error: {error}</div>;
+
+	return (
+		<div>
+			<div>{totalItems}</div>
+			<div>{totalPrice.toFixed(2)} €</div>
+			<div>Discount step: {currentStep}</div>
+			<button onClick={() => applyCoupon("coupon-step-1")}>btn</button>
+			<button onClick={() => removeCoupon("coupon-step-1")}>btn</button>
+		</div>
+	);
 }
 
-// const container = document.querySelector("#root-temp");
-// ReactDOM.createRoot(container).render(<CartItems />);
+const tempContainer = document.querySelector("#root-temp");
+ReactDOM.createRoot(tempContainer).render(<CartTotalItems />);
 
 /**
  *
@@ -105,6 +257,7 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 }
 
 function AdjusterBox({ productId, initialValue, onValueChange }) {
+	const triggerCartUpdate = useStore((state) => state.triggerCartUpdate);
 	const [value, setValue] = useState(initialValue);
 	const [cartItems, setCartItems] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -150,6 +303,7 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 			.then(() => {
 				apiFetchCartItems(); // Refresh the cart items to reflect the change
 				console.log(`Add to cart: ${productId}`);
+				triggerCartUpdate();
 			})
 			.catch((error) => {
 				console.error("Error incrementing item:", error);
@@ -162,7 +316,7 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 		setIsLoading(true);
 
 		// Find the current item in the cart
-		const item = cartItems.find(item => item.id === productId);
+		const item = cartItems.find((item) => item.id === productId);
 		if (!item) {
 			// If item not found, exit early
 			console.error("Item not found in cart:", productId);
@@ -184,6 +338,7 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 				.then(() => {
 					apiFetchCartItems(); // Refresh the cart items to reflect the change
 					console.log(`Remove from cart: ${productId}`);
+					triggerCartUpdate();
 				})
 				.catch((error) => {
 					console.error("Error removing item:", error);
@@ -205,6 +360,7 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 				.then(() => {
 					apiFetchCartItems(); // Refresh the cart items to reflect the change
 					console.log(`Decrease cart quantity: ${productId}`);
+					triggerCartUpdate();
 				})
 				.catch((error) => {
 					console.error("Error decrementing item:", error);
@@ -232,9 +388,13 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 
 	return (
 		<div>
-			<button onClick={handleDecrement} disabled={isLoading}>{isLoading ? "-" : "-"}</button>
+			<button onClick={handleDecrement} disabled={isLoading}>
+				{isLoading ? "-" : "-"}
+			</button>
 			<span> {value} </span>
-			<button onClick={handleIncrement} disabled={isLoading}>{isLoading ? "+" : "+"}</button>
+			<button onClick={handleIncrement} disabled={isLoading}>
+				{isLoading ? "+" : "+"}
+			</button>
 		</div>
 	);
 }
@@ -299,7 +459,7 @@ document.querySelectorAll(".react-container").forEach((container) => {
 	const jsonDataElement = container.querySelector(".product-data");
 	if (jsonDataElement) {
 		const jsonData = JSON.parse(jsonDataElement.textContent || "[]");
-		console.log('Mount data', jsonData);
+		console.log("Mount data", jsonData);
 		ReactDOM.createRoot(container).render(<ProductDisplay data={jsonData} />);
 	}
 });
