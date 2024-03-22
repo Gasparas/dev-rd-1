@@ -21,9 +21,6 @@ if (isset(WC()->cart)) {
 		// Initialize counterValue as 0
 		$counterValue = 0;
 
-
-
-
 		// Check if the product is in the cart and update counterValue to the quantity
 		foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
 			if ($cart_item['product_id'] == $product_id) {
@@ -31,7 +28,6 @@ if (isset(WC()->cart)) {
 				break; // Stop the loop once the product is found
 			}
 		}
-
 
 		// Retrieve product details
 		$color_terms = wc_get_product_terms($product->get_id(), 'pa_color', array('fields' => 'names'));
