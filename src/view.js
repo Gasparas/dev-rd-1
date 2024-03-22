@@ -35,13 +35,13 @@ import apiFetch from "@wordpress/api-fetch";
 import { create } from "zustand";
 
 const useStore = create((set) => ({
-	cartUpdateTrigger: 0, // A simple counter to track cart updates
-	triggerCartUpdate: () =>
-		set((state) => ({ cartUpdateTrigger: state.cartUpdateTrigger + 1 })),
+	totalItemsUpdate: 0, // A simple counter to track cart updates
+	triggerTotalItemsUpdate: () =>
+		set((state) => ({ totalItemsUpdate: state.totalItemsUpdate + 1 })),
 }));
 
-function CartTotalItems() {
-	const cartUpdateTrigger = useStore((state) => state.cartUpdateTrigger);
+function TotalItems() {
+	const totalItemsUpdate = useStore((state) => state.totalItemsUpdate);
 	const [totalItems, setTotalItems] = useState(0);
 	const [totalPrice, setTotalPrice] = useState(0);
 	const [isLoading, setIsLoading] = useState(true);
@@ -56,7 +56,7 @@ function CartTotalItems() {
 	useEffect(() => {
 		determineCurrentStep();
 		fetchCart();
-	}, [cartUpdateTrigger]);
+	}, [totalItemsUpdate]);
 
 	useEffect(() => {
 		fetchCart();
@@ -190,7 +190,7 @@ function CartTotalItems() {
 }
 
 const tempContainer = document.querySelector("#root-temp");
-ReactDOM.createRoot(tempContainer).render(<CartTotalItems />);
+ReactDOM.createRoot(tempContainer).render(<TotalItems />);
 
 /**
  *
@@ -256,8 +256,8 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 	);
 }
 
-function AdjusterBox({ productId, initialValue, onValueChange }) {
-	const triggerCartUpdate = useStore((state) => state.triggerCartUpdate);
+function AdjusterBox({ productId, initialValue, togglerValueChange }) {
+	const triggerTotalItemsUpdate = useStore((state) => state.triggerTotalItemsUpdate);
 	const [value, setValue] = useState(initialValue);
 	const [cartItems, setCartItems] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -303,7 +303,7 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 			.then(() => {
 				apiFetchCartItems(); // Refresh the cart items to reflect the change
 				console.log(`Add to cart: ${productId}`);
-				triggerCartUpdate();
+				triggerTotalItemsUpdate();
 			})
 			.catch((error) => {
 				console.error("Error incrementing item:", error);
@@ -338,7 +338,7 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 				.then(() => {
 					apiFetchCartItems(); // Refresh the cart items to reflect the change
 					console.log(`Remove from cart: ${productId}`);
-					triggerCartUpdate();
+					triggerTotalItemsUpdate();
 				})
 				.catch((error) => {
 					console.error("Error removing item:", error);
@@ -360,7 +360,7 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 				.then(() => {
 					apiFetchCartItems(); // Refresh the cart items to reflect the change
 					console.log(`Decrease cart quantity: ${productId}`);
-					triggerCartUpdate();
+					triggerTotalItemsUpdate();
 				})
 				.catch((error) => {
 					console.error("Error decrementing item:", error);
@@ -373,7 +373,7 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 	const handleIncrement = () => {
 		const newValue = value + 1;
 		setValue(newValue);
-		onValueChange(newValue);
+		togglerValueChange(newValue);
 		apiAddToCart(productId);
 	};
 
@@ -381,7 +381,7 @@ function AdjusterBox({ productId, initialValue, onValueChange }) {
 		if (value > 0) {
 			const newValue = value - 1;
 			setValue(newValue);
-			onValueChange(newValue);
+			togglerValueChange(newValue);
 			apiRemoveFromCart(productId);
 		}
 	};
@@ -419,7 +419,7 @@ function ProductDisplay({ data }) {
 		}
 	}, [data]);
 
-	const handleCounterChange = (newValue) => {
+	const togglerValueChange = (newValue) => {
 		// Update the counterValue for the selected product
 		const updatedProducts = products.map((product) =>
 			product.id === selectedProductId
@@ -449,7 +449,7 @@ function ProductDisplay({ data }) {
 			<AdjusterBox
 				productId={selectedProductId}
 				initialValue={counterValue}
-				onValueChange={handleCounterChange}
+				togglerValueChange={togglerValueChange}
 			/>
 		</div>
 	);

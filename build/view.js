@@ -719,14 +719,14 @@ console.log("view.js");
 
 
 const useStore = (0,zustand__WEBPACK_IMPORTED_MODULE_3__.create)(set => ({
-  cartUpdateTrigger: 0,
+  totalItemsUpdate: 0,
   // A simple counter to track cart updates
-  triggerCartUpdate: () => set(state => ({
-    cartUpdateTrigger: state.cartUpdateTrigger + 1
+  triggerTotalItemsUpdate: () => set(state => ({
+    totalItemsUpdate: state.totalItemsUpdate + 1
   }))
 }));
-function CartTotalItems() {
-  const cartUpdateTrigger = useStore(state => state.cartUpdateTrigger);
+function TotalItems() {
+  const totalItemsUpdate = useStore(state => state.totalItemsUpdate);
   const [totalItems, setTotalItems] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
   const [totalPrice, setTotalPrice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
   const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
@@ -740,7 +740,7 @@ function CartTotalItems() {
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     determineCurrentStep();
     fetchCart();
-  }, [cartUpdateTrigger]);
+  }, [totalItemsUpdate]);
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     fetchCart();
   }, []);
@@ -852,7 +852,7 @@ function CartTotalItems() {
   }, "btn"));
 }
 const tempContainer = document.querySelector("#root-temp");
-ReactDOM.createRoot(tempContainer).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(CartTotalItems, null));
+ReactDOM.createRoot(tempContainer).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TotalItems, null));
 
 /**
  *
@@ -902,9 +902,9 @@ function TogglerBox({
 function AdjusterBox({
   productId,
   initialValue,
-  onValueChange
+  togglerValueChange
 }) {
-  const triggerCartUpdate = useStore(state => state.triggerCartUpdate);
+  const triggerTotalItemsUpdate = useStore(state => state.triggerTotalItemsUpdate);
   const [value, setValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialValue);
   const [cartItems, setCartItems] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
   const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
@@ -942,7 +942,7 @@ function AdjusterBox({
     }).then(() => {
       apiFetchCartItems(); // Refresh the cart items to reflect the change
       console.log(`Add to cart: ${productId}`);
-      triggerCartUpdate();
+      triggerTotalItemsUpdate();
     }).catch(error => {
       console.error("Error incrementing item:", error);
       setError("Failed to increment item.");
@@ -972,7 +972,7 @@ function AdjusterBox({
       }).then(() => {
         apiFetchCartItems(); // Refresh the cart items to reflect the change
         console.log(`Remove from cart: ${productId}`);
-        triggerCartUpdate();
+        triggerTotalItemsUpdate();
       }).catch(error => {
         console.error("Error removing item:", error);
         setError("Failed to remove item.");
@@ -991,7 +991,7 @@ function AdjusterBox({
       }).then(() => {
         apiFetchCartItems(); // Refresh the cart items to reflect the change
         console.log(`Decrease cart quantity: ${productId}`);
-        triggerCartUpdate();
+        triggerTotalItemsUpdate();
       }).catch(error => {
         console.error("Error decrementing item:", error);
         setError("Failed to decrement item.");
@@ -1002,14 +1002,14 @@ function AdjusterBox({
   const handleIncrement = () => {
     const newValue = value + 1;
     setValue(newValue);
-    onValueChange(newValue);
+    togglerValueChange(newValue);
     apiAddToCart(productId);
   };
   const handleDecrement = () => {
     if (value > 0) {
       const newValue = value - 1;
       setValue(newValue);
-      onValueChange(newValue);
+      togglerValueChange(newValue);
       apiRemoveFromCart(productId);
     }
   };
@@ -1038,7 +1038,7 @@ function ProductDisplay({
       setSelectedProductId(data[0].id);
     }
   }, [data]);
-  const handleCounterChange = newValue => {
+  const togglerValueChange = newValue => {
     // Update the counterValue for the selected product
     const updatedProducts = products.map(product => product.id === selectedProductId ? {
       ...product,
@@ -1062,7 +1062,7 @@ function ProductDisplay({
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(AdjusterBox, {
     productId: selectedProductId,
     initialValue: counterValue,
-    onValueChange: handleCounterChange
+    togglerValueChange: togglerValueChange
   }));
 }
 document.querySelectorAll(".react-container").forEach(container => {
