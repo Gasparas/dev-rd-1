@@ -718,6 +718,143 @@ console.log("view.js");
 
 
 
+
+/**
+ * useCart
+ */
+
+function useCart(productId) {
+  const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
+  const [error, setError] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+  const [cartProducts, setCartProducts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
+  const [totalQuantity, setTotalQuantity] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
+  const [totalPrice, setTotalPrice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    fetchCart();
+  }, []);
+
+  // const fetchCart = () => {
+  // 	setIsLoading(true);
+  // 	setError(null);
+
+  // 	apiFetch({ path: "/wc/store/cart/items" })
+  // 		.then((items) => {
+  // 			setCartProducts(items);
+  // 			setIsLoading(false);
+  // 		})
+  // 		.catch((error) => {
+  // 			console.error("Error fetching cart items:", error);
+  // 			setError("Failed to fetch cart items.");
+  // 			setIsLoading(false);
+  // 		});
+  // };
+
+  const fetchCart = () => {
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+      path: "/wc/store/cart"
+    }) // Adjusted to an endpoint that returns full cart details
+    .then(cart => {
+      const cartProducts = cart.items;
+      setCartProducts(cartProducts);
+      // Assuming the response includes totalItems and total price directly
+      const totalQuantity = cart.items.reduce((acc, item) => acc + item.quantity, 0);
+      setTotalQuantity(totalQuantity);
+
+      // Directly use the total price from the cart object
+      const totalPrice = parseFloat(cart.totals.total_price) / 100;
+      setTotalPrice(totalPrice);
+      setIsLoading(false);
+    }).catch(err => {
+      console.error("Error fetching cart:", err);
+      setError("Failed to fetch cart.");
+      setIsLoading(false);
+    });
+  };
+  const addToCart = productId => {
+    setIsLoading(true);
+    const itemData = {
+      id: productId,
+      quantity: 1
+    };
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+      path: "/wc/store/cart/add-item",
+      method: "POST",
+      data: itemData
+    }).then(() => {
+      console.log(`Add to cart: ${productId}`);
+      fetchCart(); // Refresh the cart items to reflect the change
+      // triggerTotalItemsUpdate();
+    }).catch(error => {
+      console.error("Error incrementing item:", error);
+      setError("Failed to increment item.");
+      setIsLoading(false);
+    });
+  };
+  const remFromCart = productId => {
+    setIsLoading(true);
+
+    // Find the current item in the cart
+    const item = cartProducts.find(item => item.id === productId);
+    if (!item) {
+      // If item not found, exit early
+      console.error("Item not found in cart:", productId);
+      // setIsLoading(false);
+      return;
+    }
+    if (item.quantity === 1) {
+      // If the item's quantity is 1, remove it from the cart
+      const itemData = {
+        key: item.key
+      };
+      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+        path: "/wc/store/cart/remove-item",
+        method: "POST",
+        data: itemData
+      }).then(() => {
+        fetchCart(); // Refresh the cart items to reflect the change
+        console.log(`Remove from cart: ${productId}`);
+        // triggerTotalItemsUpdate();
+      }).catch(error => {
+        console.error("Error removing item:", error);
+        setError("Failed to remove item.");
+        setIsLoading(false);
+      });
+    } else {
+      // If the item's quantity is greater than 1, decrement its quantity
+      const itemData = {
+        key: item.key,
+        quantity: item.quantity - 1
+      };
+      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+        path: "/wc/store/cart/update-item",
+        method: "POST",
+        data: itemData
+      }).then(() => {
+        fetchCart(); // Refresh the cart items to reflect the change
+        console.log(`Decrease cart quantity: ${productId}`);
+        // triggerTotalItemsUpdate();
+      }).catch(error => {
+        console.error("Error decrementing item:", error);
+        setError("Failed to decrement item.");
+        setIsLoading(false);
+      });
+    }
+  };
+  return {
+    fetchCart,
+    addToCart,
+    remFromCart,
+    isLoading,
+    error,
+    totalPrice,
+    totalQuantity
+  };
+}
+
+/**
+ * TotalCart
+ */
+
 const useStore = (0,zustand__WEBPACK_IMPORTED_MODULE_3__.create)(set => ({
   totalItemsUpdate: 0,
   // A simple counter to track cart updates
@@ -725,12 +862,21 @@ const useStore = (0,zustand__WEBPACK_IMPORTED_MODULE_3__.create)(set => ({
     totalItemsUpdate: state.totalItemsUpdate + 1
   }))
 }));
-function TotalItems() {
+function TotalCart() {
   const totalItemsUpdate = useStore(state => state.totalItemsUpdate);
-  const [totalItems, setTotalItems] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
-  const [totalPrice, setTotalPrice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
-  const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(true);
-  const [error, setError] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+  const {
+    fetchCart,
+    isLoading,
+    error,
+    totalQuantity,
+    totalPrice
+  } = useCart();
+
+  // const [totalItems, setTotalItems] = useState(0);
+  // const [totalPrice, setTotalPrice] = useState(0);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const [error, setError] = useState(null);
+
   const [steps, setSteps] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([2, 4, 6]); // Example steps
   const [currentStep, setCurrentStep] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
   const [appliedCoupon, setAppliedCoupon] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("");
@@ -738,15 +884,16 @@ function TotalItems() {
   // const [couponApplied, setCouponApplied] = useState(false);
 
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    determineCurrentStep();
+    // determineCurrentStep();
     fetchCart();
   }, [totalItemsUpdate]);
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     fetchCart();
   }, []);
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    determineCurrentStep();
-  }, [totalItems]); // Re-run when totalItems or steps array changes
+
+  // useEffect(() => {
+  // 	determineCurrentStep();
+  // }, [totalItems]); // Re-run when totalItems or steps array changes
 
   const applyCoupon = couponCode => {
     console.log(`Applying coupon: ${couponCode}`);
@@ -800,10 +947,10 @@ function TotalItems() {
     if (stepIndex === null && appliedCoupon) {
       console.log(`Removing coupon, as moving to step 0 from step: ${currentStep}`);
       removeCoupon(appliedCoupon).then(() => {
-        setAppliedCoupon('');
-        console.log('Coupon removed as we are at step 0.');
+        setAppliedCoupon("");
+        console.log("Coupon removed as we are at step 0.");
       }).catch(error => {
-        console.error('Error removing coupon:', error);
+        console.error("Error removing coupon:", error);
       });
       setCurrentStep(null);
       return;
@@ -817,45 +964,46 @@ function TotalItems() {
       if (newCouponCode && appliedCoupon !== newCouponCode) {
         const couponOperation = appliedCoupon ? removeCoupon(appliedCoupon).then(() => applyCoupon(newCouponCode)) : applyCoupon(newCouponCode);
         couponOperation.then(() => {
-          console.log('Coupon operation completed.');
+          console.log("Coupon operation completed.");
         }).catch(error => {
-          console.error('Coupon operation failed:', error);
+          console.error("Coupon operation failed:", error);
         });
       }
     }
   };
-  const fetchCart = () => {
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-      path: "/wc/store/cart"
-    }) // Adjusted to an endpoint that returns full cart details
-    .then(cart => {
-      // Assuming the response includes totalItems and total price directly
-      const totalQuantity = cart.items.reduce((acc, item) => acc + item.quantity, 0);
-      setTotalItems(totalQuantity);
 
-      // Directly use the total price from the cart object
-      const totalPrice = parseFloat(cart.totals.total_price) / 100;
-      setTotalPrice(totalPrice);
-      setIsLoading(false);
-    }).catch(err => {
-      console.error("Error fetching cart:", err);
-      setError("Failed to fetch cart.");
-      setIsLoading(false);
-    });
-  };
+  // const fetchCart = () => {
+  // 	apiFetch({ path: "/wc/store/cart" }) // Adjusted to an endpoint that returns full cart details
+  // 		.then((cart) => {
+  // 			// Assuming the response includes totalItems and total price directly
+  // 			const totalQuantity = cart.items.reduce(
+  // 				(acc, item) => acc + item.quantity,
+  // 				0,
+  // 			);
+  // 			setTotalItems(totalQuantity);
+
+  // 			// Directly use the total price from the cart object
+  // 			const totalPrice = parseFloat(cart.totals.total_price) / 100;
+  // 			setTotalPrice(totalPrice);
+
+  // 			setIsLoading(false);
+  // 		})
+  // 		.catch((err) => {
+  // 			console.error("Error fetching cart:", err);
+  // 			setError("Failed to fetch cart.");
+  // 			setIsLoading(false);
+  // 		});
+  // };
+
   if (isLoading) return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Loading cart items...");
   if (error) return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Error: ", error);
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, totalItems), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, totalPrice.toFixed(2), " \u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Discount step: ", currentStep), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    onClick: () => applyCoupon("coupon-step-1")
-  }, "btn"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    onClick: () => removeCoupon("coupon-step-1")
-  }, "btn"));
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, totalQuantity), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, totalPrice.toFixed(2), " \u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Discount step: ", currentStep));
 }
 const tempContainer = document.querySelector("#root-temp");
-ReactDOM.createRoot(tempContainer).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TotalItems, null));
+ReactDOM.createRoot(tempContainer).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TotalCart, null));
 
 /**
- *
+ * ProductDisplay
  */
 
 function ProductGallery({
@@ -906,111 +1054,32 @@ function AdjusterBox({
 }) {
   const triggerTotalItemsUpdate = useStore(state => state.triggerTotalItemsUpdate);
   const [value, setValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialValue);
-  const [cartItems, setCartItems] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
-  const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-  const [error, setError] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+  const {
+    isLoading,
+    error,
+    addToCart,
+    remFromCart
+  } = useCart();
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     setValue(initialValue);
   }, [initialValue]);
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    apiFetchCartItems();
+    // apiFetchCartItems();
   }, []);
-  const apiFetchCartItems = () => {
-    setIsLoading(true);
-    setError(null);
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-      path: "/wc/store/cart/items"
-    }).then(items => {
-      setCartItems(items);
-      setIsLoading(false);
-    }).catch(error => {
-      console.error("Error fetching cart items:", error);
-      setError("Failed to fetch cart items.");
-      setIsLoading(false);
-    });
-  };
-  const apiAddToCart = productId => {
-    setIsLoading(true);
-    const itemData = {
-      id: productId,
-      quantity: 1
-    };
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-      path: "/wc/store/cart/add-item",
-      method: "POST",
-      data: itemData
-    }).then(() => {
-      apiFetchCartItems(); // Refresh the cart items to reflect the change
-      console.log(`Add to cart: ${productId}`);
-      triggerTotalItemsUpdate();
-    }).catch(error => {
-      console.error("Error incrementing item:", error);
-      setError("Failed to increment item.");
-      setIsLoading(false);
-    });
-  };
-  const apiRemoveFromCart = productId => {
-    setIsLoading(true);
-
-    // Find the current item in the cart
-    const item = cartItems.find(item => item.id === productId);
-    if (!item) {
-      // If item not found, exit early
-      console.error("Item not found in cart:", productId);
-      setIsLoading(false);
-      return;
-    }
-    if (item.quantity === 1) {
-      // If the item's quantity is 1, remove it from the cart
-      const itemData = {
-        key: item.key
-      };
-      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-        path: "/wc/store/cart/remove-item",
-        method: "POST",
-        data: itemData
-      }).then(() => {
-        apiFetchCartItems(); // Refresh the cart items to reflect the change
-        console.log(`Remove from cart: ${productId}`);
-        triggerTotalItemsUpdate();
-      }).catch(error => {
-        console.error("Error removing item:", error);
-        setError("Failed to remove item.");
-        setIsLoading(false);
-      });
-    } else {
-      // If the item's quantity is greater than 1, decrement its quantity
-      const itemData = {
-        key: item.key,
-        quantity: item.quantity - 1
-      };
-      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-        path: "/wc/store/cart/update-item",
-        method: "POST",
-        data: itemData
-      }).then(() => {
-        apiFetchCartItems(); // Refresh the cart items to reflect the change
-        console.log(`Decrease cart quantity: ${productId}`);
-        triggerTotalItemsUpdate();
-      }).catch(error => {
-        console.error("Error decrementing item:", error);
-        setError("Failed to decrement item.");
-        setIsLoading(false);
-      });
-    }
-  };
   const handleIncrement = () => {
     const newValue = value + 1;
     setValue(newValue);
     togglerValueChange(newValue);
-    apiAddToCart(productId);
+    // apiAddToCart(productId);
+    addToCart(productId);
   };
   const handleDecrement = () => {
     if (value > 0) {
       const newValue = value - 1;
       setValue(newValue);
       togglerValueChange(newValue);
-      apiRemoveFromCart(productId);
+      // apiRemoveFromCart(productId);
+      remFromCart(productId);
     }
   };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {

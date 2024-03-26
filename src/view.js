@@ -34,18 +34,170 @@ import {
 import apiFetch from "@wordpress/api-fetch";
 import { create } from "zustand";
 
+/**
+ * useCart
+ */
+
+function useCart(productId) {
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState(null);
+
+	const [cartProducts, setCartProducts] = useState([]);
+
+	const [totalQuantity, setTotalQuantity] = useState(0);
+	const [totalPrice, setTotalPrice] = useState(0);
+
+	useEffect(() => {
+		fetchCart();
+	}, []);
+
+	// const fetchCart = () => {
+	// 	setIsLoading(true);
+	// 	setError(null);
+
+	// 	apiFetch({ path: "/wc/store/cart/items" })
+	// 		.then((items) => {
+	// 			setCartProducts(items);
+	// 			setIsLoading(false);
+	// 		})
+	// 		.catch((error) => {
+	// 			console.error("Error fetching cart items:", error);
+	// 			setError("Failed to fetch cart items.");
+	// 			setIsLoading(false);
+	// 		});
+	// };
+
+	const fetchCart = () => {
+		apiFetch({ path: "/wc/store/cart" }) // Adjusted to an endpoint that returns full cart details
+			.then((cart) => {
+
+				const cartProducts = cart.items;
+				setCartProducts(cartProducts);
+				// Assuming the response includes totalItems and total price directly
+				const totalQuantity = cart.items.reduce(
+					(acc, item) => acc + item.quantity,
+					0,
+				);
+				setTotalQuantity(totalQuantity);
+
+				// Directly use the total price from the cart object
+				const totalPrice = parseFloat(cart.totals.total_price) / 100;
+				setTotalPrice(totalPrice);
+
+				setIsLoading(false);
+			})
+			.catch((err) => {
+				console.error("Error fetching cart:", err);
+				setError("Failed to fetch cart.");
+				setIsLoading(false);
+			});
+	};
+
+	const addToCart = (productId) => {
+		setIsLoading(true);
+
+		const itemData = {
+			id: productId,
+			quantity: 1,
+		};
+
+		apiFetch({
+			path: "/wc/store/cart/add-item",
+			method: "POST",
+			data: itemData,
+		})
+			.then(() => {
+				console.log(`Add to cart: ${productId}`);
+				fetchCart(); // Refresh the cart items to reflect the change
+				// triggerTotalItemsUpdate();
+			})
+			.catch((error) => {
+				console.error("Error incrementing item:", error);
+				setError("Failed to increment item.");
+				setIsLoading(false);
+			});
+	};
+
+	const remFromCart = (productId) => {
+		setIsLoading(true);
+
+		// Find the current item in the cart
+		const item = cartProducts.find((item) => item.id === productId);
+		if (!item) {
+			// If item not found, exit early
+			console.error("Item not found in cart:", productId);
+			// setIsLoading(false);
+			return;
+		}
+
+		if (item.quantity === 1) {
+			// If the item's quantity is 1, remove it from the cart
+			const itemData = {
+				key: item.key,
+			};
+
+			apiFetch({
+				path: "/wc/store/cart/remove-item",
+				method: "POST",
+				data: itemData,
+			})
+				.then(() => {
+					fetchCart(); // Refresh the cart items to reflect the change
+					console.log(`Remove from cart: ${productId}`);
+					// triggerTotalItemsUpdate();
+				})
+				.catch((error) => {
+					console.error("Error removing item:", error);
+					setError("Failed to remove item.");
+					setIsLoading(false);
+				});
+		} else {
+			// If the item's quantity is greater than 1, decrement its quantity
+			const itemData = {
+				key: item.key,
+				quantity: item.quantity - 1,
+			};
+
+			apiFetch({
+				path: "/wc/store/cart/update-item",
+				method: "POST",
+				data: itemData,
+			})
+				.then(() => {
+					fetchCart(); // Refresh the cart items to reflect the change
+					console.log(`Decrease cart quantity: ${productId}`);
+					// triggerTotalItemsUpdate();
+				})
+				.catch((error) => {
+					console.error("Error decrementing item:", error);
+					setError("Failed to decrement item.");
+					setIsLoading(false);
+				});
+		}
+	};
+
+	return { fetchCart, addToCart, remFromCart, isLoading, error, totalPrice, totalQuantity };
+}
+
+/**
+ * TotalCart
+ */
+
 const useStore = create((set) => ({
 	totalItemsUpdate: 0, // A simple counter to track cart updates
 	triggerTotalItemsUpdate: () =>
 		set((state) => ({ totalItemsUpdate: state.totalItemsUpdate + 1 })),
 }));
 
-function TotalItems() {
+function TotalCart() {
 	const totalItemsUpdate = useStore((state) => state.totalItemsUpdate);
-	const [totalItems, setTotalItems] = useState(0);
-	const [totalPrice, setTotalPrice] = useState(0);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState(null);
+
+	const {fetchCart,  isLoading, error, totalQuantity, totalPrice } = useCart();
+
+	// const [totalItems, setTotalItems] = useState(0);
+	// const [totalPrice, setTotalPrice] = useState(0);
+	// const [isLoading, setIsLoading] = useState(true);
+	// const [error, setError] = useState(null);
 
 	const [steps, setSteps] = useState([2, 4, 6]); // Example steps
 	const [currentStep, setCurrentStep] = useState(null);
@@ -54,7 +206,7 @@ function TotalItems() {
 	// const [couponApplied, setCouponApplied] = useState(false);
 
 	useEffect(() => {
-		determineCurrentStep();
+		// determineCurrentStep();
 		fetchCart();
 	}, [totalItemsUpdate]);
 
@@ -62,9 +214,9 @@ function TotalItems() {
 		fetchCart();
 	}, []);
 
-	useEffect(() => {
-		determineCurrentStep();
-	}, [totalItems]); // Re-run when totalItems or steps array changes
+	// useEffect(() => {
+	// 	determineCurrentStep();
+	// }, [totalItems]); // Re-run when totalItems or steps array changes
 
 	const applyCoupon = (couponCode) => {
 		console.log(`Applying coupon: ${couponCode}`);
@@ -106,94 +258,96 @@ function TotalItems() {
 		let foundStep = null;
 		// Iterate over steps to find the highest step not exceeding totalItems
 		for (let step of steps) {
-		  if (totalItems >= step) {
-			foundStep = step;
-		  } else {
-			break; // Break early as steps are sorted
-		  }
+			if (totalItems >= step) {
+				foundStep = step;
+			} else {
+				break; // Break early as steps are sorted
+			}
 		}
-	  
+
 		// Determine the step index if a step was found; otherwise, handle stepIndex as null
 		const stepIndex = foundStep !== null ? steps.indexOf(foundStep) + 1 : null;
-		
+
 		// Check if we are moving down to step 0 and need to remove any existing coupon
 		if (stepIndex === null && appliedCoupon) {
-		  console.log(`Removing coupon, as moving to step 0 from step: ${currentStep}`);
-		  removeCoupon(appliedCoupon)
-			.then(() => {
-			  setAppliedCoupon('');
-			  console.log('Coupon removed as we are at step 0.');
-			})
-			.catch(error => {
-			  console.error('Error removing coupon:', error);
-			});
-		  setCurrentStep(null);
-		  return;
+			console.log(
+				`Removing coupon, as moving to step 0 from step: ${currentStep}`,
+			);
+			removeCoupon(appliedCoupon)
+				.then(() => {
+					setAppliedCoupon("");
+					console.log("Coupon removed as we are at step 0.");
+				})
+				.catch((error) => {
+					console.error("Error removing coupon:", error);
+				});
+			setCurrentStep(null);
+			return;
 		}
-	  
+
 		const newCouponCode = stepIndex ? `coupon-step-${stepIndex}` : null;
-	  
+
 		if (stepIndex !== currentStep) {
-		  setCurrentStep(stepIndex);
-		  console.log(`Current step: ${stepIndex} for total items: ${totalItems}`);
-	  
-		  // Chain removal and application of coupons only if there's a valid step
-		  if (newCouponCode && (appliedCoupon !== newCouponCode)) {
-			const couponOperation = appliedCoupon ?
-			  removeCoupon(appliedCoupon).then(() => applyCoupon(newCouponCode)) :
-			  applyCoupon(newCouponCode);
-	  
-			couponOperation.then(() => {
-			  console.log('Coupon operation completed.');
-			}).catch(error => {
-			  console.error('Coupon operation failed:', error);
-			});
-		  }
+			setCurrentStep(stepIndex);
+			console.log(`Current step: ${stepIndex} for total items: ${totalItems}`);
+
+			// Chain removal and application of coupons only if there's a valid step
+			if (newCouponCode && appliedCoupon !== newCouponCode) {
+				const couponOperation = appliedCoupon
+					? removeCoupon(appliedCoupon).then(() => applyCoupon(newCouponCode))
+					: applyCoupon(newCouponCode);
+
+				couponOperation
+					.then(() => {
+						console.log("Coupon operation completed.");
+					})
+					.catch((error) => {
+						console.error("Coupon operation failed:", error);
+					});
+			}
 		}
-	  };
-
-	const fetchCart = () => {
-		apiFetch({ path: "/wc/store/cart" }) // Adjusted to an endpoint that returns full cart details
-			.then((cart) => {
-				// Assuming the response includes totalItems and total price directly
-				const totalQuantity = cart.items.reduce(
-					(acc, item) => acc + item.quantity,
-					0,
-				);
-				setTotalItems(totalQuantity);
-
-				// Directly use the total price from the cart object
-				const totalPrice = parseFloat(cart.totals.total_price) / 100;
-				setTotalPrice(totalPrice);
-
-				setIsLoading(false);
-			})
-			.catch((err) => {
-				console.error("Error fetching cart:", err);
-				setError("Failed to fetch cart.");
-				setIsLoading(false);
-			});
 	};
+
+	// const fetchCart = () => {
+	// 	apiFetch({ path: "/wc/store/cart" }) // Adjusted to an endpoint that returns full cart details
+	// 		.then((cart) => {
+	// 			// Assuming the response includes totalItems and total price directly
+	// 			const totalQuantity = cart.items.reduce(
+	// 				(acc, item) => acc + item.quantity,
+	// 				0,
+	// 			);
+	// 			setTotalItems(totalQuantity);
+
+	// 			// Directly use the total price from the cart object
+	// 			const totalPrice = parseFloat(cart.totals.total_price) / 100;
+	// 			setTotalPrice(totalPrice);
+
+	// 			setIsLoading(false);
+	// 		})
+	// 		.catch((err) => {
+	// 			console.error("Error fetching cart:", err);
+	// 			setError("Failed to fetch cart.");
+	// 			setIsLoading(false);
+	// 		});
+	// };
 
 	if (isLoading) return <div>Loading cart items...</div>;
 	if (error) return <div>Error: {error}</div>;
 
 	return (
 		<div>
-			<div>{totalItems}</div>
+			<div>{totalQuantity}</div>
 			<div>{totalPrice.toFixed(2)} €</div>
 			<div>Discount step: {currentStep}</div>
-			<button onClick={() => applyCoupon("coupon-step-1")}>btn</button>
-			<button onClick={() => removeCoupon("coupon-step-1")}>btn</button>
 		</div>
 	);
 }
 
 const tempContainer = document.querySelector("#root-temp");
-ReactDOM.createRoot(tempContainer).render(<TotalItems />);
+ReactDOM.createRoot(tempContainer).render(<TotalCart />);
 
 /**
- *
+ * ProductDisplay
  */
 
 function ProductGallery({ selectedProductId, productsData }) {
@@ -257,124 +411,27 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 }
 
 function AdjusterBox({ productId, initialValue, togglerValueChange }) {
-	const triggerTotalItemsUpdate = useStore((state) => state.triggerTotalItemsUpdate);
+	const triggerTotalItemsUpdate = useStore(
+		(state) => state.triggerTotalItemsUpdate,
+	);
+
 	const [value, setValue] = useState(initialValue);
-	const [cartItems, setCartItems] = useState([]);
-	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState(null);
+	const { isLoading, error, addToCart, remFromCart } = useCart();
 
 	useEffect(() => {
 		setValue(initialValue);
 	}, [initialValue]);
 
 	useEffect(() => {
-		apiFetchCartItems();
+		// apiFetchCartItems();
 	}, []);
-
-	const apiFetchCartItems = () => {
-		setIsLoading(true);
-		setError(null);
-
-		apiFetch({ path: "/wc/store/cart/items" })
-			.then((items) => {
-				setCartItems(items);
-				setIsLoading(false);
-			})
-			.catch((error) => {
-				console.error("Error fetching cart items:", error);
-				setError("Failed to fetch cart items.");
-				setIsLoading(false);
-			});
-	};
-
-	const apiAddToCart = (productId) => {
-		setIsLoading(true);
-
-		const itemData = {
-			id: productId,
-			quantity: 1,
-		};
-
-		apiFetch({
-			path: "/wc/store/cart/add-item",
-			method: "POST",
-			data: itemData,
-		})
-			.then(() => {
-				apiFetchCartItems(); // Refresh the cart items to reflect the change
-				console.log(`Add to cart: ${productId}`);
-				triggerTotalItemsUpdate();
-			})
-			.catch((error) => {
-				console.error("Error incrementing item:", error);
-				setError("Failed to increment item.");
-				setIsLoading(false);
-			});
-	};
-
-	const apiRemoveFromCart = (productId) => {
-		setIsLoading(true);
-
-		// Find the current item in the cart
-		const item = cartItems.find((item) => item.id === productId);
-		if (!item) {
-			// If item not found, exit early
-			console.error("Item not found in cart:", productId);
-			setIsLoading(false);
-			return;
-		}
-
-		if (item.quantity === 1) {
-			// If the item's quantity is 1, remove it from the cart
-			const itemData = {
-				key: item.key,
-			};
-
-			apiFetch({
-				path: "/wc/store/cart/remove-item",
-				method: "POST",
-				data: itemData,
-			})
-				.then(() => {
-					apiFetchCartItems(); // Refresh the cart items to reflect the change
-					console.log(`Remove from cart: ${productId}`);
-					triggerTotalItemsUpdate();
-				})
-				.catch((error) => {
-					console.error("Error removing item:", error);
-					setError("Failed to remove item.");
-					setIsLoading(false);
-				});
-		} else {
-			// If the item's quantity is greater than 1, decrement its quantity
-			const itemData = {
-				key: item.key,
-				quantity: item.quantity - 1,
-			};
-
-			apiFetch({
-				path: "/wc/store/cart/update-item",
-				method: "POST",
-				data: itemData,
-			})
-				.then(() => {
-					apiFetchCartItems(); // Refresh the cart items to reflect the change
-					console.log(`Decrease cart quantity: ${productId}`);
-					triggerTotalItemsUpdate();
-				})
-				.catch((error) => {
-					console.error("Error decrementing item:", error);
-					setError("Failed to decrement item.");
-					setIsLoading(false);
-				});
-		}
-	};
 
 	const handleIncrement = () => {
 		const newValue = value + 1;
 		setValue(newValue);
 		togglerValueChange(newValue);
-		apiAddToCart(productId);
+		// apiAddToCart(productId);
+		addToCart(productId);
 	};
 
 	const handleDecrement = () => {
@@ -382,7 +439,8 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 			const newValue = value - 1;
 			setValue(newValue);
 			togglerValueChange(newValue);
-			apiRemoveFromCart(productId);
+			// apiRemoveFromCart(productId);
+			remFromCart(productId);
 		}
 	};
 
