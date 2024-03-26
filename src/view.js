@@ -35,42 +35,47 @@ import apiFetch from "@wordpress/api-fetch";
 import { create } from "zustand";
 
 /**
+ * useStore
+ */
+
+const useStore = create((set) => ({
+	totalCartUpdate: 0, // A simple counter to track cart updates
+	triggerTotalCartUpdate: () =>
+		set((state) => ({ totalCartUpdate: state.totalCartUpdate + 1 })),
+}));
+
+/**
  * useCart
  */
 
 function useCart(productId) {
+	const triggerTotalCartUpdate = useStore(
+		(state) => state.triggerTotalCartUpdate,
+	);
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState(null);
 
 	const [cartProducts, setCartProducts] = useState([]);
-
 	const [totalQuantity, setTotalQuantity] = useState(0);
 	const [totalPrice, setTotalPrice] = useState(0);
+	const [totalSalePrice, setTotalSalePrice] = useState(0);
+	const [salePercentage, setSalePercentage] = useState(0);
+	const [appliedCoupon, setAppliedCoupon] = useState("");
 
 	useEffect(() => {
 		fetchCart();
+		// console.log('hi');
 	}, []);
 
-	// const fetchCart = () => {
-	// 	setIsLoading(true);
-	// 	setError(null);
-
-	// 	apiFetch({ path: "/wc/store/cart/items" })
-	// 		.then((items) => {
-	// 			setCartProducts(items);
-	// 			setIsLoading(false);
-	// 		})
-	// 		.catch((error) => {
-	// 			console.error("Error fetching cart items:", error);
-	// 			setError("Failed to fetch cart items.");
-	// 			setIsLoading(false);
-	// 		});
-	// };
+	// useEffect (() => {
+	// 	console.log('useCart totalQuantity', totalQuantity);
+	// 	// triggerTotalCartUpdate();
+	// }, [totalQuantity]);
 
 	const fetchCart = () => {
 		apiFetch({ path: "/wc/store/cart" }) // Adjusted to an endpoint that returns full cart details
 			.then((cart) => {
-
 				const cartProducts = cart.items;
 				setCartProducts(cartProducts);
 				// Assuming the response includes totalItems and total price directly
@@ -79,10 +84,20 @@ function useCart(productId) {
 					0,
 				);
 				setTotalQuantity(totalQuantity);
+				// console.log('fetchCart totalQuantity', totalQuantity);
 
 				// Directly use the total price from the cart object
-				const totalPrice = parseFloat(cart.totals.total_price) / 100;
+				const totalPrice = parseFloat(cart.totals.total_items) / 100;
 				setTotalPrice(totalPrice);
+				const totalSalePrice = parseFloat(cart.totals.total_price) / 100;
+				setTotalSalePrice(totalSalePrice);
+				// if (totalPrice != 0) {
+				// 	const salePercentage = Math.round(
+				// 		((totalPrice - totalSalePrice) / totalPrice) * 100,
+				// 	);
+				// 	setSalePercentage(salePercentage);
+				// }
+				// console.log("fetchCart:", totalPrice);
 
 				setIsLoading(false);
 			})
@@ -108,13 +123,16 @@ function useCart(productId) {
 		})
 			.then(() => {
 				console.log(`Add to cart: ${productId}`);
-				fetchCart(); // Refresh the cart items to reflect the change
-				// triggerTotalItemsUpdate();
 			})
 			.catch((error) => {
 				console.error("Error incrementing item:", error);
 				setError("Failed to increment item.");
 				setIsLoading(false);
+			})
+			.finally(() => {
+				fetchCart(); // Refresh the cart items to reflect the change
+				triggerTotalCartUpdate();
+				// console.log('addToCart finally');
 			});
 	};
 
@@ -142,9 +160,9 @@ function useCart(productId) {
 				data: itemData,
 			})
 				.then(() => {
-					fetchCart(); // Refresh the cart items to reflect the change
 					console.log(`Remove from cart: ${productId}`);
-					// triggerTotalItemsUpdate();
+					fetchCart(); // Refresh the cart items to reflect the change
+					triggerTotalCartUpdate();
 				})
 				.catch((error) => {
 					console.error("Error removing item:", error);
@@ -164,9 +182,9 @@ function useCart(productId) {
 				data: itemData,
 			})
 				.then(() => {
-					fetchCart(); // Refresh the cart items to reflect the change
 					console.log(`Decrease cart quantity: ${productId}`);
-					// triggerTotalItemsUpdate();
+					fetchCart(); // Refresh the cart items to reflect the change
+					triggerTotalCartUpdate();
 				})
 				.catch((error) => {
 					console.error("Error decrementing item:", error);
@@ -175,48 +193,6 @@ function useCart(productId) {
 				});
 		}
 	};
-
-	return { fetchCart, addToCart, remFromCart, isLoading, error, totalPrice, totalQuantity };
-}
-
-/**
- * TotalCart
- */
-
-const useStore = create((set) => ({
-	totalItemsUpdate: 0, // A simple counter to track cart updates
-	triggerTotalItemsUpdate: () =>
-		set((state) => ({ totalItemsUpdate: state.totalItemsUpdate + 1 })),
-}));
-
-function TotalCart() {
-	const totalItemsUpdate = useStore((state) => state.totalItemsUpdate);
-
-	const {fetchCart,  isLoading, error, totalQuantity, totalPrice } = useCart();
-
-	// const [totalItems, setTotalItems] = useState(0);
-	// const [totalPrice, setTotalPrice] = useState(0);
-	// const [isLoading, setIsLoading] = useState(true);
-	// const [error, setError] = useState(null);
-
-	const [steps, setSteps] = useState([2, 4, 6]); // Example steps
-	const [currentStep, setCurrentStep] = useState(null);
-	const [appliedCoupon, setAppliedCoupon] = useState("");
-
-	// const [couponApplied, setCouponApplied] = useState(false);
-
-	useEffect(() => {
-		// determineCurrentStep();
-		fetchCart();
-	}, [totalItemsUpdate]);
-
-	useEffect(() => {
-		fetchCart();
-	}, []);
-
-	// useEffect(() => {
-	// 	determineCurrentStep();
-	// }, [totalItems]); // Re-run when totalItems or steps array changes
 
 	const applyCoupon = (couponCode) => {
 		console.log(`Applying coupon: ${couponCode}`);
@@ -254,11 +230,67 @@ function TotalCart() {
 			});
 	};
 
+	return {
+		fetchCart,
+		addToCart,
+		remFromCart,
+		applyCoupon,
+		removeCoupon,
+		appliedCoupon,
+		totalPrice,
+		totalSalePrice,
+		salePercentage,
+		totalQuantity,
+		isLoading,
+		error,
+	};
+}
+
+/**
+ * TotalCart
+ */
+
+function TotalCart() {
+	const totalCartUpdate = useStore((state) => state.totalCartUpdate);
+
+	const {
+		fetchCart,
+		applyCoupon,
+		removeCoupon,
+		appliedCoupon,
+		totalQuantity,
+		totalPrice,
+		totalSalePrice,
+		salePercentage,
+		isLoading,
+		error,
+	} = useCart();
+
+	const [steps, setSteps] = useState([3, 5, 7, 9]); // Example steps
+	const [currentStep, setCurrentStep] = useState(null);
+
+	useEffect(() => {
+		fetchCart();
+		determineCurrentStep();
+		// console.log('mount', totalCartUpdate);
+		// console.log('mount totalQuantity', totalQuantity);
+	}, [totalQuantity]);
+
+	useEffect(() => {
+		fetchCart();
+		// console.log('totalCartUpdate totalCartUpdate', totalCartUpdate);
+		// console.log('totalCartUpdate totalQuantity', totalQuantity);
+	}, [totalCartUpdate]);
+
+	// useEffect(() => {
+	// 	determineCurrentStep();
+	// }, [totalItems]); // Re-run when totalItems or steps array changes
+
 	const determineCurrentStep = () => {
 		let foundStep = null;
 		// Iterate over steps to find the highest step not exceeding totalItems
 		for (let step of steps) {
-			if (totalItems >= step) {
+			if (totalQuantity >= step) {
 				foundStep = step;
 			} else {
 				break; // Break early as steps are sorted
@@ -273,15 +305,9 @@ function TotalCart() {
 			console.log(
 				`Removing coupon, as moving to step 0 from step: ${currentStep}`,
 			);
-			removeCoupon(appliedCoupon)
-				.then(() => {
-					setAppliedCoupon("");
-					console.log("Coupon removed as we are at step 0.");
-				})
-				.catch((error) => {
-					console.error("Error removing coupon:", error);
-				});
+			removeCoupon(appliedCoupon);
 			setCurrentStep(null);
+			fetchCart();
 			return;
 		}
 
@@ -289,7 +315,9 @@ function TotalCart() {
 
 		if (stepIndex !== currentStep) {
 			setCurrentStep(stepIndex);
-			console.log(`Current step: ${stepIndex} for total items: ${totalItems}`);
+			console.log(
+				`Current step: ${stepIndex} for total items: ${totalQuantity}`,
+			);
 
 			// Chain removal and application of coupons only if there's a valid step
 			if (newCouponCode && appliedCoupon !== newCouponCode) {
@@ -300,6 +328,7 @@ function TotalCart() {
 				couponOperation
 					.then(() => {
 						console.log("Coupon operation completed.");
+						fetchCart();
 					})
 					.catch((error) => {
 						console.error("Coupon operation failed:", error);
@@ -308,37 +337,42 @@ function TotalCart() {
 		}
 	};
 
-	// const fetchCart = () => {
-	// 	apiFetch({ path: "/wc/store/cart" }) // Adjusted to an endpoint that returns full cart details
-	// 		.then((cart) => {
-	// 			// Assuming the response includes totalItems and total price directly
-	// 			const totalQuantity = cart.items.reduce(
-	// 				(acc, item) => acc + item.quantity,
-	// 				0,
-	// 			);
-	// 			setTotalItems(totalQuantity);
-
-	// 			// Directly use the total price from the cart object
-	// 			const totalPrice = parseFloat(cart.totals.total_price) / 100;
-	// 			setTotalPrice(totalPrice);
-
-	// 			setIsLoading(false);
-	// 		})
-	// 		.catch((err) => {
-	// 			console.error("Error fetching cart:", err);
-	// 			setError("Failed to fetch cart.");
-	// 			setIsLoading(false);
-	// 		});
-	// };
-
 	if (isLoading) return <div>Loading cart items...</div>;
 	if (error) return <div>Error: {error}</div>;
 
 	return (
-		<div>
-			<div>{totalQuantity}</div>
-			<div>{totalPrice.toFixed(2)} €</div>
+		<div
+			style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+		>
+			<div>Total items: {totalQuantity}</div>
+			<div>
+				<span
+					style={{
+						padding: "0.25em",
+						borderStyle: "solid",
+						borderColor: currentStep !== null ? "fuchsia" : "grey",
+						width: "70px",
+						textAlign: "center",
+						display: "inline-block",
+					}}
+				>
+					{" "}
+					{totalSalePrice} €
+				</span>{" "}
+				{currentStep !== null && (
+					<span
+						style={{
+							backgroundColor: "grey",
+							padding: "0.5em",
+							color: "white",
+						}}
+					>
+						{totalPrice} €
+					</span>
+				)}{" "}
+			</div>
 			<div>Discount step: {currentStep}</div>
+			{console.log("return", totalQuantity)}
 		</div>
 	);
 }
@@ -400,6 +434,8 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 					key={product.id}
 					onClick={() => onProductSelect(product.id)}
 					style={{
+						padding: "0.5em 1em",
+						margin: "1em 0",
 						fontWeight: product.id === selectedProductId ? "bold" : "normal",
 					}}
 				>
@@ -411,12 +447,12 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 }
 
 function AdjusterBox({ productId, initialValue, togglerValueChange }) {
-	const triggerTotalItemsUpdate = useStore(
-		(state) => state.triggerTotalItemsUpdate,
+	const triggerTotalCartUpdate = useStore(
+		(state) => state.triggerTotalCartUpdate,
 	);
 
 	const [value, setValue] = useState(initialValue);
-	const { isLoading, error, addToCart, remFromCart } = useCart();
+	const { fetchCart, addToCart, remFromCart, isLoading, error } = useCart();
 
 	useEffect(() => {
 		setValue(initialValue);
@@ -430,8 +466,9 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 		const newValue = value + 1;
 		setValue(newValue);
 		togglerValueChange(newValue);
-		// apiAddToCart(productId);
 		addToCart(productId);
+		// fetchCart();
+		// triggerTotalCartUpdate();
 	};
 
 	const handleDecrement = () => {
@@ -439,18 +476,19 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 			const newValue = value - 1;
 			setValue(newValue);
 			togglerValueChange(newValue);
-			// apiRemoveFromCart(productId);
 			remFromCart(productId);
+			// fetchCart();
+			// triggerTotalCartUpdate();
 		}
 	};
 
 	return (
 		<div>
-			<button onClick={handleDecrement} disabled={isLoading}>
+			<button style={{padding: "0.5em 1em"}} onClick={handleDecrement} disabled={isLoading}>
 				{isLoading ? "-" : "-"}
 			</button>
 			<span> {value} </span>
-			<button onClick={handleIncrement} disabled={isLoading}>
+			<button style={{padding: "0.5em 1em"}} onClick={handleIncrement} disabled={isLoading}>
 				{isLoading ? "+" : "+"}
 			</button>
 		</div>
@@ -493,7 +531,10 @@ function ProductDisplay({ data }) {
 	};
 
 	return (
-		<div>
+		<div
+			className="product-wrapper"
+			style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+		>
 			<ProductGallery
 				selectedProductId={selectedProductId}
 				productsData={products}
@@ -517,7 +558,7 @@ document.querySelectorAll(".react-container").forEach((container) => {
 	const jsonDataElement = container.querySelector(".product-data");
 	if (jsonDataElement) {
 		const jsonData = JSON.parse(jsonDataElement.textContent || "[]");
-		console.log("Mount data", jsonData);
+		// console.log("Mount data", jsonData);
 		ReactDOM.createRoot(container).render(<ProductDisplay data={jsonData} />);
 	}
 });
