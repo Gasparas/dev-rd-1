@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "create-block/rd-shop-product",
+	"name": "create-block/rd-shop-product-2",
 	"version": "0.2.0",
-	"title": "Rd Shop Product",
+	"title": "Rd Shop Product 2",
 	"category": "widgets",
 	"icon": "smiley",
 	"description": "Example block scaffolded with Create Block tool.",
@@ -12,7 +12,7 @@
 		"html": false,
 		"multiple": true
 	},
-	"textdomain": "rd-shop-product",
+	"textdomain": "rd-shop-product-2",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
 	"style": "file:./style-index.css",

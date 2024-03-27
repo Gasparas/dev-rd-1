@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Plugin Name:       Rd Shop Product
+ * Plugin Name:       Rd Shop Product 2
  * Description:       Example block scaffolded with Create Block tool.
  * Requires at least: 6.1
  * Requires PHP:      7.0
- * Version:           0.2.0
+ * Version:           0.3.0
  * Author:            The WordPress Contributors
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       rd-shop-product
+ * Text Domain:       rd-shop-product-2
  *
  * @package           create-block
  */
@@ -28,7 +28,7 @@ include_once('ajax.php');
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
 
-function rd_shop_product_rd_shop_product_block_init()
+function rd_shop_product_rd_shop_product_block_2_init()
 {
 	register_block_type(
 		__DIR__ . '/build',
@@ -37,7 +37,7 @@ function rd_shop_product_rd_shop_product_block_init()
 		)
 	);
 }
-add_action('init', 'rd_shop_product_rd_shop_product_block_init');
+add_action('init', 'rd_shop_product_rd_shop_product_block_2_init');
 
 // REST API
 add_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
@@ -58,7 +58,7 @@ add_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
 //     );
 
 //     // Attach the data to your block script
-//     wp_add_inline_script('create-block-rd-shop-product', $script_data, 'before');
+//     wp_add_inline_script('create-block-rd-shop-product-2', $script_data, 'before');
 // }
 // add_action('enqueue_block_editor_assets', 'my_custom_data_for_blocks');
 
