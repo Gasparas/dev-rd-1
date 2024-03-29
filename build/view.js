@@ -915,7 +915,7 @@ function useCart(productId) {
 
 const ProgressBarr = () => {
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "bg-blue-400 rounded-lg"
+    className: "bg-blue-500 rounded-lg text-white px-1 py-8 flex justify-center"
   }, "progress bar");
 };
 ReactDOM.createRoot(document.querySelector("#root-progress-bar")).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProgressBarr, null));
@@ -925,11 +925,18 @@ ReactDOM.createRoot(document.querySelector("#root-progress-bar")).render((0,reac
  */
 
 const NextStep = ({
-  beforeNextStep
+  beforeNextStep,
+  stepsPercanteges,
+  currentStep
 }) => {
+  const nextPercentage = stepsPercanteges[currentStep];
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "border-2 border-blue-400 rounded-lg bg-white mb-1"
-  }, beforeNextStep);
+    className: "text-sm flex border-2 border-blue-500 rounded-lg bg-white mb-1 px-3 py-2 items-center font-medium justify-center"
+  }, "Add ", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: "mx-1"
+  }, beforeNextStep), " more for extra ", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: "mx-1 bg-red-500 text-white px-2 py-1 rounded-lg"
+  }, "-", nextPercentage, "% OFF"));
 };
 
 /**
@@ -1019,9 +1026,11 @@ function TotalCart() {
   if (isLoading) return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Loading cart items...");
   if (error) return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Error: ", error);
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(NextStep, {
-    beforeNextStep: distanceToNextStep
+    beforeNextStep: distanceToNextStep,
+    stepsPercanteges: stepsPercanteges,
+    currentStep: currentStep
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "bg-blue-400 rounded-lg w-full flex p-3 text-white font-medium justify-around"
+    className: "bg-blue-500 rounded-lg w-full flex px-3 py-4 text-white font-medium justify-around"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
     className: "mr-1"
   }, totalSalePrice, "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {

@@ -251,7 +251,7 @@ function useCart(productId) {
  */
 
 const ProgressBarr = () => {
-	return <div className="bg-blue-400 rounded-lg">progress bar</div>;
+	return <div className="bg-blue-500 rounded-lg text-white px-1 py-8 flex justify-center">progress bar</div>;
 };
 
 ReactDOM.createRoot(document.querySelector("#root-progress-bar")).render(
@@ -262,10 +262,13 @@ ReactDOM.createRoot(document.querySelector("#root-progress-bar")).render(
  * NextStep
  */
 
-const NextStep = ({ beforeNextStep }) => {
+const NextStep = ({ beforeNextStep, stepsPercanteges, currentStep }) => {
+	const nextPercentage = stepsPercanteges[currentStep];
+
 	return (
-		<div className="border-2 border-blue-400 rounded-lg bg-white mb-1">
-			{beforeNextStep}
+		<div className="text-sm flex border-2 border-blue-500 rounded-lg bg-white mb-1 px-3 py-2 items-center font-medium justify-center">
+			Add <span className="mx-1">{beforeNextStep}</span> more for
+			extra <span className="mx-1 bg-red-500 text-white px-2 py-1 rounded-lg">-{nextPercentage}% OFF</span>
 		</div>
 	);
 };
@@ -378,8 +381,12 @@ function TotalCart() {
 
 	return (
 		<>
-			<NextStep beforeNextStep={distanceToNextStep}></NextStep>
-			<div className="bg-blue-400 rounded-lg w-full flex p-3 text-white font-medium justify-around">
+			<NextStep
+				beforeNextStep={distanceToNextStep}
+				stepsPercanteges={stepsPercanteges}
+				currentStep={currentStep}
+			></NextStep>
+			<div className="bg-blue-500 rounded-lg w-full flex px-3 py-4 text-white font-medium justify-around">
 				<div>
 					<span className="mr-1">{totalSalePrice}€</span>
 					<span
