@@ -247,6 +247,30 @@ function useCart(productId) {
 }
 
 /**
+ * ProgressBarr
+ */
+
+const ProgressBarr = () => {
+	return <div className="bg-blue-400 rounded-lg">progress bar</div>;
+};
+
+ReactDOM.createRoot(document.querySelector("#root-progress-bar")).render(
+	<ProgressBarr />,
+);
+
+/**
+ * NextStep
+ */
+
+const NextStep = ({ beforeNextStep }) => {
+	return (
+		<div className="border-2 border-blue-400 rounded-lg bg-white mb-1">
+			{beforeNextStep}
+		</div>
+	);
+};
+
+/**
  * TotalCart
  */
 
@@ -266,28 +290,38 @@ function TotalCart() {
 		error,
 	} = useCart();
 
-	const [steps, setSteps] = useState([3, 5, 7, 9]); // Example steps
-	const [currentStep, setCurrentStep] = useState(null);
+	const [steps, setSteps] = useState([2, 6, 8, 11]); // Example steps
+	const [currentStep, setCurrentStep] = useState(0);
+	const stepsPercanteges = ["5", "10", "15", "20"];
+
+	const [distanceToNextStep, setDistanceToNextStep] = useState(0);
+
+	useEffect(() => {
+		// Calculate the distance to the next step
+		const calculateDistanceToNextStep = () => {
+			if (currentStep < steps.length) {
+				// If not at the last step, calculate the difference between the next step and totalQuantity
+				const nextStepValue = steps[currentStep];
+				setDistanceToNextStep(nextStepValue - totalQuantity);
+			} else {
+				// If at the last step, there's no "next step" so set distance to 0
+				setDistanceToNextStep(0);
+			}
+		};
+		calculateDistanceToNextStep();
+	}, [currentStep, totalQuantity, steps]);
 
 	useEffect(() => {
 		fetchCart();
 		determineCurrentStep();
-		// console.log('mount', totalCartUpdate);
-		// console.log('mount totalQuantity', totalQuantity);
 	}, [totalQuantity]);
 
 	useEffect(() => {
 		fetchCart();
-		// console.log('totalCartUpdate totalCartUpdate', totalCartUpdate);
-		// console.log('totalCartUpdate totalQuantity', totalQuantity);
 	}, [totalCartUpdate]);
 
-	// useEffect(() => {
-	// 	determineCurrentStep();
-	// }, [totalItems]); // Re-run when totalItems or steps array changes
-
 	const determineCurrentStep = () => {
-		let foundStep = null;
+		let foundStep = 0;
 		// Iterate over steps to find the highest step not exceeding totalItems
 		for (let step of steps) {
 			if (totalQuantity >= step) {
@@ -298,23 +332,25 @@ function TotalCart() {
 		}
 
 		// Determine the step index if a step was found; otherwise, handle stepIndex as null
-		const stepIndex = foundStep !== null ? steps.indexOf(foundStep) + 1 : null;
+		const stepIndex = foundStep !== 0 ? steps.indexOf(foundStep) + 1 : 0;
 
 		// Check if we are moving down to step 0 and need to remove any existing coupon
-		if (stepIndex === null && appliedCoupon) {
+		if (stepIndex === 0 && appliedCoupon) {
 			console.log(
 				`Removing coupon, as moving to step 0 from step: ${currentStep}`,
 			);
 			removeCoupon(appliedCoupon);
-			setCurrentStep(null);
+			setCurrentStep(0);
+			// setBeforeNextStep(0);
 			fetchCart();
 			return;
 		}
 
-		const newCouponCode = stepIndex ? `coupon-step-${stepIndex}` : null;
+		const newCouponCode = stepIndex ? `coupon-step-${stepIndex}` : 0;
 
 		if (stepIndex !== currentStep) {
 			setCurrentStep(stepIndex);
+			// setBeforeNextStep(1);
 			console.log(
 				`Current step: ${stepIndex} for total items: ${totalQuantity}`,
 			);
@@ -341,43 +377,40 @@ function TotalCart() {
 	if (error) return <div>Error: {error}</div>;
 
 	return (
-		<div
-			style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-		>
-			<div>Total items: {totalQuantity}</div>
-			<div>
-				<span
-					style={{
-						padding: "0.25em",
-						borderStyle: "solid",
-						borderColor: currentStep !== null ? "fuchsia" : "grey",
-						width: "70px",
-						textAlign: "center",
-						display: "inline-block",
-					}}
-				>
-					{" "}
-					{totalSalePrice} €
-				</span>{" "}
-				{currentStep !== null && (
+		<>
+			<NextStep beforeNextStep={distanceToNextStep}></NextStep>
+			<div className="bg-blue-400 rounded-lg w-full flex p-3 text-white font-medium justify-around">
+				<div>
+					<span className="mr-1">{totalSalePrice}€</span>
 					<span
-						style={{
-							backgroundColor: "grey",
-							padding: "0.5em",
-							color: "white",
-						}}
+						className={`strikethrough-diagonal font-light text-sm text-gray-100 ${
+							currentStep != 0 ? "opacity-100" : "opacity-0"
+						}`}
 					>
-						{totalPrice} €
+						{totalPrice}€
 					</span>
-				)}{" "}
+				</div>
+				<div
+					className={`bg-white text-gray-700 rounded-lg px-2 ${
+						currentStep != 0 ? "opacity-100" : "opacity-0"
+					}`}
+				>
+					-{stepsPercanteges[currentStep - 1]}% OFF
+				</div>
+				<div className="flex gap-x-2 items-center">
+					<div className="bg-white text-gray-700 rounded-lg px-1.5 text-sm">
+						{totalQuantity}
+					</div>
+					<a href="/?page_id=9" className="no-underline text-white text-sm">
+						View Order
+					</a>
+				</div>
 			</div>
-			<div>Discount step: {currentStep}</div>
-			{console.log("return", totalQuantity)}
-		</div>
+		</>
 	);
 }
 
-const tempContainer = document.querySelector("#root-temp");
+const tempContainer = document.querySelector("#root-total-cart");
 ReactDOM.createRoot(tempContainer).render(<TotalCart />);
 
 /**
@@ -484,11 +517,19 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 
 	return (
 		<div>
-			<button style={{padding: "0.5em 1em"}} onClick={handleDecrement} disabled={isLoading}>
+			<button
+				style={{ padding: "0.5em 1em" }}
+				onClick={handleDecrement}
+				disabled={isLoading}
+			>
 				{isLoading ? "-" : "-"}
 			</button>
 			<span> {value} </span>
-			<button style={{padding: "0.5em 1em"}} onClick={handleIncrement} disabled={isLoading}>
+			<button
+				style={{ padding: "0.5em 1em" }}
+				onClick={handleIncrement}
+				disabled={isLoading}
+			>
 				{isLoading ? "+" : "+"}
 			</button>
 		</div>

@@ -910,6 +910,29 @@ function useCart(productId) {
 }
 
 /**
+ * ProgressBarr
+ */
+
+const ProgressBarr = () => {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "bg-blue-400 rounded-lg"
+  }, "progress bar");
+};
+ReactDOM.createRoot(document.querySelector("#root-progress-bar")).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProgressBarr, null));
+
+/**
+ * NextStep
+ */
+
+const NextStep = ({
+  beforeNextStep
+}) => {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "border-2 border-blue-400 rounded-lg bg-white mb-1"
+  }, beforeNextStep);
+};
+
+/**
  * TotalCart
  */
 
@@ -927,26 +950,33 @@ function TotalCart() {
     isLoading,
     error
   } = useCart();
-  const [steps, setSteps] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([3, 5, 7, 9]); // Example steps
-  const [currentStep, setCurrentStep] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
+  const [steps, setSteps] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([2, 6, 8, 11]); // Example steps
+  const [currentStep, setCurrentStep] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
+  const stepsPercanteges = ["5", "10", "15", "20"];
+  const [distanceToNextStep, setDistanceToNextStep] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    // Calculate the distance to the next step
+    const calculateDistanceToNextStep = () => {
+      if (currentStep < steps.length) {
+        // If not at the last step, calculate the difference between the next step and totalQuantity
+        const nextStepValue = steps[currentStep];
+        setDistanceToNextStep(nextStepValue - totalQuantity);
+      } else {
+        // If at the last step, there's no "next step" so set distance to 0
+        setDistanceToNextStep(0);
+      }
+    };
+    calculateDistanceToNextStep();
+  }, [currentStep, totalQuantity, steps]);
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     fetchCart();
     determineCurrentStep();
-    // console.log('mount', totalCartUpdate);
-    // console.log('mount totalQuantity', totalQuantity);
   }, [totalQuantity]);
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     fetchCart();
-    // console.log('totalCartUpdate totalCartUpdate', totalCartUpdate);
-    // console.log('totalCartUpdate totalQuantity', totalQuantity);
   }, [totalCartUpdate]);
-
-  // useEffect(() => {
-  // 	determineCurrentStep();
-  // }, [totalItems]); // Re-run when totalItems or steps array changes
-
   const determineCurrentStep = () => {
-    let foundStep = null;
+    let foundStep = 0;
     // Iterate over steps to find the highest step not exceeding totalItems
     for (let step of steps) {
       if (totalQuantity >= step) {
@@ -957,19 +987,21 @@ function TotalCart() {
     }
 
     // Determine the step index if a step was found; otherwise, handle stepIndex as null
-    const stepIndex = foundStep !== null ? steps.indexOf(foundStep) + 1 : null;
+    const stepIndex = foundStep !== 0 ? steps.indexOf(foundStep) + 1 : 0;
 
     // Check if we are moving down to step 0 and need to remove any existing coupon
-    if (stepIndex === null && appliedCoupon) {
+    if (stepIndex === 0 && appliedCoupon) {
       console.log(`Removing coupon, as moving to step 0 from step: ${currentStep}`);
       removeCoupon(appliedCoupon);
-      setCurrentStep(null);
+      setCurrentStep(0);
+      // setBeforeNextStep(0);
       fetchCart();
       return;
     }
-    const newCouponCode = stepIndex ? `coupon-step-${stepIndex}` : null;
+    const newCouponCode = stepIndex ? `coupon-step-${stepIndex}` : 0;
     if (stepIndex !== currentStep) {
       setCurrentStep(stepIndex);
+      // setBeforeNextStep(1);
       console.log(`Current step: ${stepIndex} for total items: ${totalQuantity}`);
 
       // Chain removal and application of coupons only if there's a valid step
@@ -986,30 +1018,26 @@ function TotalCart() {
   };
   if (isLoading) return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Loading cart items...");
   if (error) return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Error: ", error);
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Total items: ", totalQuantity), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
-    style: {
-      padding: "0.25em",
-      borderStyle: "solid",
-      borderColor: currentStep !== null ? "fuchsia" : "grey",
-      width: "70px",
-      textAlign: "center",
-      display: "inline-block"
-    }
-  }, " ", totalSalePrice, " \u20AC"), " ", currentStep !== null && (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
-    style: {
-      backgroundColor: "grey",
-      padding: "0.5em",
-      color: "white"
-    }
-  }, totalPrice, " \u20AC"), " "), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Discount step: ", currentStep), console.log("return", totalQuantity));
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(NextStep, {
+    beforeNextStep: distanceToNextStep
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "bg-blue-400 rounded-lg w-full flex p-3 text-white font-medium justify-around"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: "mr-1"
+  }, totalSalePrice, "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: `strikethrough-diagonal font-light text-sm text-gray-100 ${currentStep != 0 ? "opacity-100" : "opacity-0"}`
+  }, totalPrice, "\u20AC")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: `bg-white text-gray-700 rounded-lg px-2 ${currentStep != 0 ? "opacity-100" : "opacity-0"}`
+  }, "-", stepsPercanteges[currentStep - 1], "% OFF"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "flex gap-x-2 items-center"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "bg-white text-gray-700 rounded-lg px-1.5 text-sm"
+  }, totalQuantity), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
+    href: "/?page_id=9",
+    className: "no-underline text-white text-sm"
+  }, "View Order"))));
 }
-const tempContainer = document.querySelector("#root-temp");
+const tempContainer = document.querySelector("#root-total-cart");
 ReactDOM.createRoot(tempContainer).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TotalCart, null));
 
 /**

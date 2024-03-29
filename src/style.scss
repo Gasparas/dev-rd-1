@@ -4,8 +4,28 @@
  *
  * Replace them with your own styles or remove the file completely.
  */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-//  display: "flex", justifyContent: "center", maxWidth: "100%", marginTop: "20px"
+.strikethrough-diagonal {
+	position: relative;
+	// color: red;
+	// font-weight: bold;
+
+	&:before {
+		position: absolute;
+		content: "";
+		left: 0;
+		top: 47%;
+		right: 0;
+		border-top: 1px solid;
+		border-color: white;
+		-webkit-transform: skewY(-12deg);
+		-moz-transform: skewY(-12deg);
+		transform: skewY(-12deg);
+	}
+}
 
 .image-viewer-wrapper {
 	display: flex;
