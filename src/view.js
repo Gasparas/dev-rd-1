@@ -250,12 +250,35 @@ function useCart(productId) {
  * ProgressBarr
  */
 
-const ProgressBarr = () => {
-	return <div className="bg-blue-500 rounded-lg text-white px-1 py-8 flex justify-center">progress bar</div>;
+const ProgressBar = () => {
+	const totalCartUpdate = useStore((state) => state.totalCartUpdate);
+
+	const {
+		fetchCart,
+		applyCoupon,
+		removeCoupon,
+		appliedCoupon,
+		totalQuantity,
+		totalPrice,
+		totalSalePrice,
+		salePercentage,
+		isLoading,
+		error,
+	} = useCart();
+
+	useEffect(() => {
+		fetchCart();
+	}, [totalCartUpdate]);
+
+	return (
+		<div className="flex justify-center px-1 py-8 text-white bg-blue-500 rounded-lg">
+			{totalQuantity}
+		</div>
+	);
 };
 
 ReactDOM.createRoot(document.querySelector("#root-progress-bar")).render(
-	<ProgressBarr />,
+	<ProgressBar />,
 );
 
 /**
@@ -266,9 +289,11 @@ const NextStep = ({ beforeNextStep, stepsPercanteges, currentStep }) => {
 	const nextPercentage = stepsPercanteges[currentStep];
 
 	return (
-		<div className="text-sm flex border-2 border-blue-500 rounded-lg bg-white mb-1 px-3 py-2 items-center font-medium justify-center">
-			Add <span className="mx-1">{beforeNextStep}</span> more for
-			extra <span className="mx-1 bg-red-500 text-white px-2 py-1 rounded-lg">-{nextPercentage}% OFF</span>
+		<div className="flex items-center justify-center px-3 py-2 mb-1 text-sm font-medium bg-white border-2 border-blue-500 rounded-lg">
+			Add <span className="mx-1">{beforeNextStep}</span> more for extra{" "}
+			<span className="px-2 py-1 mx-1 text-white bg-red-500 rounded-lg">
+				-{nextPercentage}% OFF
+			</span>
 		</div>
 	);
 };
@@ -291,7 +316,7 @@ function TotalCart() {
 		salePercentage,
 		isLoading,
 		error,
-	} = useCart();
+	} = useCart();	
 
 	const [steps, setSteps] = useState([2, 6, 8, 11]); // Example steps
 	const [currentStep, setCurrentStep] = useState(0);
@@ -386,7 +411,7 @@ function TotalCart() {
 				stepsPercanteges={stepsPercanteges}
 				currentStep={currentStep}
 			></NextStep>
-			<div className="bg-blue-500 rounded-lg w-full flex px-3 py-4 text-white font-medium justify-around">
+			<div className="flex justify-around w-full px-3 py-4 font-medium text-white bg-blue-500 rounded-lg">
 				<div>
 					<span className="mr-1">{totalSalePrice}€</span>
 					<span
@@ -404,11 +429,11 @@ function TotalCart() {
 				>
 					-{stepsPercanteges[currentStep - 1]}% OFF
 				</div>
-				<div className="flex gap-x-2 items-center">
+				<div className="flex items-center gap-x-2">
 					<div className="bg-white text-gray-700 rounded-lg px-1.5 text-sm">
 						{totalQuantity}
 					</div>
-					<a href="/?page_id=9" className="no-underline text-white text-sm">
+					<a href="/?page_id=9" className="text-sm text-white no-underline">
 						View Order
 					</a>
 				</div>
