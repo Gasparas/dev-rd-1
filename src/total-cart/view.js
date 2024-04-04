@@ -32,7 +32,7 @@ import {
 	useCallback,
 } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
-import useStore from "your-store-path"; // Adjust the import path as needed
+import useStore from "./../store.js"; // Adjust the import path as needed
 
 /**
  * useCart

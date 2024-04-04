@@ -32,9 +32,13 @@ import {
 	useCallback,
 } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
-// import useStore from "your-store-path"; // Adjust the import path as needed
+import useStore from "./../store.js"; // Adjust the import path as needed
 // import test from "./../test.js"; // Adjust the import path as needed
 
+// const defaultConfig = require("@wordpress/scripts/config/webpack.config.js");
+// console.log(defaultConfig);
+
+console.log('hi');
 /**
  * useCart
  */
