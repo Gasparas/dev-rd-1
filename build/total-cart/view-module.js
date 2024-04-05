@@ -1,1 +1,0 @@
-var e={d:(o,n)=>{for(var r in n)e.o(n,r)&&!e.o(o,r)&&Object.defineProperty(o,r,{enumerable:!0,get:n[r]})},o:(e,o)=>Object.prototype.hasOwnProperty.call(e,o)},o={};e.d(o,{n:()=>r,z:()=>n});const n="view-module.js: var";function r(){console.log("view-module.js: function")}var t=o.n,a=o.z;export{t as myFunction,a as myVariable};

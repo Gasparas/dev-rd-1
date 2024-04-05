@@ -4,9 +4,20 @@
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
  */
 
-// $react_unique_id = wp_unique_id('app-id-');
 $discount_steps_string = $attributes['discountSteps']; // Assuming this is a string like "36,32,27"
 $discount_steps = array_map('intval', explode(',', $discount_steps_string)); // convert each element of the resulting array to an integer
+
+$discount_percentages_string = $attributes['discountPercentages']; // Assuming this is a string like "36,32,27"
+$discount_percentages = array_map('intval', explode(',', $discount_percentages_string)); // convert each element of the resulting array to an integer
+
+// Compile the product data
+$data = [
+    'steps' => $discount_steps,
+    'perc' => $discount_percentages,
+];
+
+// Append this product's data to the products data array
+$total_cart_data = $data;
 
 ?>
 <div id="root-total-cart" style="
@@ -20,4 +31,4 @@ $discount_steps = array_map('intval', explode(',', $discount_steps_string)); // 
 		total-cart container
 	</p>
 </div>
-<script type="application/json" class="discount-steps-data"><?php echo wp_json_encode($discount_steps); ?></script>
+<script type="application/json" class="total-cart-data"><?php echo wp_json_encode($total_cart_data); ?></script>

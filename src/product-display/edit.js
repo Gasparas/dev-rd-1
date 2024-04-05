@@ -31,9 +31,13 @@ import "./editor.scss";
  */
 export default function Edit({ attributes, setAttributes }) {
 	return (
-		<div>
-			<p>Product IDs:</p>
+		<div
+			style={{ background: "#3b82f6", margin: "20px 0 0 0 ", padding: "1em" }}
+		>
+			<h3 style={{ color: "#FFFFFF" }}>Product bundle</h3>
+			<p style={{ color: "#FFFFFF" }}>Product IDs:</p>
 			<PlainText
+				style={{ padding: "0 0.2em" }}
 				value={attributes.productId.toString()}
 				onChange={(value) => setAttributes({ productId: value })}
 				placeholder="Enter Product ID"

@@ -31,8 +31,10 @@ import "./editor.scss";
  */
 export default function Edit({ attributes, setAttributes }) {
 	return (
-		<div>
-			<p>Discount step indicator</p>			
+		<div
+			style={{ background: "#3b82f6", margin: "20px 0 0 0 ", padding: "1em" }}
+		>
+			<h3 style={{ color: "#FFFFFF" }}>Discount step indicator</h3>
 		</div>
 	);
 }

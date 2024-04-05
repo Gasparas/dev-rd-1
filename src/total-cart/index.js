@@ -34,6 +34,10 @@ registerBlockType( metadata.name, {
             type: 'string',
             default: 'Discount steps',
         },
+        discountPercentages: {
+            type: 'string',
+            default: 'Discount percentages',
+        },
     },
 	
 	/**

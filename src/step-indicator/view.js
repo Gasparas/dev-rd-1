@@ -32,17 +32,7 @@ import {
 	useCallback,
 } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
-import { create } from "zustand";
-
-/**
- * useStore
- */
-
-const useStore = create((set) => ({
-	totalCartUpdate: 0, // A simple counter to track cart updates
-	triggerTotalCartUpdate: () =>
-		set((state) => ({ totalCartUpdate: state.totalCartUpdate + 1 })),
-}));
+import useStore from "store";
 
 /**
  * useCart
@@ -250,7 +240,7 @@ function useCart(productId) {
  * StepIndicator
  */
 
-const StepIndicator = () => {
+const StepIndicator = ({ data }) => {
 	const totalCartUpdate = useStore((state) => state.totalCartUpdate);
 
 	const {
@@ -272,11 +262,16 @@ const StepIndicator = () => {
 
 	return (
 		<div className="flex justify-center px-1 py-8 text-white bg-blue-500 rounded-lg">
-			{totalQuantity}
+			{data.steps}
+			{data.perc}
 		</div>
 	);
 };
 
+
+
+const jsonDataElement = document.querySelector(".total-cart-data");
+const jsonData = JSON.parse(jsonDataElement.textContent || "{}");
 ReactDOM.createRoot(document.querySelector("#root-step-indicator")).render(
-	<StepIndicator />,
+	<StepIndicator data={jsonData} />,
 );

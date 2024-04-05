@@ -32,7 +32,7 @@ import {
 	useCallback,
 } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
-import useStore from "./../store.js"; // Adjust the import path as needed
+import useStore from "store";
 
 /**
  * useCart
@@ -240,8 +240,8 @@ function useCart(productId) {
  * NextStep
  */
 
-const NextStep = ({ beforeNextStep, stepsPercanteges, currentStep }) => {
-	const nextPercentage = stepsPercanteges[currentStep];
+const NextStep = ({ beforeNextStep, percanteges, currentStep }) => {
+	const nextPercentage = percanteges[currentStep];
 
 	return (
 		<div className="flex items-center justify-center px-3 py-2 mb-1 text-sm font-medium bg-white border-2 border-blue-500 rounded-lg">
@@ -258,13 +258,10 @@ const NextStep = ({ beforeNextStep, stepsPercanteges, currentStep }) => {
  */
 
 const TotalCart = ({ data }) => {
-	const triggerTotalCartUpdate = useStore(
-		(state) => state.triggerTotalCartUpdate,
-	);
 	const totalCartUpdate = useStore((state) => {
-		console.log('Reading totalCartUpdate', state.totalCartUpdate);
+		console.log("Reading totalCartUpdate", state.totalCartUpdate);
 		return state.totalCartUpdate;
-	  });
+	});
 
 	const {
 		fetchCart,
@@ -279,15 +276,16 @@ const TotalCart = ({ data }) => {
 		error,
 	} = useCart();
 
-	const [steps, setSteps] = useState(data); // Example steps
+	const [steps, setSteps] = useState(data.steps);
+	const [percanteges, setPercanteges] = useState(data.perc);
 	const [currentStep, setCurrentStep] = useState(0);
-	const stepsPercanteges = ["5", "10", "15", "20"];
-
+	// const percanteges = ["5", "10", "15", "20"];
 	const [distanceToNextStep, setDistanceToNextStep] = useState(0);
 
 	useEffect(() => {
-		// console.log("totalCartUpdate", totalCartUpdate);
-	}, []);
+		// setSteps(data.steps);
+		// setPercanteges(data.perc); 
+	}, [data]);
 
 	useEffect(() => {
 		// Calculate the distance to the next step
@@ -371,11 +369,9 @@ const TotalCart = ({ data }) => {
 
 	return (
 		<>
-			<div>{totalCartUpdate}</div>
-			<button onClick={triggerTotalCartUpdate}>button</button>
 			<NextStep
 				beforeNextStep={distanceToNextStep}
-				stepsPercanteges={stepsPercanteges}
+				percanteges={percanteges}
 				currentStep={currentStep}
 			></NextStep>
 			<div className="flex justify-around w-full px-3 py-4 font-medium text-white bg-blue-500 rounded-lg">
@@ -394,7 +390,7 @@ const TotalCart = ({ data }) => {
 						currentStep != 0 ? "opacity-100" : "opacity-0"
 					}`}
 				>
-					-{stepsPercanteges[currentStep - 1]}% OFF
+					-{percanteges[currentStep - 1]}% OFF
 				</div>
 				<div className="flex items-center gap-x-2">
 					<div className="bg-white text-gray-700 rounded-lg px-1.5 text-sm">
@@ -410,9 +406,7 @@ const TotalCart = ({ data }) => {
 };
 
 const container = document.querySelector("#root-total-cart");
-// ReactDOM.createRoot(tempContainer).render(<TotalCart />);
-
-const jsonDataElement = document.querySelector(".discount-steps-data");
-const jsonData = JSON.parse(jsonDataElement.textContent || "[]");
+const jsonDataElement = document.querySelector(".total-cart-data");
+const jsonData = JSON.parse(jsonDataElement.textContent || "{}");
 
 ReactDOM.createRoot(container).render(<TotalCart data={jsonData} />);

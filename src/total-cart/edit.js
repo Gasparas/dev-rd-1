@@ -31,12 +31,23 @@ import "./editor.scss";
  */
 export default function Edit({ attributes, setAttributes }) {
 	return (
-		<div>
-			<p>Discount steps:</p>
+		<div
+			style={{ background: "#3b82f6", margin: "20px 0 0 0 ", padding: "1em" }}
+		>
+			<h3 style={{ color: "#FFFFFF" }}>Cart total counter</h3>
+			<p style={{ color: "#FFFFFF" }}>Discount quantity steps:</p>
 			<PlainText
+				style={{ padding: "0 0.2em" }}
 				value={attributes.discountSteps.toString()}
 				onChange={(value) => setAttributes({ discountSteps: value })}
-				placeholder="Enter Product ID"
+				placeholder="Enter discount steps"
+			/>
+			<p style={{ color: "#FFFFFF" }}>Discount percentages:</p>
+			<PlainText
+				style={{ padding: "0 0.2em" }}
+				value={attributes.discountPercentages.toString()}
+				onChange={(value) => setAttributes({ discountPercentages: value })}
+				placeholder="Enter discount percentages"
 			/>
 		</div>
 	);
