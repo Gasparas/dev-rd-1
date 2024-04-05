@@ -270,8 +270,8 @@ function ProductGallery({ selectedProductId, productsData }) {
 	);
 }
 
-function InfoBox({ selectedProductId }) {
-	return <div>Selected Product ID: {selectedProductId}</div>;
+function InfoBox({ selectedProductTitle }) {
+	return <div className="mt-2">{selectedProductTitle}</div>;
 }
 
 function TogglerBox({ products, onProductSelect, selectedProductId }) {
@@ -378,6 +378,11 @@ function ProductDisplay({ data }) {
 		setSelectedProductId(id);
 	};
 
+	// Find the selected product to get its title
+    const selectedProduct = products.find(product => product.id === selectedProductId);
+    const selectedProductTitle = selectedProduct ? selectedProduct.title : '';
+
+
 	return (
 		<div
 			className="product-wrapper"
@@ -387,7 +392,7 @@ function ProductDisplay({ data }) {
 				selectedProductId={selectedProductId}
 				productsData={products}
 			></ProductGallery>
-			<InfoBox selectedProductId={selectedProductId} />
+			<InfoBox selectedProductId={selectedProductId} selectedProductTitle={selectedProductTitle} />
 			<TogglerBox
 				products={products}
 				onProductSelect={handleProductSelect}

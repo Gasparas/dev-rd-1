@@ -254,58 +254,46 @@ const StepIndicator = ({ data }) => {
 	}, [totalCartUpdate]);
 
 	return (
-		<div className="progress-container">
-			<div
-				className="progress-bar"
-				style={{ width: `${progressPercentage}%` }}
-			></div>
-			{steps.map((step) => {
-				const leftPercentage = (step / maxStepValue) * 100; // Correct calculation for leftPercentage
-				return (
+		<>
+			<div className="px-3 py-4 mt-3 bg-blue-500 rounded-lg">
+				<div className="numbers-container">
+					{steps.map((step) => {
+						const leftPercentage = (step / maxStepValue) * 100; // Correct calculation for leftPercentage
+						return (
+							<div
+								key={step}
+								className="step-number"
+								style={{
+									left: `${leftPercentage - 2}%`,
+								}}
+							>
+								{step}
+							</div>
+						);
+					})}
+				</div>
+				<div className="progress-container">
 					<div
-						key={step}
-						className="step-marker"
-						style={{
-							left: `${leftPercentage}%`,
-						}}
+						className="progress-bar"
+						style={{ width: `${progressPercentage}%` }}
 					></div>
-				);
-			})}
-		</div>
+					{steps.map((step) => {
+						const leftPercentage = (step / maxStepValue) * 100; // Correct calculation for leftPercentage
+						return (
+							<div
+								key={step}
+								className="step-marker"
+								style={{
+									left: `${leftPercentage}%`,
+								}}
+							></div>
+						);
+					})}
+				</div>
+			</div>
+		</>
 	);
 };
-
-const ProgressBar = ({ data }) => {
-	const steps = [3, 6, 9, 12, 15];
-	const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
-
-	const progressPercentage = (totalQuantity / maxStepValue) * 100;
-
-	return (
-		<div className="progress-container">
-			<div
-				className="progress-bar"
-				style={{ width: `${progressPercentage}%` }}
-			></div>
-			{steps.map((step) => {
-				const leftPercentage = (step / maxStepValue) * 100; // Correct calculation for leftPercentage
-				return (
-					<div
-						key={step}
-						className="step-marker"
-						style={{
-							left: `${leftPercentage}%`,
-						}}
-					></div>
-				);
-			})}
-		</div>
-	);
-};
-
-{
-	/* <ProgressBar totalCounterValue={totalValues.totalCounterValue}></ProgressBar>; */
-}
 
 const jsonDataElement = document.querySelector(".total-cart-data");
 const jsonData = JSON.parse(jsonDataElement.textContent || "{}");
