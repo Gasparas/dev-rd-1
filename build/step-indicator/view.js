@@ -931,23 +931,61 @@ const StepIndicator = ({
   const totalCartUpdate = (0,store__WEBPACK_IMPORTED_MODULE_3__["default"])(state => state.totalCartUpdate);
   const {
     fetchCart,
-    applyCoupon,
-    removeCoupon,
-    appliedCoupon,
-    totalQuantity,
-    totalPrice,
-    totalSalePrice,
-    salePercentage,
-    isLoading,
-    error
+    totalQuantity
   } = useCart();
+  const steps = data.steps;
+  const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
+
+  const progressPercentage = totalQuantity / maxStepValue * 100;
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     fetchCart();
   }, [totalCartUpdate]);
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "flex justify-center px-1 py-8 text-white bg-blue-500 rounded-lg"
-  }, data.steps, data.perc);
+    className: "progress-container"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "progress-bar",
+    style: {
+      width: `${progressPercentage}%`
+    }
+  }), steps.map(step => {
+    const leftPercentage = step / maxStepValue * 100; // Correct calculation for leftPercentage
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      key: step,
+      className: "step-marker",
+      style: {
+        left: `${leftPercentage}%`
+      }
+    });
+  }));
 };
+const ProgressBar = ({
+  data
+}) => {
+  const steps = [3, 6, 9, 12, 15];
+  const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
+
+  const progressPercentage = totalQuantity / maxStepValue * 100;
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "progress-container"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "progress-bar",
+    style: {
+      width: `${progressPercentage}%`
+    }
+  }), steps.map(step => {
+    const leftPercentage = step / maxStepValue * 100; // Correct calculation for leftPercentage
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      key: step,
+      className: "step-marker",
+      style: {
+        left: `${leftPercentage}%`
+      }
+    });
+  }));
+};
+{
+  /* <ProgressBar totalCounterValue={totalValues.totalCounterValue}></ProgressBar>; */
+}
 const jsonDataElement = document.querySelector(".total-cart-data");
 const jsonData = JSON.parse(jsonDataElement.textContent || "{}");
 ReactDOM.createRoot(document.querySelector("#root-step-indicator")).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(StepIndicator, {
