@@ -20,7 +20,7 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
  */
 
-console.log("view.js");
+// console.log("view.js");
 
 import {
 	createRoot,
@@ -33,6 +33,7 @@ import {
 } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import useStore from "store";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 
 /**
  * useCart
@@ -270,24 +271,36 @@ function ProductGallery({ selectedProductId, productsData }) {
 	);
 }
 
-function InfoBox({ selectedProductTitle }) {
-	return <div className="mt-2">{selectedProductTitle}</div>;
+function InfoBox({ selectedProductTitle, selectedProductPrice }) {
+	return (
+		<div className="flex w-full mt-2 gap-x-2 h-14">
+			<div className="text-2xl basis-1/5">{selectedProductPrice}€</div>
+			<div className="basis-4/5">{selectedProductTitle}</div>
+		</div>
+	);
 }
 
 function TogglerBox({ products, onProductSelect, selectedProductId }) {
 	return (
-		<div>
+		<div className="flex gap-x-3">
 			{products.map((product) => (
 				<button
+					className="w-11 h-11"
 					key={product.id}
 					onClick={() => onProductSelect(product.id)}
 					style={{
+						background: product.color,
+						borderRadius: "50%",
+						color: "white",
 						padding: "0.5em 1em",
 						margin: "1em 0",
-						fontWeight: product.id === selectedProductId ? "bold" : "normal",
+						fontWeight: "bold",
+						outline:
+							product.id === selectedProductId ? "2px solid #3c82f6" : "none",
+						outlineOffset: "3px",
 					}}
 				>
-					{product.counterValue}
+					{product.counterValue === 0 ? " " : product.counterValue}
 				</button>
 			))}
 		</div>
@@ -323,21 +336,15 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 	};
 
 	return (
-		<div>
-			<button
-				style={{ padding: "0.5em 1em" }}
-				onClick={handleDecrement}
-				disabled={isLoading}
-			>
-				{isLoading ? "-" : "-"}
+		<div className="py-3 shadow-md rounded-md flex items-center justify-around w-44 font-bold bg-gray-300 [&>button]:bg-white [&>button]:rounded-full [&>button>svg]:m-auto [&>button]:h-8 [&>button]:w-8">
+			<button onClick={handleDecrement} disabled={isLoading}>
+				{/* {isLoading ? <Minus size={24} /> : <Minus size={24} />} */}
+				<Minus size={20} strokeWidth={3} />
 			</button>
-			<span> {value} </span>
-			<button
-				style={{ padding: "0.5em 1em" }}
-				onClick={handleIncrement}
-				disabled={isLoading}
-			>
-				{isLoading ? "+" : "+"}
+			<span>{value}</span>
+			<button onClick={handleIncrement} disabled={isLoading}>
+				{/* {isLoading ? <Plus size={24} /> : <Plus size={24} />} */}
+				<Plus size={20} strokeWidth={3} />
 			</button>
 		</div>
 	);
@@ -379,9 +386,12 @@ function ProductDisplay({ data }) {
 	};
 
 	// Find the selected product to get its title
-    const selectedProduct = products.find(product => product.id === selectedProductId);
-    const selectedProductTitle = selectedProduct ? selectedProduct.title : '';
+	const selectedProduct = products.find(
+		(product) => product.id === selectedProductId,
+	);
 
+	const selectedProductTitle = selectedProduct ? selectedProduct.title : "";
+	const selectedProductPrice = selectedProduct ? selectedProduct.price : "";
 
 	return (
 		<div
@@ -392,7 +402,11 @@ function ProductDisplay({ data }) {
 				selectedProductId={selectedProductId}
 				productsData={products}
 			></ProductGallery>
-			<InfoBox selectedProductId={selectedProductId} selectedProductTitle={selectedProductTitle} />
+			<InfoBox
+				selectedProductId={selectedProductId}
+				selectedProductTitle={selectedProductTitle}
+				selectedProductPrice={selectedProductPrice}
+			/>
 			<TogglerBox
 				products={products}
 				onProductSelect={handleProductSelect}
