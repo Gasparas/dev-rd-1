@@ -31,203 +31,10 @@ import {
 	useEffect,
 	useCallback,
 } from "@wordpress/element";
-import apiFetch from "@wordpress/api-fetch";
+import useCart from "useCart";
 import useStore from "store";
+import { add, throttle } from 'lodash';
 import { Minus, Plus, ShoppingCart } from "lucide-react";
-
-/**
- * useCart
- */
-
-function useCart(productId) {
-	const triggerTotalCartUpdate = useStore(
-		(state) => state.triggerTotalCartUpdate,
-	);
-
-	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState(null);
-
-	const [cartProducts, setCartProducts] = useState([]);
-	const [totalQuantity, setTotalQuantity] = useState(0);
-	const [totalPrice, setTotalPrice] = useState(0);
-	const [totalSalePrice, setTotalSalePrice] = useState(0);
-	const [salePercentage, setSalePercentage] = useState(0);
-	const [appliedCoupon, setAppliedCoupon] = useState("");
-
-	useEffect(() => {
-		fetchCart();
-	}, []);
-
-	const fetchCart = () => {
-		apiFetch({ path: "/wc/store/cart" }) // Adjusted to an endpoint that returns full cart details
-			.then((cart) => {
-				const cartProducts = cart.items;
-				setCartProducts(cartProducts);
-				// Assuming the response includes totalItems and total price directly
-				const totalQuantity = cart.items.reduce(
-					(acc, item) => acc + item.quantity,
-					0,
-				);
-				setTotalQuantity(totalQuantity);
-				// console.log('fetchCart totalQuantity', totalQuantity);
-
-				// Directly use the total price from the cart object
-				const totalPrice = parseFloat(cart.totals.total_items) / 100;
-				setTotalPrice(totalPrice);
-				const totalSalePrice = parseFloat(cart.totals.total_price) / 100;
-				setTotalSalePrice(totalSalePrice);
-				// if (totalPrice != 0) {
-				// 	const salePercentage = Math.round(
-				// 		((totalPrice - totalSalePrice) / totalPrice) * 100,
-				// 	);
-				// 	setSalePercentage(salePercentage);
-				// }
-				// console.log("fetchCart:", totalPrice);
-				setIsLoading(false);
-			})
-			.catch((err) => {
-				console.error("Error fetching cart:", err);
-				setError("Failed to fetch cart.");
-				setIsLoading(false);
-			});
-	};
-
-	const addToCart = (productId) => {
-		setIsLoading(true);
-
-		const itemData = {
-			id: productId,
-			quantity: 1,
-		};
-
-		apiFetch({
-			path: "/wc/store/cart/add-item",
-			method: "POST",
-			data: itemData,
-		})
-			.then(() => {
-				console.log(`Add to cart: ${productId}`);
-			})
-			.catch((error) => {
-				console.error("Error incrementing item:", error);
-				setError("Failed to increment item.");
-				setIsLoading(false);
-			})
-			.finally(() => {
-				fetchCart(); // Refresh the cart items to reflect the change
-				triggerTotalCartUpdate();
-			});
-	};
-
-	const remFromCart = (productId) => {
-		setIsLoading(true);
-
-		// Find the current item in the cart
-		const item = cartProducts.find((item) => item.id === productId);
-		if (!item) {
-			// If item not found, exit early
-			console.error("Item not found in cart:", productId);
-			// setIsLoading(false);
-			return;
-		}
-
-		if (item.quantity === 1) {
-			// If the item's quantity is 1, remove it from the cart
-			const itemData = {
-				key: item.key,
-			};
-
-			apiFetch({
-				path: "/wc/store/cart/remove-item",
-				method: "POST",
-				data: itemData,
-			})
-				.then(() => {
-					console.log(`Remove from cart: ${productId}`);
-					fetchCart(); // Refresh the cart items to reflect the change
-					triggerTotalCartUpdate();
-				})
-				.catch((error) => {
-					console.error("Error removing item:", error);
-					setError("Failed to remove item.");
-					setIsLoading(false);
-				});
-		} else {
-			// If the item's quantity is greater than 1, decrement its quantity
-			const itemData = {
-				key: item.key,
-				quantity: item.quantity - 1,
-			};
-
-			apiFetch({
-				path: "/wc/store/cart/update-item",
-				method: "POST",
-				data: itemData,
-			})
-				.then(() => {
-					console.log(`Decrease cart quantity: ${productId}`);
-					fetchCart(); // Refresh the cart items to reflect the change
-					triggerTotalCartUpdate();
-				})
-				.catch((error) => {
-					console.error("Error decrementing item:", error);
-					setError("Failed to decrement item.");
-					setIsLoading(false);
-				});
-		}
-	};
-
-	const applyCoupon = (couponCode) => {
-		console.log(`Applying coupon: ${couponCode}`);
-		return apiFetch({
-			path: "/wc/store/v1/cart/apply-coupon",
-			method: "POST",
-			data: { code: couponCode },
-		})
-			.then((response) => {
-				console.log(`Coupon ${couponCode} applied.`);
-				setAppliedCoupon(couponCode); // Update the applied coupon
-				return response; // Return response for chaining
-			})
-			.catch((error) => {
-				console.error(`Error applying coupon ${couponCode}:`, error);
-				throw error; // Re-throw for catch chaining
-			});
-	};
-
-	const removeCoupon = (couponCode) => {
-		console.log(`Removing coupon: ${couponCode}`);
-		return apiFetch({
-			path: "/wc/store/v1/cart/remove-coupon",
-			method: "POST",
-			data: { code: couponCode },
-		})
-			.then((response) => {
-				console.log(`Coupon ${couponCode} removed.`);
-				setAppliedCoupon(""); // Clear the applied coupon
-				return response; // Return response for chaining
-			})
-			.catch((error) => {
-				console.error(`Error removing coupon ${couponCode}:`, error);
-				throw error; // Re-throw for catch chaining
-			});
-	};
-
-	return {
-		fetchCart,
-		addToCart,
-		remFromCart,
-		applyCoupon,
-		removeCoupon,
-		appliedCoupon,
-		totalPrice,
-		totalSalePrice,
-		salePercentage,
-		totalQuantity,
-		isLoading,
-		error,
-	};
-}
 
 /**
  * ProductDisplay
@@ -297,7 +104,6 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 						background: product.color,
 						borderRadius: "50%",
 						color: "white",
-						padding: "0.5em 1em",
 						margin: "1em 0",
 						fontWeight: "bold",
 						outline:
@@ -313,22 +119,46 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 }
 
 function AdjusterBox({ productId, initialValue, togglerValueChange }) {
+	const { fetchCart, addToCart, remFromCart, totalQuantity, totalPrice, isLoading, error } = useStore(
+		(state) => ({
+			fetchCart: state.fetchCart,
+			addToCart: state.addToCart,
+			remFromCart: state.remFromCart,
+			totalQuantity: state.totalQuantity,
+			totalPrice: state.totalPrice,
+			error: state.error,
+			isLoading: state.isLoading,
+		}),
+	);
+
+	// const totalQuantity = useStore((state) => state.totalQuantity);
+	// const totalPrice = useStore((state) => state.totalPrice);
+
 	const [value, setValue] = useState(initialValue);
-	const { fetchCart, addToCart, remFromCart, isLoading, error } = useCart();
+	// const { remFromCart } = useCart();
 
 	useEffect(() => {
 		setValue(initialValue);
 	}, [initialValue]);
 
 	useEffect(() => {
-		// apiFetchCartItems();
-	}, []);
+		fetchCart();
+	}, [value]);
+
+	const throttledAddToCart = throttle((productId) => {
+		window.myGlobalStore.getState().addToCart(productId);
+		console.log('t');
+	  }, 10000); // Adjust time as needed
 
 	const handleIncrement = () => {
 		const newValue = value + 1;
 		setValue(newValue);
 		togglerValueChange(newValue);
 		addToCart(productId);
+		// console.log(isLoading);
+		// throttledAddToCart(productId);
+		// debounce(addToCart(productId), 1000);
+		fetchCart();
 	};
 
 	const handleDecrement = () => {
@@ -337,21 +167,27 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 			setValue(newValue);
 			togglerValueChange(newValue);
 			remFromCart(productId);
+			// debounce(remFromCart(productId), 300);
+			fetchCart();
 		}
 	};
 
 	return (
-		<div className="py-3 shadow-md rounded-md flex items-center justify-around w-44 font-bold bg-gray-300 [&>button]:bg-white [&>button]:rounded-full [&>button>svg]:m-auto [&>button]:h-8 [&>button]:w-8">
-			<button onClick={handleDecrement} disabled={isLoading}>
-				{/* {isLoading ? <Minus size={24} /> : <Minus size={24} />} */}
-				<Minus size={20} strokeWidth={3} />
-			</button>
-			<span>{value}</span>
-			<button onClick={handleIncrement} disabled={isLoading}>
-				{/* {isLoading ? <Plus size={24} /> : <Plus size={24} />} */}
-				<Plus size={20} strokeWidth={3} />
-			</button>
-		</div>
+		<>
+			<div className="py-3 shadow-md rounded-md flex items-center justify-around w-44 font-bold bg-gray-300 [&>button]:bg-white [&>button]:rounded-full [&>button>svg]:m-auto [&>button]:h-8 [&>button]:w-8">
+				<button onClick={handleDecrement} disabled={isLoading}>
+					{/* {isLoading ? <Minus size={24} /> : <Minus size={24} />} */}
+					<Minus size={20} strokeWidth={3} />
+				</button>
+				<span>{value}</span>
+				<button onClick={handleIncrement} disabled={isLoading}>
+					{/* {isLoading ? <Plus size={24} /> : <Plus size={24} />} */}
+					<Plus size={20} strokeWidth={3} />
+				</button>
+			</div>
+			<div>{totalQuantity}</div>
+			<div>{totalPrice}</div>
+		</>
 	);
 }
 

@@ -12,17 +12,395 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var zustand__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! zustand */ "./node_modules/zustand/esm/index.mjs");
+/* harmony import */ var zustand__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! zustand */ "./node_modules/zustand/esm/index.mjs");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0__);
 
+
+
+// Utility debounce function
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+const addProductToCartDebounced = {}; // Object to hold debounced functions by productId
+const removeProductFromCartDebounced = {}; // Object to hold debounced functions by productId
 
 // Attach the store to a global variable to ensure a single instance
-window.myGlobalStore = window.myGlobalStore || (0,zustand__WEBPACK_IMPORTED_MODULE_0__.create)(set => ({
+window.myGlobalStore = window.myGlobalStore || (0,zustand__WEBPACK_IMPORTED_MODULE_1__.create)((set, get) => ({
+  // Initial state...
   totalCartUpdate: 0,
-  triggerTotalCartUpdate: () => set(state => ({
-    totalCartUpdate: state.totalCartUpdate + 1
-  }))
+  cartProducts: [],
+  totalQuantity: 0,
+  totalPrice: 0.0,
+  totalSalePrice: 0.0,
+  isLoading: false,
+  error: "",
+  isAddingToCart: false,
+  cartAdditions: {},
+  // Holds the count of additions for debounce
+  cartRemovals: {},
+  // Holds the count of removals for debounce
+
+  // State setters...
+  // These setters are simplified for demonstration. You might adjust them based on your needs.
+
+  // Fetch cart data
+  fetchCart: async () => {
+    // console.log("Starting to fetch cart, setting isLoading to true...");
+    // set({ isLoading: true });
+    try {
+      const cart = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+        path: "/wc/store/cart"
+      });
+      set({
+        cartProducts: cart.items,
+        totalQuantity: cart.items.reduce((acc, item) => acc + item.quantity, 0),
+        totalPrice: parseFloat(cart.totals.total_items) / 100,
+        totalSalePrice: parseFloat(cart.totals.total_price) / 100,
+        error: ""
+      });
+      // console.log("Successfully fetched cart, setting isLoading to false...");
+    } catch (err) {
+      console.error("Error fetching cart:", err);
+      set({
+        error: "Failed to fetch cart."
+      });
+    } finally {
+      // set({ isLoading: false });
+    }
+  },
+  addToCart: productId => {
+    // Increase the count for the specific productId
+    const currentCount = get().cartAdditions[productId] || 0;
+    set(state => ({
+      cartAdditions: {
+        ...state.cartAdditions,
+        [productId]: currentCount + 1
+      }
+    }));
+
+    // Initialize the debounced function if it doesn't exist for the productId
+    if (!addProductToCartDebounced[productId]) {
+      addProductToCartDebounced[productId] = debounce(async () => {
+        set({
+          isLoading: true
+        });
+        try {
+          const quantityToAdd = get().cartAdditions[productId];
+          console.log(`Adding ${quantityToAdd} of product ${productId} to cart.`);
+          await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+            path: "/wc/store/cart/add-item",
+            method: "POST",
+            data: {
+              id: productId,
+              quantity: quantityToAdd
+            }
+          });
+
+          // Reset the count for productId after adding
+          set(state => ({
+            cartAdditions: {
+              ...state.cartAdditions,
+              [productId]: 0
+            }
+          }));
+          get().fetchCart();
+        } catch (error) {
+          console.error("Error adding item to cart:", error);
+          set({
+            error: "Failed to add item to cart."
+          });
+        } finally {
+          set({
+            isLoading: false
+          });
+        }
+      }, 300); // Debounce time
+    }
+
+    // Call the debounced addition function
+    addProductToCartDebounced[productId]();
+  },
+  // Define remFromCart within your store
+  remFromCart: productId => {
+    // Increase the removal count for the specific productId
+    const currentCount = get().cartRemovals[productId] || 0;
+    set(state => ({
+      cartRemovals: {
+        ...state.cartRemovals,
+        [productId]: currentCount + 1
+      }
+    }));
+    if (!removeProductFromCartDebounced[productId]) {
+      removeProductFromCartDebounced[productId] = debounce(async () => {
+        set({
+          isLoading: true
+        });
+        const cartProducts = get().cartProducts;
+        const item = cartProducts.find(item => item.id === productId);
+        if (!item) {
+          console.error("Item not found in cart:", productId);
+          set({
+            isLoading: false
+          });
+          return;
+        }
+        try {
+          const itemData = {
+            key: item.key,
+            quantity: item.quantity - get().cartRemovals[productId]
+          };
+
+          // Reset the removal count for productId after removing
+          set(state => ({
+            cartRemovals: {
+              ...state.cartRemovals,
+              [productId]: 0
+            }
+          }));
+          await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+            path: itemData.quantity > 0 ? "/wc/store/cart/update-item" : "/wc/store/cart/remove-item",
+            method: "POST",
+            data: itemData
+          });
+          console.log(`Updated cart for product ${productId}.`);
+          get().fetchCart();
+        } catch (error) {
+          console.error("Error updating cart:", error);
+          set({
+            error: "Failed to update cart."
+          });
+        } finally {
+          set({
+            isLoading: false
+          });
+          get().triggerTotalCartUpdate();
+        }
+      }, 300); // Debounce time
+    }
+    removeProductFromCartDebounced[productId]();
+  },
+  triggerTotalCartUpdate: () => {
+    set(state => ({
+      totalCartUpdate: state.totalCartUpdate + 1
+    }));
+  }
 }));
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (window.myGlobalStore);
+
+/***/ }),
+
+/***/ "./src/useCart.js":
+/*!************************!*\
+  !*** ./src/useCart.js ***!
+  \************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! store */ "./src/store.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lodash */ "lodash");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_3__);
+
+
+
+
+function useCart(productId) {
+  const {
+    cartProducts
+  } = (0,store__WEBPACK_IMPORTED_MODULE_2__["default"])(state => ({
+    cartProducts: state.cartProducts
+  }));
+  const triggerTotalCartUpdate = (0,store__WEBPACK_IMPORTED_MODULE_2__["default"])(state => state.triggerTotalCartUpdate);
+  const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
+  const [error, setError] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
+
+  // const [cartProducts, setCartProducts] = useState([]);
+  const [totalQuantity, setTotalQuantity] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
+  const [totalPrice, setTotalPrice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
+  const [totalSalePrice, setTotalSalePrice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
+  const [salePercentage, setSalePercentage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
+  const [appliedCoupon, setAppliedCoupon] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)("");
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+    // fetchCart();
+  }, []);
+  const fetchCart = async () => {
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
+      path: "/wc/store/cart"
+    }) // Adjusted to an endpoint that returns full cart details
+    .then(cart => {
+      const cartProducts = cart.items;
+      setCartProducts(cartProducts);
+      // Assuming the response includes totalItems and total price directly
+      const totalQuantity = cart.items.reduce((acc, item) => acc + item.quantity, 0);
+      setTotalQuantity(totalQuantity);
+      // console.log('fetchCart totalQuantity', totalQuantity);
+
+      // Directly use the total price from the cart object
+      const totalPrice = parseFloat(cart.totals.total_items) / 100;
+      setTotalPrice(totalPrice);
+      const totalSalePrice = parseFloat(cart.totals.total_price) / 100;
+      setTotalSalePrice(totalSalePrice);
+      // if (totalPrice != 0) {
+      // 	const salePercentage = Math.round(
+      // 		((totalPrice - totalSalePrice) / totalPrice) * 100,
+      // 	);
+      // 	setSalePercentage(salePercentage);
+      // }
+      // console.log("fetchCart:", totalPrice);
+      setIsLoading(false);
+    }).catch(err => {
+      console.error("Error fetching cart:", err);
+      setError("Failed to fetch cart.");
+      setIsLoading(false);
+    });
+  };
+  const addToCart = productId => {
+    setIsLoading(true);
+    const itemData = {
+      id: productId,
+      quantity: 1
+    };
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
+      path: "/wc/store/cart/add-item",
+      method: "POST",
+      data: itemData
+    }).then(() => {
+      console.log(`Add to cart: ${productId}`);
+    }).catch(error => {
+      console.error("Error incrementing item:", error);
+      setError("Failed to increment item.");
+      setIsLoading(false);
+    }).finally(() => {
+      // fetchCart(); // Refresh the cart items to reflect the change
+      setIsLoading(false);
+      triggerTotalCartUpdate();
+    });
+  };
+  const remFromCart = productId => {
+    setIsLoading(true);
+
+    // Find the current item in the cart
+    const item = cartProducts.find(item => item.id === productId);
+    if (!item) {
+      // If item not found, exit early
+      console.error("Item not found in cart:", productId);
+      setIsLoading(false);
+      return;
+    }
+    if (item.quantity === 1) {
+      // If the item's quantity is 1, remove it from the cart
+      const itemData = {
+        key: item.key
+      };
+      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
+        path: "/wc/store/cart/remove-item",
+        method: "POST",
+        data: itemData
+      }).then(() => {
+        console.log(`Remove from cart: ${productId}`);
+        // fetchCart(); // Refresh the cart items to reflect the change
+        // triggerTotalCartUpdate();
+        // setIsLoading(false);
+      }).catch(error => {
+        console.error("Error removing item:", error);
+        setError("Failed to remove item.");
+        setIsLoading(false);
+      }).finally(() => {
+        // fetchCart(); // Refresh the cart items to reflect the change
+        setIsLoading(false);
+        triggerTotalCartUpdate();
+      });
+    } else {
+      // If the item's quantity is greater than 1, decrement its quantity
+      const itemData = {
+        key: item.key,
+        quantity: item.quantity - 1
+      };
+      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
+        path: "/wc/store/cart/update-item",
+        method: "POST",
+        data: itemData
+      }).then(() => {
+        console.log(`Decrease cart quantity: ${productId}`);
+        // fetchCart(); // Refresh the cart items to reflect the change
+        // triggerTotalCartUpdate();
+        // setIsLoading(false);
+      }).catch(error => {
+        console.error("Error decrementing item:", error);
+        setError("Failed to decrement item.");
+        setIsLoading(false);
+      }).finally(() => {
+        // fetchCart(); // Refresh the cart items to reflect the change
+        setIsLoading(false);
+        triggerTotalCartUpdate();
+      });
+    }
+  };
+  const applyCoupon = couponCode => {
+    console.log(`Applying coupon: ${couponCode}`);
+    return _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
+      path: "/wc/store/v1/cart/apply-coupon",
+      method: "POST",
+      data: {
+        code: couponCode
+      }
+    }).then(response => {
+      console.log(`Coupon ${couponCode} applied.`);
+      setAppliedCoupon(couponCode); // Update the applied coupon
+      return response; // Return response for chaining
+    }).catch(error => {
+      console.error(`Error applying coupon ${couponCode}:`, error);
+      throw error; // Re-throw for catch chaining
+    });
+  };
+  const removeCoupon = couponCode => {
+    console.log(`Removing coupon: ${couponCode}`);
+    return _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
+      path: "/wc/store/v1/cart/remove-coupon",
+      method: "POST",
+      data: {
+        code: couponCode
+      }
+    }).then(response => {
+      console.log(`Coupon ${couponCode} removed.`);
+      setAppliedCoupon(""); // Clear the applied coupon
+      return response; // Return response for chaining
+    }).catch(error => {
+      console.error(`Error removing coupon ${couponCode}:`, error);
+      throw error; // Re-throw for catch chaining
+    });
+  };
+  return {
+    // fetchCart,
+    addToCart,
+    remFromCart,
+    // applyCoupon,
+    // removeCoupon,
+    appliedCoupon,
+    totalPrice,
+    totalSalePrice,
+    salePercentage,
+    totalQuantity,
+    isLoading,
+    error
+  };
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (useCart);
 
 /***/ }),
 
@@ -674,6 +1052,16 @@ module.exports = window["React"];
 
 /***/ }),
 
+/***/ "lodash":
+/*!*************************!*\
+  !*** external "lodash" ***!
+  \*************************/
+/***/ ((module) => {
+
+module.exports = window["lodash"];
+
+/***/ }),
+
 /***/ "@wordpress/api-fetch":
 /*!**********************************!*\
   !*** external ["wp","apiFetch"] ***!
@@ -896,11 +1284,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var useCart__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! useCart */ "./src/useCart.js");
 /* harmony import */ var store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! store */ "./src/store.js");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/minus.js");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lodash */ "lodash");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/minus.js");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.js");
 
 /**
  * Use this file for JavaScript code that you want to run in the front-end
@@ -931,174 +1320,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/**
- * useCart
- */
-
-function useCart(productId) {
-  const triggerTotalCartUpdate = (0,store__WEBPACK_IMPORTED_MODULE_3__["default"])(state => state.triggerTotalCartUpdate);
-  const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-  const [error, setError] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
-  const [cartProducts, setCartProducts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
-  const [totalQuantity, setTotalQuantity] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
-  const [totalPrice, setTotalPrice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
-  const [totalSalePrice, setTotalSalePrice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
-  const [salePercentage, setSalePercentage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
-  const [appliedCoupon, setAppliedCoupon] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("");
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    fetchCart();
-  }, []);
-  const fetchCart = () => {
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-      path: "/wc/store/cart"
-    }) // Adjusted to an endpoint that returns full cart details
-    .then(cart => {
-      const cartProducts = cart.items;
-      setCartProducts(cartProducts);
-      // Assuming the response includes totalItems and total price directly
-      const totalQuantity = cart.items.reduce((acc, item) => acc + item.quantity, 0);
-      setTotalQuantity(totalQuantity);
-      // console.log('fetchCart totalQuantity', totalQuantity);
-
-      // Directly use the total price from the cart object
-      const totalPrice = parseFloat(cart.totals.total_items) / 100;
-      setTotalPrice(totalPrice);
-      const totalSalePrice = parseFloat(cart.totals.total_price) / 100;
-      setTotalSalePrice(totalSalePrice);
-      // if (totalPrice != 0) {
-      // 	const salePercentage = Math.round(
-      // 		((totalPrice - totalSalePrice) / totalPrice) * 100,
-      // 	);
-      // 	setSalePercentage(salePercentage);
-      // }
-      // console.log("fetchCart:", totalPrice);
-      setIsLoading(false);
-    }).catch(err => {
-      console.error("Error fetching cart:", err);
-      setError("Failed to fetch cart.");
-      setIsLoading(false);
-    });
-  };
-  const addToCart = productId => {
-    setIsLoading(true);
-    const itemData = {
-      id: productId,
-      quantity: 1
-    };
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-      path: "/wc/store/cart/add-item",
-      method: "POST",
-      data: itemData
-    }).then(() => {
-      console.log(`Add to cart: ${productId}`);
-    }).catch(error => {
-      console.error("Error incrementing item:", error);
-      setError("Failed to increment item.");
-      setIsLoading(false);
-    }).finally(() => {
-      fetchCart(); // Refresh the cart items to reflect the change
-      triggerTotalCartUpdate();
-    });
-  };
-  const remFromCart = productId => {
-    setIsLoading(true);
-
-    // Find the current item in the cart
-    const item = cartProducts.find(item => item.id === productId);
-    if (!item) {
-      // If item not found, exit early
-      console.error("Item not found in cart:", productId);
-      // setIsLoading(false);
-      return;
-    }
-    if (item.quantity === 1) {
-      // If the item's quantity is 1, remove it from the cart
-      const itemData = {
-        key: item.key
-      };
-      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-        path: "/wc/store/cart/remove-item",
-        method: "POST",
-        data: itemData
-      }).then(() => {
-        console.log(`Remove from cart: ${productId}`);
-        fetchCart(); // Refresh the cart items to reflect the change
-        triggerTotalCartUpdate();
-      }).catch(error => {
-        console.error("Error removing item:", error);
-        setError("Failed to remove item.");
-        setIsLoading(false);
-      });
-    } else {
-      // If the item's quantity is greater than 1, decrement its quantity
-      const itemData = {
-        key: item.key,
-        quantity: item.quantity - 1
-      };
-      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-        path: "/wc/store/cart/update-item",
-        method: "POST",
-        data: itemData
-      }).then(() => {
-        console.log(`Decrease cart quantity: ${productId}`);
-        fetchCart(); // Refresh the cart items to reflect the change
-        triggerTotalCartUpdate();
-      }).catch(error => {
-        console.error("Error decrementing item:", error);
-        setError("Failed to decrement item.");
-        setIsLoading(false);
-      });
-    }
-  };
-  const applyCoupon = couponCode => {
-    console.log(`Applying coupon: ${couponCode}`);
-    return _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-      path: "/wc/store/v1/cart/apply-coupon",
-      method: "POST",
-      data: {
-        code: couponCode
-      }
-    }).then(response => {
-      console.log(`Coupon ${couponCode} applied.`);
-      setAppliedCoupon(couponCode); // Update the applied coupon
-      return response; // Return response for chaining
-    }).catch(error => {
-      console.error(`Error applying coupon ${couponCode}:`, error);
-      throw error; // Re-throw for catch chaining
-    });
-  };
-  const removeCoupon = couponCode => {
-    console.log(`Removing coupon: ${couponCode}`);
-    return _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
-      path: "/wc/store/v1/cart/remove-coupon",
-      method: "POST",
-      data: {
-        code: couponCode
-      }
-    }).then(response => {
-      console.log(`Coupon ${couponCode} removed.`);
-      setAppliedCoupon(""); // Clear the applied coupon
-      return response; // Return response for chaining
-    }).catch(error => {
-      console.error(`Error removing coupon ${couponCode}:`, error);
-      throw error; // Re-throw for catch chaining
-    });
-  };
-  return {
-    fetchCart,
-    addToCart,
-    remFromCart,
-    applyCoupon,
-    removeCoupon,
-    appliedCoupon,
-    totalPrice,
-    totalSalePrice,
-    salePercentage,
-    totalQuantity,
-    isLoading,
-    error
-  };
-}
 
 /**
  * ProductDisplay
@@ -1165,7 +1386,6 @@ function TogglerBox({
       background: product.color,
       borderRadius: "50%",
       color: "white",
-      padding: "0.5em 1em",
       margin: "1em 0",
       fontWeight: "bold",
       outline: product.id === selectedProductId ? "2px solid #3c82f6" : "none",
@@ -1178,25 +1398,50 @@ function AdjusterBox({
   initialValue,
   togglerValueChange
 }) {
-  const [value, setValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialValue);
   const {
     fetchCart,
     addToCart,
     remFromCart,
+    totalQuantity,
+    totalPrice,
     isLoading,
     error
-  } = useCart();
+  } = (0,store__WEBPACK_IMPORTED_MODULE_3__["default"])(state => ({
+    fetchCart: state.fetchCart,
+    addToCart: state.addToCart,
+    remFromCart: state.remFromCart,
+    totalQuantity: state.totalQuantity,
+    totalPrice: state.totalPrice,
+    error: state.error,
+    isLoading: state.isLoading
+  }));
+
+  // const totalQuantity = useStore((state) => state.totalQuantity);
+  // const totalPrice = useStore((state) => state.totalPrice);
+
+  const [value, setValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialValue);
+  // const { remFromCart } = useCart();
+
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     setValue(initialValue);
   }, [initialValue]);
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    // apiFetchCartItems();
-  }, []);
+    fetchCart();
+  }, [value]);
+  const throttledAddToCart = (0,lodash__WEBPACK_IMPORTED_MODULE_4__.throttle)(productId => {
+    window.myGlobalStore.getState().addToCart(productId);
+    console.log('t');
+  }, 10000); // Adjust time as needed
+
   const handleIncrement = () => {
     const newValue = value + 1;
     setValue(newValue);
     togglerValueChange(newValue);
     addToCart(productId);
+    // console.log(isLoading);
+    // throttledAddToCart(productId);
+    // debounce(addToCart(productId), 1000);
+    fetchCart();
   };
   const handleDecrement = () => {
     if (value > 0) {
@@ -1204,23 +1449,25 @@ function AdjusterBox({
       setValue(newValue);
       togglerValueChange(newValue);
       remFromCart(productId);
+      // debounce(remFromCart(productId), 300);
+      fetchCart();
     }
   };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "py-3 shadow-md rounded-md flex items-center justify-around w-44 font-bold bg-gray-300 [&>button]:bg-white [&>button]:rounded-full [&>button>svg]:m-auto [&>button]:h-8 [&>button]:w-8"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     onClick: handleDecrement,
     disabled: isLoading
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], {
     size: 20,
     strokeWidth: 3
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, value), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
     onClick: handleIncrement,
     disabled: isLoading
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], {
     size: 20,
     strokeWidth: 3
-  })));
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, totalQuantity), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, totalPrice));
 }
 function ProductDisplay({
   data

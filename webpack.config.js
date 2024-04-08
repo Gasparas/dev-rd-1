@@ -10,6 +10,7 @@ module.exports = function () {
                 ...defaultConfig.resolve.alias,
                 // Ensure the alias points to your `store.js` within the src directory
                 'store': path.resolve(__dirname, 'src/store.js'),
+                'useCart': path.resolve(__dirname, 'src/useCart.js'),
             },
         },
         plugins: [...defaultConfig.plugins],
