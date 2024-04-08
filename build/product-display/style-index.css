@@ -500,29 +500,17 @@ video {
 .h-11 {
   height: 2.75rem;
 }
-.h-10 {
-  height: 2.5rem;
-}
 .h-14 {
   height: 3.5rem;
 }
 .w-11 {
   width: 2.75rem;
 }
-.w-40 {
-  width: 10rem;
-}
-.w-full {
-  width: 100%;
-}
 .w-44 {
   width: 11rem;
 }
-.basis-1\/4 {
-  flex-basis: 25%;
-}
-.basis-3\/4 {
-  flex-basis: 75%;
+.w-full {
+  width: 100%;
 }
 .basis-1\/5 {
   flex-basis: 20%;
@@ -536,9 +524,6 @@ video {
 .justify-center {
   justify-content: center;
 }
-.justify-between {
-  justify-content: space-between;
-}
 .justify-around {
   justify-content: space-around;
 }
@@ -549,10 +534,6 @@ video {
 .gap-x-3 {
   -moz-column-gap: 0.75rem;
        column-gap: 0.75rem;
-}
-.gap-x-6 {
-  -moz-column-gap: 1.5rem;
-       column-gap: 1.5rem;
 }
 .gap-x-4 {
   -moz-column-gap: 1rem;
@@ -611,29 +592,21 @@ video {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
-.py-4 {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
 .py-3 {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
+}
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 .text-sm {
   font-size: 0.875rem;
   line-height: 1.25rem;
 }
-.text-lg {
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-}
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
-}
-.text-2xl {
-  font-size: 1.5rem;
-  line-height: 2rem;
 }
 .font-bold {
   font-weight: 700;
@@ -643,9 +616,6 @@ video {
 }
 .font-medium {
   font-weight: 500;
-}
-.leading-tight {
-  line-height: 1.25;
 }
 .leading-snug {
   line-height: 1.375;
@@ -960,25 +930,8 @@ main {
   margin: auto;
 }
 
-.\[\&\>button\]\:m-auto>button {
-  margin: auto;
-}
-
-.\[\&\>button\]\:mx-auto>button {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.\[\&\>button\]\:h-10>button {
-  height: 2.5rem;
-}
-
 .\[\&\>button\]\:h-8>button {
   height: 2rem;
-}
-
-.\[\&\>button\]\:w-10>button {
-  width: 2.5rem;
 }
 
 .\[\&\>button\]\:w-8>button {
@@ -992,15 +945,6 @@ main {
 .\[\&\>button\]\:bg-white>button {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
-.\[\&\>svg\]\:m-auto>svg {
-  margin: auto;
-}
-
-.\[\&\>svg\]\:mx-auto>svg {
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /*# sourceMappingURL=style-index.css.map*/
