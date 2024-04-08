@@ -16,9 +16,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
-/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./editor.scss */ "./src/product-display/editor.scss");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./editor.scss */ "./src/product-display/editor.scss");
 
 /**
  * Retrieves the translation of text.
@@ -27,12 +31,14 @@ __webpack_require__.r(__webpack_exports__);
  */
 
 
+
 /**
  * React hook that is used to mark the block wrapper element.
  * It provides all the necessary props like the class name.
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
+
 
 
 /**
@@ -55,29 +61,38 @@ function Edit({
   attributes,
   setAttributes
 }) {
+  const [localProductId, setLocalProductId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(attributes.productId.toString());
+
+  // Update local state when the attribute changes externally
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
+    setLocalProductId(attributes.productId.toString());
+  }, [attributes.productId]);
+  const handleOnChange = value => {
+    setLocalProductId(value); // Update local state immediately for UI
+  };
+  const handleOnBlur = () => {
+    setAttributes({
+      productId: localProductId.trim()
+    }); // Update block attribute on blur or after debounce
+  };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     style: {
       background: "#3b82f6",
-      margin: "20px 0 0 0 ",
+      margin: "20px 0 0 0",
       padding: "1em"
     }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", {
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h4", {
     style: {
-      color: "#FFFFFF"
+      color: "white"
     }
-  }, "Product bundle"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
-    style: {
-      color: "#FFFFFF"
-    }
-  }, "Product IDs:"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.PlainText, {
+  }, "Products Bundle"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.PlainText, {
     style: {
       padding: "0 0.2em"
     },
-    value: attributes.productId.toString(),
-    onChange: value => setAttributes({
-      productId: value
-    }),
-    placeholder: "Enter Product ID"
+    value: localProductId,
+    onChange: handleOnChange,
+    onBlur: handleOnBlur,
+    placeholder: "Enter Product IDs"
   }));
 }
 
@@ -189,6 +204,26 @@ module.exports = window["wp"]["blockEditor"];
 /***/ ((module) => {
 
 module.exports = window["wp"]["blocks"];
+
+/***/ }),
+
+/***/ "@wordpress/components":
+/*!************************************!*\
+  !*** external ["wp","components"] ***!
+  \************************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["components"];
+
+/***/ }),
+
+/***/ "@wordpress/element":
+/*!*********************************!*\
+  !*** external ["wp","element"] ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["element"];
 
 /***/ }),
 

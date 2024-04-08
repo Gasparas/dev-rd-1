@@ -12,6 +12,7 @@ import { __ } from "@wordpress/i18n";
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
 import { useBlockProps, PlainText } from "@wordpress/block-editor";
+import { useState, useEffect } from "@wordpress/element"; // Import useEffect
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -30,23 +31,55 @@ import "./editor.scss";
  * @return {Element} Element to render.
  */
 export default function Edit({ attributes, setAttributes }) {
+	// Local state for inputs
+	const [localDiscountSteps, setLocalDiscountSteps] = useState(
+		attributes.discountSteps,
+	);
+	const [localDiscountPercentages, setLocalDiscountPercentages] = useState(
+		attributes.discountPercentages,
+	);
+
+	// Update local state when attributes change
+	useEffect(() => {
+		setLocalDiscountSteps(attributes.discountSteps);
+		setLocalDiscountPercentages(attributes.discountPercentages);
+	}, [attributes.discountSteps, attributes.discountPercentages]);
+
+	const updateDiscountSteps = (value) => {
+		setLocalDiscountSteps(value); // Update local state
+	};
+
+	const updateDiscountPercentages = (value) => {
+		setLocalDiscountPercentages(value); // Update local state
+	};
+
+	const onBlurDiscountSteps = () => {
+		setAttributes({ discountSteps: localDiscountSteps.trim() }); // Update block attribute when input is blurred
+	};
+
+	const onBlurDiscountPercentages = () => {
+		setAttributes({ discountPercentages: localDiscountPercentages.trim() }); // Update block attribute when input is blurred
+	};
+
 	return (
 		<div
-			style={{ background: "#3b82f6", margin: "20px 0 0 0 ", padding: "1em" }}
+			style={{ background: "#3b82f6", margin: "20px 0 0 0", padding: "1em" }}
 		>
 			<h3 style={{ color: "#FFFFFF" }}>Cart total counter</h3>
 			<p style={{ color: "#FFFFFF" }}>Discount quantity steps:</p>
 			<PlainText
 				style={{ padding: "0 0.2em" }}
-				value={attributes.discountSteps.toString()}
-				onChange={(value) => setAttributes({ discountSteps: value })}
+				value={localDiscountSteps}
+				onChange={updateDiscountSteps}
+				onBlur={onBlurDiscountSteps}
 				placeholder="Enter discount steps"
 			/>
 			<p style={{ color: "#FFFFFF" }}>Discount percentages:</p>
 			<PlainText
 				style={{ padding: "0 0.2em" }}
-				value={attributes.discountPercentages.toString()}
-				onChange={(value) => setAttributes({ discountPercentages: value })}
+				value={localDiscountPercentages}
+				onChange={updateDiscountPercentages}
+				onBlur={onBlurDiscountPercentages}
 				placeholder="Enter discount percentages"
 			/>
 		</div>

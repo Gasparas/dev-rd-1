@@ -8,12 +8,12 @@ $discount_steps_string = $attributes['discountSteps']; // Assuming this is a str
 $discount_steps = array_map('intval', explode(',', $discount_steps_string)); // convert each element of the resulting array to an integer
 
 $discount_percentages_string = $attributes['discountPercentages']; // Assuming this is a string like "36,32,27"
-$discount_percentages = array_map('intval', explode(',', $discount_percentages_string)); // convert each element of the resulting array to an integer
+$discount_percentages = explode(',', $discount_percentages_string); // Convert to array of strings
 
 // Compile the product data
 $data = [
     'steps' => $discount_steps,
-    'perc' => $discount_percentages,
+    'percs' => $discount_percentages,
 ];
 
 // Append this product's data to the products data array

@@ -4,6 +4,7 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
  */
 import { __ } from "@wordpress/i18n";
+import { useState, useEffect } from "@wordpress/element";
 
 /**
  * React hook that is used to mark the block wrapper element.
@@ -12,6 +13,7 @@ import { __ } from "@wordpress/i18n";
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
 import { useBlockProps, PlainText } from "@wordpress/block-editor";
+import { TextControl } from "@wordpress/components";
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -30,17 +32,34 @@ import "./editor.scss";
  * @return {Element} Element to render.
  */
 export default function Edit({ attributes, setAttributes }) {
+	const [localProductId, setLocalProductId] = useState(
+		attributes.productId.toString(),
+	);
+
+	// Update local state when the attribute changes externally
+	useEffect(() => {
+		setLocalProductId(attributes.productId.toString());
+	}, [attributes.productId]);
+
+	const handleOnChange = (value) => {
+		setLocalProductId(value); // Update local state immediately for UI
+	};
+
+	const handleOnBlur = () => {
+		setAttributes({ productId: localProductId.trim() }); // Update block attribute on blur or after debounce
+	};
+
 	return (
 		<div
-			style={{ background: "#3b82f6", margin: "20px 0 0 0 ", padding: "1em" }}
+			style={{ background: "#3b82f6", margin: "20px 0 0 0", padding: "1em" }}
 		>
-			<h3 style={{ color: "#FFFFFF" }}>Product bundle</h3>
-			<p style={{ color: "#FFFFFF" }}>Product IDs:</p>
+			<h4 style={{ color: "white" }}>Products Bundle</h4>
 			<PlainText
 				style={{ padding: "0 0.2em" }}
-				value={attributes.productId.toString()}
-				onChange={(value) => setAttributes({ productId: value })}
-				placeholder="Enter Product ID"
+				value={localProductId}
+				onChange={handleOnChange}
+				onBlur={handleOnBlur}
+				placeholder="Enter Product IDs"
 			/>
 		</div>
 	);

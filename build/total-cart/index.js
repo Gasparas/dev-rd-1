@@ -18,7 +18,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./editor.scss */ "./src/total-cart/editor.scss");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./editor.scss */ "./src/total-cart/editor.scss");
 
 /**
  * Retrieves the translation of text.
@@ -34,6 +36,7 @@ __webpack_require__.r(__webpack_exports__);
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
 
+ // Import useEffect
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
@@ -55,10 +58,35 @@ function Edit({
   attributes,
   setAttributes
 }) {
+  // Local state for inputs
+  const [localDiscountSteps, setLocalDiscountSteps] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(attributes.discountSteps);
+  const [localDiscountPercentages, setLocalDiscountPercentages] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(attributes.discountPercentages);
+
+  // Update local state when attributes change
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    setLocalDiscountSteps(attributes.discountSteps);
+    setLocalDiscountPercentages(attributes.discountPercentages);
+  }, [attributes.discountSteps, attributes.discountPercentages]);
+  const updateDiscountSteps = value => {
+    setLocalDiscountSteps(value); // Update local state
+  };
+  const updateDiscountPercentages = value => {
+    setLocalDiscountPercentages(value); // Update local state
+  };
+  const onBlurDiscountSteps = () => {
+    setAttributes({
+      discountSteps: localDiscountSteps.trim()
+    }); // Update block attribute when input is blurred
+  };
+  const onBlurDiscountPercentages = () => {
+    setAttributes({
+      discountPercentages: localDiscountPercentages.trim()
+    }); // Update block attribute when input is blurred
+  };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     style: {
       background: "#3b82f6",
-      margin: "20px 0 0 0 ",
+      margin: "20px 0 0 0",
       padding: "1em"
     }
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", {
@@ -73,10 +101,9 @@ function Edit({
     style: {
       padding: "0 0.2em"
     },
-    value: attributes.discountSteps.toString(),
-    onChange: value => setAttributes({
-      discountSteps: value
-    }),
+    value: localDiscountSteps,
+    onChange: updateDiscountSteps,
+    onBlur: onBlurDiscountSteps,
     placeholder: "Enter discount steps"
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
     style: {
@@ -86,10 +113,9 @@ function Edit({
     style: {
       padding: "0 0.2em"
     },
-    value: attributes.discountPercentages.toString(),
-    onChange: value => setAttributes({
-      discountPercentages: value
-    }),
+    value: localDiscountPercentages,
+    onChange: updateDiscountPercentages,
+    onBlur: onBlurDiscountPercentages,
     placeholder: "Enter discount percentages"
   }));
 }
@@ -206,6 +232,16 @@ module.exports = window["wp"]["blockEditor"];
 /***/ ((module) => {
 
 module.exports = window["wp"]["blocks"];
+
+/***/ }),
+
+/***/ "@wordpress/element":
+/*!*********************************!*\
+  !*** external ["wp","element"] ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["element"];
 
 /***/ }),
 

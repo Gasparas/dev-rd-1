@@ -932,6 +932,7 @@ const StepIndicator = ({
     remFromCart,
     totalQuantity,
     totalPrice,
+    totalSalePrice,
     isLoading,
     error
   } = (0,store__WEBPACK_IMPORTED_MODULE_3__["default"])(state => ({
@@ -940,24 +941,33 @@ const StepIndicator = ({
     remFromCart: state.remFromCart,
     totalQuantity: state.totalQuantity,
     totalPrice: state.totalPrice,
+    totalSalePrice: state.totalSalePrice,
     error: state.error,
     isLoading: state.isLoading
   }));
   const steps = transformArray(data.steps);
+  const percs = data.percs;
   const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
 
   const progressPercentage = totalQuantity / maxStepValue * 100;
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "px-3 py-4 mt-3 bg-blue-500 rounded-lg"
+    className: "px-3 pt-2 pb-4 mt-3 bg-blue-500 rounded-lg"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "mb-4 text-sm text-center text-white"
+  }, "Items selected: ", totalQuantity), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "numbers-container"
   }, steps.filter((_, index) => index !== 0 && index !== steps.length - 1) // Exclude first and last steps
-  .map(step => {
+  .map((step, index) => {
     const leftPercentage = step / maxStepValue * 100; // Correct calculation for leftPercentage
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      key: step,
+      key: index // Changed to index for unique key, consider adding a prefix if needed
+      ,
       className: "step-number",
       style: {
+        width: "20px",
+        // background: "grey",
+        textAlign: "center",
+        marginLeft: "-4px",
         left: `${leftPercentage - 2}%`
       }
     }, step);
@@ -978,7 +988,30 @@ const StepIndicator = ({
         left: `${leftPercentage}%`
       }
     });
-  }))));
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "mt-2.5 numbers-container"
+  }, steps.filter((_, index) => index !== 0 && index !== steps.length - 1) // Exclude first and last steps
+  .map((step, index) => {
+    const leftPercentage = step / maxStepValue * 100; // Correct calculation for leftPercentage
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      key: index // Changed to index for unique key, consider adding a prefix if needed
+      ,
+      className: "step-number",
+      style: {
+        width: "36px",
+        textAlign: "center",
+        marginLeft: "-4px",
+        left: `${leftPercentage - 4}%`
+      }
+    }, percs[index]);
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "flex justify-around w-full px-3 py-4 font-medium text-white bg-blue-500 rounded-lg"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: "mr-1"
+  }, totalSalePrice, "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: `strikethrough-diagonal font-light text-sm text-gray-100 `
+    // ${currentStep != 0 ? "opacity-100" : "opacity-0"}
+  }, totalPrice, "\u20AC"))))));
 };
 const jsonDataElement = document.querySelector(".total-cart-data");
 const jsonData = JSON.parse(jsonDataElement.textContent || "{}");

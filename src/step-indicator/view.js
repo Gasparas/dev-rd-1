@@ -50,6 +50,7 @@ const StepIndicator = ({ data }) => {
 		remFromCart,
 		totalQuantity,
 		totalPrice,
+		totalSalePrice,
 		isLoading,
 		error,
 	} = useStore((state) => ({
@@ -58,28 +59,37 @@ const StepIndicator = ({ data }) => {
 		remFromCart: state.remFromCart,
 		totalQuantity: state.totalQuantity,
 		totalPrice: state.totalPrice,
+		totalSalePrice: state.totalSalePrice,
 		error: state.error,
 		isLoading: state.isLoading,
 	}));
 
 	const steps = transformArray(data.steps);
+	const percs = data.percs;
 	const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
 
 	const progressPercentage = (totalQuantity / maxStepValue) * 100;
 
 	return (
 		<>
-			<div className="px-3 py-4 mt-3 bg-blue-500 rounded-lg">
+			<div className="px-3 pt-2 pb-4 mt-3 bg-blue-500 rounded-lg">
+				<div className="mb-4 text-sm text-center text-white">
+					Items selected: {totalQuantity}
+				</div>
 				<div className="numbers-container">
 					{steps
 						.filter((_, index) => index !== 0 && index !== steps.length - 1) // Exclude first and last steps
-						.map((step) => {
+						.map((step, index) => {
 							const leftPercentage = (step / maxStepValue) * 100; // Correct calculation for leftPercentage
 							return (
 								<div
-									key={step}
+									key={index} // Changed to index for unique key, consider adding a prefix if needed
 									className="step-number"
 									style={{
+										width: "20px",
+										// background: "grey",
+										textAlign: "center",
+										marginLeft: "-4px",
 										left: `${leftPercentage - 2}%`,
 									}}
 								>
@@ -107,6 +117,56 @@ const StepIndicator = ({ data }) => {
 								></div>
 							);
 						})}
+				</div>
+				<div className="mt-2.5 numbers-container">
+					{steps
+						.filter((_, index) => index !== 0 && index !== steps.length - 1) // Exclude first and last steps
+						.map((step, index) => {
+							const leftPercentage = (step / maxStepValue) * 100; // Correct calculation for leftPercentage
+							return (
+								<div
+									key={index} // Changed to index for unique key, consider adding a prefix if needed
+									className="step-number"
+									style={{
+										width: "36px",
+										textAlign: "center",
+										marginLeft: "-4px",
+										left: `${leftPercentage - 4}%`,
+									}}
+								>
+									{percs[index]}
+								</div>
+							);
+						})}
+				</div>
+				<div>
+					<div className="flex justify-around w-full px-3 py-4 font-medium text-white bg-blue-500 rounded-lg">
+						<div>
+							<span className="mr-1">{totalSalePrice}€</span>
+							<span
+								className={`strikethrough-diagonal font-light text-sm text-gray-100 `
+								// ${currentStep != 0 ? "opacity-100" : "opacity-0"}
+							}
+							>
+								{totalPrice}€
+							</span>
+						</div>
+						{/* <div
+							className={`bg-white text-gray-700 rounded-lg px-2 ${
+								currentStep != 0 ? "opacity-100" : "opacity-0"
+							}`}
+						> */}
+							{/* -{percanteges[currentStep - 1]}% OFF */}
+						{/* </div> */}
+						{/* <div className="flex items-center gap-x-2">
+							<div className="bg-white text-gray-700 rounded-lg px-1.5 text-sm">
+								{totalQuantity}
+							</div>
+							<a href="/?page_id=9" className="text-sm text-white no-underline">
+								View Order
+							</a>
+						</div> */}
+					</div>
 				</div>
 			</div>
 		</>
