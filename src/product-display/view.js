@@ -33,7 +33,7 @@ import {
 } from "@wordpress/element";
 import useCart from "useCart";
 import useStore from "store";
-import { add, throttle } from 'lodash';
+import { add, throttle } from "lodash";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 
 /**
@@ -119,17 +119,23 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 }
 
 function AdjusterBox({ productId, initialValue, togglerValueChange }) {
-	const { fetchCart, addToCart, remFromCart, totalQuantity, totalPrice, isLoading, error } = useStore(
-		(state) => ({
-			fetchCart: state.fetchCart,
-			addToCart: state.addToCart,
-			remFromCart: state.remFromCart,
-			totalQuantity: state.totalQuantity,
-			totalPrice: state.totalPrice,
-			error: state.error,
-			isLoading: state.isLoading,
-		}),
-	);
+	const {
+		fetchCart,
+		addToCart,
+		remFromCart,
+		totalQuantity,
+		totalPrice,
+		isLoading,
+		error,
+	} = useStore((state) => ({
+		fetchCart: state.fetchCart,
+		addToCart: state.addToCart,
+		remFromCart: state.remFromCart,
+		totalQuantity: state.totalQuantity,
+		totalPrice: state.totalPrice,
+		error: state.error,
+		isLoading: state.isLoading,
+	}));
 
 	// const totalQuantity = useStore((state) => state.totalQuantity);
 	// const totalPrice = useStore((state) => state.totalPrice);
@@ -147,8 +153,8 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 
 	const throttledAddToCart = throttle((productId) => {
 		window.myGlobalStore.getState().addToCart(productId);
-		console.log('t');
-	  }, 10000); // Adjust time as needed
+		console.log("t");
+	}, 10000); // Adjust time as needed
 
 	const handleIncrement = () => {
 		const newValue = value + 1;
@@ -185,8 +191,6 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 					<Plus size={20} strokeWidth={3} />
 				</button>
 			</div>
-			<div>{totalQuantity}</div>
-			<div>{totalPrice}</div>
 		</>
 	);
 }
@@ -236,7 +240,7 @@ function ProductDisplay({ data }) {
 
 	return (
 		<div
-			className="product-wrapper"
+			className="mb-14 product-wrapper"
 			style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
 		>
 			<ProductGallery

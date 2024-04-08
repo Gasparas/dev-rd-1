@@ -482,8 +482,11 @@ video {
 .mb-1 {
   margin-bottom: 0.25rem;
 }
-.mb-5 {
-  margin-bottom: 1.25rem;
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.ml-2 {
+  margin-left: 0.5rem;
 }
 .mr-1 {
   margin-right: 0.25rem;
@@ -491,17 +494,23 @@ video {
 .mt-2 {
   margin-top: 0.5rem;
 }
-.mt-3 {
-  margin-top: 0.75rem;
-}
-.mb-4 {
-  margin-bottom: 1rem;
-}
-.mt-5 {
-  margin-top: 1.25rem;
-}
 .mt-2\.5 {
   margin-top: 0.625rem;
+}
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+.mb-8 {
+  margin-bottom: 2rem;
+}
+.mb-10 {
+  margin-bottom: 2.5rem;
+}
+.mb-14 {
+  margin-bottom: 3.5rem;
 }
 .block {
   display: block;
@@ -536,8 +545,14 @@ video {
 .justify-center {
   justify-content: center;
 }
+.justify-between {
+  justify-content: space-between;
+}
 .justify-around {
   justify-content: space-around;
+}
+.justify-evenly {
+  justify-content: space-evenly;
 }
 .gap-x-2 {
   -moz-column-gap: 0.5rem;
@@ -612,11 +627,23 @@ video {
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
-.pb-4 {
-  padding-bottom: 1rem;
+.pb-2 {
+  padding-bottom: 0.5rem;
+}
+.pt-1 {
+  padding-top: 0.25rem;
+}
+.pt-4 {
+  padding-top: 1rem;
 }
 .pt-2 {
   padding-top: 0.5rem;
+}
+.pb-3 {
+  padding-bottom: 0.75rem;
+}
+.pb-6 {
+  padding-bottom: 1.5rem;
 }
 .text-center {
   text-align: center;
@@ -629,6 +656,10 @@ video {
   font-size: 1.25rem;
   line-height: 1.75rem;
 }
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
 .font-bold {
   font-weight: 700;
 }
@@ -638,8 +669,14 @@ video {
 .font-medium {
   font-weight: 500;
 }
+.font-semibold {
+  font-weight: 600;
+}
 .leading-snug {
   line-height: 1.375;
+}
+.tracking-wide {
+  letter-spacing: 0.025em;
 }
 .text-gray-100 {
   --tw-text-opacity: 1;
@@ -712,25 +749,35 @@ video {
   position: absolute;
   bottom: 5px;
   color: white;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
+.strikethrough-diagonal {
+  position: relative;
+}
+.strikethrough-diagonal:before {
+  position: absolute;
+  content: "";
+  left: 0;
+  top: 47%;
+  right: 0;
+  border-top: 1px solid;
+  border-color: white;
+  transform: skewY(-12deg);
+}
 .\[\&\>button\>svg\]\:m-auto>button>svg {
   margin: auto;
 }
-
 .\[\&\>button\]\:h-8>button {
   height: 2rem;
 }
-
 .\[\&\>button\]\:w-8>button {
   width: 2rem;
 }
-
 .\[\&\>button\]\:rounded-full>button {
   border-radius: 9999px;
 }
-
 .\[\&\>button\]\:bg-white>button {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));

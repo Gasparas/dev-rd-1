@@ -945,16 +945,105 @@ const StepIndicator = ({
     error: state.error,
     isLoading: state.isLoading
   }));
+  const [currentStep, setCurrentStep] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
+  const [appliedCoupon, setAppliedCoupon] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("");
+  const priceSave = (totalPrice - totalSalePrice).toFixed(2);
   const steps = transformArray(data.steps);
   const percs = data.percs;
   const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
 
   const progressPercentage = totalQuantity / maxStepValue * 100;
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
+    determineCurrentStep();
+  }, [totalQuantity]);
+  const determineCurrentStep = () => {
+    let foundStep = 0;
+    // Iterate over steps to find the highest step not exceeding totalItems
+    for (let step of steps) {
+      if (totalQuantity >= step) {
+        foundStep = step;
+      } else {
+        break; // Break early as steps are sorted
+      }
+    }
+
+    // Determine the step index if a step was found; otherwise, handle stepIndex as null
+    const stepIndex = foundStep !== 0 ? steps.indexOf(foundStep) : 0;
+
+    // Check if we are moving down to step 0 and need to remove any existing coupon
+    if (stepIndex === 0 && appliedCoupon) {
+      console.log(`Removing coupon, as moving to step 0 from step: ${currentStep}`);
+      removeCoupon(appliedCoupon);
+      setCurrentStep(0);
+      // setBeforeNextStep(0);
+      // fetchCart();
+      return;
+    }
+    const newCouponCode = stepIndex ? `coupon-step-${stepIndex}` : 0;
+    if (stepIndex !== currentStep) {
+      setCurrentStep(stepIndex);
+      // setBeforeNextStep(1);
+      console.log(`Current step: ${stepIndex} for total items: ${totalQuantity}`);
+
+      // Chain removal and application of coupons only if there's a valid step
+      if (newCouponCode && appliedCoupon !== newCouponCode) {
+        const couponOperation = appliedCoupon ? removeCoupon(appliedCoupon).then(() => applyCoupon(newCouponCode)) : applyCoupon(newCouponCode);
+        couponOperation.then(() => {
+          console.log("Coupon operation completed.");
+          fetchCart();
+        }).catch(error => {
+          console.error("Coupon operation failed:", error);
+        });
+      }
+    }
+  };
+  const applyCoupon = async couponCode => {
+    console.log(`Applying coupon: ${couponCode}`);
+    try {
+      const response = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+        path: "/wc/store/v1/cart/apply-coupon",
+        method: "POST",
+        data: {
+          code: couponCode
+        }
+      });
+      console.log(`Coupon ${couponCode} applied.`);
+      setAppliedCoupon(couponCode); // Update component state
+      // Clear any existing error
+      setError("");
+      return response; // Return response for potential chaining
+    } catch (error) {
+      console.error(`Error applying coupon ${couponCode}:`, error);
+      setError(`Failed to apply coupon ${couponCode}.`); // Update component state with error
+      throw error; // Re-throw to allow catch chaining elsewhere
+    }
+  };
+  const removeCoupon = async couponCode => {
+    console.log(`Removing coupon: ${couponCode}`);
+    try {
+      const response = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default()({
+        path: "/wc/store/v1/cart/remove-coupon",
+        method: "POST",
+        data: {
+          code: couponCode
+        }
+      });
+      console.log(`Coupon ${couponCode} removed.`);
+      setAppliedCoupon(""); // Clear the applied coupon from state
+      // Clear any existing error
+      setError("");
+      return response; // Return response for potential chaining
+    } catch (error) {
+      console.error(`Error removing coupon ${couponCode}:`, error);
+      setError(`Failed to remove coupon ${couponCode}.`); // Update component state with error
+      throw error; // Re-throw to allow catch chaining elsewhere
+    }
+  };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "px-3 pt-2 pb-4 mt-3 bg-blue-500 rounded-lg"
+    className: "px-3 pt-1 pb-2 bg-blue-500 rounded-lg"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "mb-4 text-sm text-center text-white"
-  }, "Items selected: ", totalQuantity), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "mb-3 text-xs font-semibold tracking-wide text-center text-white"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, currentStep), " Items selected: ", totalQuantity), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "numbers-container"
   }, steps.filter((_, index) => index !== 0 && index !== steps.length - 1) // Exclude first and last steps
   .map((step, index) => {
@@ -1005,13 +1094,19 @@ const StepIndicator = ({
       }
     }, percs[index]);
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "flex justify-around w-full px-3 py-4 font-medium text-white bg-blue-500 rounded-lg"
+    className: "flex items-center w-full pt-2 font-medium text-white bg-blue-500 rounded-lg justify-evenly"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
-    className: "mr-1"
-  }, totalSalePrice, "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: "text-sm font-light text-gray-100"
+  }, "Total:\xA0"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
     className: `strikethrough-diagonal font-light text-sm text-gray-100 `
     // ${currentStep != 0 ? "opacity-100" : "opacity-0"}
-  }, totalPrice, "\u20AC"))))));
+  }, totalPrice, "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: "ml-2"
+  }, totalSalePrice, "\u20AC")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: "text-sm font-light text-gray-100"
+  }, "You save:\xA0"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: ""
+  }, priceSave, "\u20AC"))))));
 };
 const jsonDataElement = document.querySelector(".total-cart-data");
 const jsonData = JSON.parse(jsonDataElement.textContent || "{}");

@@ -1430,7 +1430,7 @@ function AdjusterBox({
   }, [value]);
   const throttledAddToCart = (0,lodash__WEBPACK_IMPORTED_MODULE_4__.throttle)(productId => {
     window.myGlobalStore.getState().addToCart(productId);
-    console.log('t');
+    console.log("t");
   }, 10000); // Adjust time as needed
 
   const handleIncrement = () => {
@@ -1467,7 +1467,7 @@ function AdjusterBox({
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], {
     size: 20,
     strokeWidth: 3
-  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, totalQuantity), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, totalPrice));
+  }))));
 }
 function ProductDisplay({
   data
@@ -1504,7 +1504,7 @@ function ProductDisplay({
   const selectedProductTitle = selectedProduct ? selectedProduct.title : "";
   const selectedProductPrice = selectedProduct ? selectedProduct.price : "";
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "product-wrapper",
+    className: "mb-14 product-wrapper",
     style: {
       display: "flex",
       flexDirection: "column",
