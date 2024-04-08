@@ -272,10 +272,15 @@ function ProductGallery({ selectedProductId, productsData }) {
 }
 
 function InfoBox({ selectedProductTitle, selectedProductPrice }) {
+	const PriceComponent = ({ html }) => {
+		return <span dangerouslySetInnerHTML={{ __html: html }} />;
+	};
 	return (
-		<div className="flex w-full mt-2 gap-x-2 h-14">
-			<div className="text-2xl basis-1/5">{selectedProductPrice}€</div>
-			<div className="basis-4/5">{selectedProductTitle}</div>
+		<div className="flex items-center w-full mt-2 gap-x-4 h-14">
+			<div className="text-xl basis-1/5">
+				<PriceComponent html={selectedProductPrice} />
+			</div>
+			<div className="leading-snug basis-4/5">{selectedProductTitle}</div>
 		</div>
 	);
 }

@@ -1131,12 +1131,23 @@ function InfoBox({
   selectedProductTitle,
   selectedProductPrice
 }) {
+  const PriceComponent = ({
+    html
+  }) => {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+      dangerouslySetInnerHTML: {
+        __html: html
+      }
+    });
+  };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "flex w-full mt-2 gap-x-2 h-14"
+    className: "flex items-center w-full mt-2 gap-x-4 h-14"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "text-2xl basis-1/5"
-  }, selectedProductPrice, "\u20AC"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "basis-4/5"
+    className: "text-xl basis-1/5"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(PriceComponent, {
+    html: selectedProductPrice
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "leading-snug basis-4/5"
   }, selectedProductTitle));
 }
 function TogglerBox({

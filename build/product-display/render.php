@@ -48,7 +48,7 @@ if (isset(WC()->cart)) {
 		$product_data = [
 			'id' => (int)$product_id,
 			'title' => $product->get_name(),
-			'price' => $product->get_price(),
+			'price' => $product->get_price_html(),
 			'color' => $color,
 			'productDescription' => $product->get_description(),
 			'imageUrls' => $image_urls,
