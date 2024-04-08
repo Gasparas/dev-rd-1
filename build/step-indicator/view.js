@@ -919,35 +919,63 @@ console.log("view.js");
  * StepIndicator
  */
 
+function transformArray(arr) {
+  const lastElement = arr[arr.length - 1] + arr[0];
+  return [0, ...arr, lastElement];
+}
 const StepIndicator = ({
   data
 }) => {
   const {
-    totalQuantity
+    fetchCart,
+    addToCart,
+    remFromCart,
+    totalQuantity,
+    totalPrice,
+    isLoading,
+    error
   } = (0,store__WEBPACK_IMPORTED_MODULE_3__["default"])(state => ({
-    totalQuantity: state.totalQuantity
+    fetchCart: state.fetchCart,
+    addToCart: state.addToCart,
+    remFromCart: state.remFromCart,
+    totalQuantity: state.totalQuantity,
+    totalPrice: state.totalPrice,
+    error: state.error,
+    isLoading: state.isLoading
   }));
-  const steps = data.steps;
-  const progressPercentage = totalQuantity / steps[steps.length - 1] * 100;
+  const steps = transformArray(data.steps);
+  const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
+
+  const progressPercentage = totalQuantity / maxStepValue * 100;
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "px-3 py-4 mt-3 bg-blue-500 rounded-lg"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "relative w-full h-2 bg-gray-200 rounded-full progress-container"
+    className: "numbers-container"
+  }, steps.filter((_, index) => index !== 0 && index !== steps.length - 1) // Exclude first and last steps
+  .map(step => {
+    const leftPercentage = step / maxStepValue * 100; // Correct calculation for leftPercentage
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      key: step,
+      className: "step-number",
+      style: {
+        left: `${leftPercentage - 2}%`
+      }
+    }, step);
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "progress-container"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "absolute h-2 bg-blue-600 rounded-full progress-bar",
+    className: "progress-bar",
     style: {
       width: `${progressPercentage}%`
     }
-  }), steps.map((step, index) => {
-    const numberOfSteps = steps.length;
-    // Calculate the left percentage for equal spacing based on index
-    const leftPercentage = numberOfSteps > 0 ? index / (numberOfSteps - 1) * 100 : 0;
+  }), steps.filter((_, index) => index !== 0 && index !== steps.length - 1) // Exclude first and last steps
+  .map(step => {
+    const leftPercentage = step / maxStepValue * 100; // Left percentage calculation remains the same
     return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       key: step,
-      className: "absolute w-4 h-4 bg-blue-500 rounded-full step-marker -top-1",
+      className: "step-marker",
       style: {
-        left: `${leftPercentage}%`,
-        transform: 'translateX(-50%)' // Center the markers
+        left: `${leftPercentage}%`
       }
     });
   }))));

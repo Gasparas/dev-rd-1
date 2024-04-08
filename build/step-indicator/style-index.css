@@ -469,20 +469,11 @@ video {
     max-width: 1536px;
   }
 }
-.absolute {
-  position: absolute;
-}
-.relative {
-  position: relative;
-}
 .sticky {
   position: sticky;
 }
 .top-1 {
   top: 0.25rem;
-}
-.-top-1 {
-  top: -0.25rem;
 }
 .mx-1 {
   margin-left: 0.25rem;
@@ -512,12 +503,6 @@ video {
 .h-14 {
   height: 3.5rem;
 }
-.h-2 {
-  height: 0.5rem;
-}
-.h-4 {
-  height: 1rem;
-}
 .w-11 {
   width: 2.75rem;
 }
@@ -527,17 +512,11 @@ video {
 .w-full {
   width: 100%;
 }
-.w-4 {
-  width: 1rem;
-}
 .basis-1\/5 {
   flex-basis: 20%;
 }
 .basis-4\/5 {
   flex-basis: 80%;
-}
-.transform {
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .items-center {
   align-items: center;
@@ -566,9 +545,6 @@ video {
 .rounded-md {
   border-radius: 0.375rem;
 }
-.rounded-full {
-  border-radius: 9999px;
-}
 .border-2 {
   border-width: 2px;
 }
@@ -591,14 +567,6 @@ video {
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-.bg-blue-600 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(37 99 235 / var(--tw-bg-opacity));
-}
-.bg-gray-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(229 231 235 / var(--tw-bg-opacity));
 }
 .px-1 {
   padding-left: 0.25rem;
@@ -681,144 +649,9 @@ video {
 .outline {
   outline-style: solid;
 }
-.strikethrough-diagonal {
-  position: relative;
+.filter {
+  filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
-.strikethrough-diagonal:before {
-  position: absolute;
-  content: "";
-  left: 0;
-  top: 47%;
-  right: 0;
-  border-top: 1px solid;
-  border-color: white;
-  transform: skewY(-12deg);
-}
-
-.image-viewer-wrapper {
-  display: flex;
-  justify-content: center;
-  max-width: 100%;
-  margin: 20px 0 0 0;
-}
-
-.image-viewer-wrapper > .thumbnails-wrapper {
-  display: flex;
-  flex-direction: column;
-  margin: 0 10px 0 0;
-}
-
-.image-viewer-wrapper > .thumbnails-wrapper > img {
-  width: 40px;
-  height: auto;
-  margin: 0 0 10px 0;
-  cursor: pointer;
-  border: solid 1px;
-  border-radius: 4px;
-}
-
-.image-viewer-wrapper > .full-size-wrapper > img {
-  max-width: 400px;
-  width: 100%;
-  height: auto;
-}
-
-.radio-button-wrapper {
-  padding: 10px;
-  margin: 5px;
-  border: none;
-  color: #ffffff;
-}
-
-.progress-bar-wrapper {
-  display: flex;
-  flex-direction: column;
-  border-radius: 4px;
-  align-items: center;
-  background-color: #0092fb;
-  padding: 2em 1em;
-}
-
-.order-totals-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  color: #ffffff;
-  background-color: #0092fb;
-  margin: 10px 0;
-  padding: 0.5em;
-  border-radius: 4px;
-}
-
-.order-totals-wrapper > .order-discount {
-  background-color: #ffffff;
-  color: #000000;
-  padding: 0.2em;
-  border-radius: 4px;
-}
-
-.order-totals-wrapper > .order-items {
-  display: flex;
-  -moz-column-gap: 0.5em;
-       column-gap: 0.5em;
-}
-
-.order-totals-wrapper > .order-items > .count {
-  display: flex;
-  justify-content: center;
-  background-color: #ffffff;
-  color: #000;
-  border-radius: 50%;
-  width: 27px;
-  height: auto;
-}
-
-.description-wrapper {
-  display: flex;
-  margin: 10px 0;
-  -moz-column-gap: 0.75em;
-       column-gap: 0.75em;
-  align-items: flex-start;
-}
-
-.description-wrapper > .price {
-  border: 1px;
-  border-color: grey;
-  border-style: solid;
-  padding: 0.5em;
-}
-
-.description-wrapper > p {
-  font-size: 14px;
-  margin: 0;
-}
-
-.counters-wrapper {
-  display: flex;
-  justify-content: center;
-  margin: 10px 0 0 0;
-}
-
-.increment-decrement-wrapper {
-  display: flex;
-  justify-content: center;
-  background: #d7d7d7;
-  padding: 0.75em 1em;
-  width: 200px;
-  margin: auto;
-  border-radius: 8px;
-}
-
-.increment-decrement-wrapper > button {
-  cursor: pointer;
-  height: 30px;
-  width: 30px;
-}
-
-.increment-decrement-wrapper > span {
-  padding: 0 1em;
-}
-
 .progress-container {
   position: relative;
   width: 100%;
@@ -837,6 +670,7 @@ video {
   height: 7px;
   background-color: #ffffff;
   border-radius: 8px;
+  transition: width 0.3s ease-in-out;
 }
 
 .step-marker {
@@ -853,120 +687,6 @@ video {
   position: absolute;
   bottom: 5px;
   color: white;
-}
-
-main {
-  background-color: #ffffff;
-  padding: "";
-}
-
-.wp-block-create-block-rd-shop-product {
-  background-color: #21759b;
-  color: #fff;
-  padding: 2px;
-}
-
-.rd-shop-wrapper {
-  margin: 0 0 3em 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.rd-shop-wrapper > * {
-  margin: 0 0.5em;
-}
-
-.rd-shop-wrapper {
-  max-width: 800px;
-  display: flex;
-  justify-content: center;
-}
-
-.counters-wrapper {
-  flex-direction: row;
-  display: flex;
-}
-
-.rd-shop-wrapper .image-container,
-.rd-shop-wrapper .image-container img {
-  width: auto;
-  max-height: 400px;
-  margin: 0 0 1em 0;
-}
-
-.radio-container {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  margin: 0 0.2em;
-}
-
-.radio-button {
-  display: none;
-}
-
-.radio-label {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: background-color 0.4s;
-  margin: 0 0 1em 0;
-  border: 3px solid #ffffff;
-  color: #ffffff;
-}
-
-.radio-button:checked + .radio-label {
-  box-shadow: 0 0 0pt 2pt #0394ff;
-  background-color: #4caf50;
-  border: 3px solid #ffffff;
-  color: white;
-}
-
-.radio-label:hover {
-  border: 3px solid #ffffff;
-}
-
-/* Buttons */
-.controller-wrapper {
-  display: flex;
-  order: 3;
-  width: 150px;
-  background-color: #d7dae4;
-  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-  justify-content: space-between;
-  border-radius: 8px;
-  border-width: 0;
-  color: #333333;
-  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  list-style: none;
-  margin: 0;
-  padding: 10px 12px;
-  text-align: center;
-  transition: all 200ms;
-  vertical-align: baseline;
-  white-space: nowrap;
-  -moz-user-select: none;
-       user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-}
-
-.controller-button {
-  border: none;
-  background: #ffffff;
-  font-size: 24px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  cursor: pointer;
 }
 
 .\[\&\>button\>svg\]\:m-auto>button>svg {
