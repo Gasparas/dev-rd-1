@@ -27,8 +27,8 @@ $total_cart_data = $data;
     left: 50%;
     transform: translate(-50%, 0);
 ">
-	<p>
+	<!-- <p>
 		total-cart container
-	</p>
+	</p> -->
 </div>
 <script type="application/json" class="total-cart-data"><?php echo wp_json_encode($total_cart_data); ?></script>

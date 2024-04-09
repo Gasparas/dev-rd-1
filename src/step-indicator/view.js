@@ -35,6 +35,32 @@ import apiFetch from "@wordpress/api-fetch";
 import useStore from "store";
 
 /**
+ * NextStep
+ */
+
+const NextStep = ({ beforeNextStep, percanteges, currentStep }) => {
+	const nextPercentage = percanteges[currentStep];
+
+	return (
+		<div className="lg:w-[400px] w-[330px]" style={{position: "fixed", bottom: "5px", left: "50%", translate: "-50%"}}>
+			<div className="flex  justify-around items-center px-3 py-2 mb-1 text-sm font-medium text-white bg-blue-500 rounded-lg [&>span]:text-xs">
+				<div>
+					Add <span className="mr-1">{beforeNextStep}</span>more to get{" "}
+					<span className="mx-1">{nextPercentage} OFF</span>
+				</div>
+
+				<a
+					href="/?page_id=9"
+					className="px-2 py-1 text-sm text-white no-underline bg-blue-600 rounded-lg"
+				>
+					View Order
+				</a>
+			</div>
+		</div>
+	);
+};
+
+/**
  * StepIndicator
  */
 
@@ -66,9 +92,12 @@ const StepIndicator = ({ data }) => {
 
 	const [currentStep, setCurrentStep] = useState(0);
 	const [appliedCoupon, setAppliedCoupon] = useState("");
+	const [distanceToNextStep, setDistanceToNextStep] = useState(0);
+	const [percanteges, setPercanteges] = useState(data.percs);
 
 	const priceSave = (totalPrice - totalSalePrice).toFixed(2);
 	const steps = transformArray(data.steps);
+	const stepsForDistance = data.steps;
 	const percs = data.percs;
 	const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
 
@@ -76,6 +105,21 @@ const StepIndicator = ({ data }) => {
 
 	useEffect(() => {
 		determineCurrentStep();
+	}, [totalQuantity]);
+
+	useEffect(() => {
+		// Calculate the distance to the next step
+		const calculateDistanceToNextStep = () => {
+			if (currentStep < stepsForDistance.length) {
+				// If not at the last step, calculate the difference between the next step and totalQuantity
+				const nextStepValue = stepsForDistance[currentStep];
+				setDistanceToNextStep(nextStepValue - totalQuantity);
+			} else {
+				// If at the last step, there's no "next step" so set distance to 0
+				setDistanceToNextStep(0);
+			}
+		};
+		calculateDistanceToNextStep();
 	}, [totalQuantity]);
 
 	const determineCurrentStep = () => {
@@ -175,7 +219,7 @@ const StepIndicator = ({ data }) => {
 		<>
 			<div className="px-3 pt-1 pb-2 bg-blue-500 rounded-lg">
 				<div className="mb-3 text-xs font-semibold tracking-wide text-center text-white">
-					<span>{currentStep}</span> Items selected: {totalQuantity}
+					Items selected: {totalQuantity}
 				</div>
 				<div className="numbers-container">
 					{steps
@@ -272,6 +316,11 @@ const StepIndicator = ({ data }) => {
 					{/* </div> */}
 				</div>
 			</div>
+			<NextStep
+				beforeNextStep={distanceToNextStep}
+				percanteges={percanteges}
+				currentStep={currentStep}
+			></NextStep>
 		</>
 	);
 };

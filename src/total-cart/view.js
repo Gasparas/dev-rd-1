@@ -172,7 +172,7 @@ const TotalCart = ({ data }) => {
 				percanteges={percanteges}
 				currentStep={currentStep}
 			></NextStep>
-			<div className="flex justify-around w-full px-3 py-4 font-medium text-white bg-blue-500 rounded-lg">
+			{/* <div className="flex justify-around w-full px-3 py-4 font-medium text-white bg-blue-500 rounded-lg">
 				<div>
 					<span className="mr-1">{totalSalePrice}€</span>
 					<span
@@ -198,7 +198,7 @@ const TotalCart = ({ data }) => {
 						View Order
 					</a>
 				</div>
-			</div>
+			</div> */}
 		</>
 	);
 };
