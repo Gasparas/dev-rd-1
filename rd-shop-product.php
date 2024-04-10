@@ -55,6 +55,22 @@ function rd_register_multiple_blocks() {
 add_action( 'init', 'rd_register_multiple_blocks' );
 
 /**
+ * Helper functions
+ */
+function convert_skus_to_ids($skus) {
+    $product_ids = array();
+    
+    foreach ($skus as $sku) {
+        $product = wc_get_product_id_by_sku($sku);
+        if ($product) {
+            $product_ids[] = $product; // Assuming you want integer IDs
+        }
+    }
+    
+    return $product_ids;
+}
+
+/**
  * Scripts
  */
 // function rd_enqueue_scripts() {

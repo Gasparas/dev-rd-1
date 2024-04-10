@@ -62,23 +62,20 @@ function Edit({
   setAttributes
 }) {
   const {
-    productId,
     productSKUs
   } = attributes;
 
   // Combine both states into a single state object for cleanliness
   const [localAttributes, setLocalAttributes] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)({
-    productId: productId.toString(),
     productSKUs: productSKUs.toString()
   });
 
   // Single useEffect to handle external attribute changes
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
     setLocalAttributes({
-      productId: productId.toString(),
       productSKUs: productSKUs.toString()
     });
-  }, [productId, productSKUs]);
+  }, [productSKUs]);
   const handleChange = (name, value) => {
     // Update local state immediately for UI feedback
     setLocalAttributes(prev => ({
@@ -103,14 +100,6 @@ function Edit({
       color: "white"
     }
   }, "Products Bundle"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.PlainText, {
-    style: {
-      padding: "0 0.2em"
-    },
-    value: localAttributes.productId,
-    onChange: value => handleChange("productId", value),
-    onBlur: () => handleBlur("productId", localAttributes.productId),
-    placeholder: "Enter product IDs"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.PlainText, {
     style: {
       padding: "0 0.2em"
     },

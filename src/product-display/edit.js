@@ -32,21 +32,19 @@ import "./editor.scss";
  * @return {Element} Element to render.
  */
 export default function Edit({ attributes, setAttributes }) {
-	const { productId, productSKUs } = attributes;
+	const { productSKUs } = attributes;
 
 	// Combine both states into a single state object for cleanliness
 	const [localAttributes, setLocalAttributes] = useState({
-		productId: productId.toString(),
 		productSKUs: productSKUs.toString(),
 	});
 
 	// Single useEffect to handle external attribute changes
 	useEffect(() => {
 		setLocalAttributes({
-			productId: productId.toString(),
 			productSKUs: productSKUs.toString(),
 		});
-	}, [productId, productSKUs]);
+	}, [productSKUs]);
 
 	const handleChange = (name, value) => {
 		// Update local state immediately for UI feedback
@@ -63,13 +61,13 @@ export default function Edit({ attributes, setAttributes }) {
 			style={{ background: "#3b82f6", margin: "20px 0 0 0", padding: "1em" }}
 		>
 			<h4 style={{ color: "white" }}>Products Bundle</h4>
-			<PlainText
+			{/* <PlainText
 				style={{ padding: "0 0.2em" }}
 				value={localAttributes.productId}
 				onChange={(value) => handleChange("productId", value)}
 				onBlur={() => handleBlur("productId", localAttributes.productId)}
 				placeholder="Enter product IDs"
-			/>
+			/> */}
 			<PlainText
 				style={{ padding: "0 0.2em" }}
 				value={localAttributes.productSKUs}

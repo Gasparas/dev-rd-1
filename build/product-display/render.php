@@ -5,13 +5,23 @@
  */
 
 $react_unique_id = wp_unique_id('app-id-');
-$product_ids_string = $attributes['productId']; // Assuming this is a string like "36,32,27"
-$product_ids = explode(',', $product_ids_string); // Convert the string to an array of IDs
+$product_SKUs_string = $attributes['productSKUs'];
+$product_SKUs_array = array_filter(array_map('trim', explode(',', $product_SKUs_string)));
+$product_ids = []; // Initialize an array to hold the ids
 $products_data = []; // Initialize an array to hold the data for all products
 
+foreach ($product_SKUs_array as $sku) {
+	$product = wc_get_product_id_by_sku($sku);
+	if ($product) {
+		$product_ids[] = $product; // Assuming you want integer IDs
+	}
+}
+
+// Populate $products_data
 if (isset(WC()->cart)) {
+
 	foreach ($product_ids as $product_id) {
-		$product = wc_get_product(trim($product_id)); // Use trim to remove any whitespace from the ID
+		$product = wc_get_product($product_id); // Use trim to remove any whitespace from the ID
 
 		if (!$product) {
 			// Handle the case where a product is not found. For simplicity, continue to the next product ID.
