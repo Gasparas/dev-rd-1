@@ -32,7 +32,11 @@ registerBlockType( metadata.name, {
 	attributes: {
         productId: {
             type: 'string',
-            default: 'Product IDs',
+            default: '',
+        },
+        productSKUs: {
+            type: 'string',
+            default: '',
         },
     },
 	

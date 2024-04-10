@@ -32,21 +32,30 @@ import "./editor.scss";
  * @return {Element} Element to render.
  */
 export default function Edit({ attributes, setAttributes }) {
-	const [localProductId, setLocalProductId] = useState(
-		attributes.productId.toString(),
-	);
+	const { productId, productSKUs } = attributes;
 
-	// Update local state when the attribute changes externally
+	// Combine both states into a single state object for cleanliness
+	const [localAttributes, setLocalAttributes] = useState({
+		productId: productId.toString(),
+		productSKUs: productSKUs.toString(),
+	});
+
+	// Single useEffect to handle external attribute changes
 	useEffect(() => {
-		setLocalProductId(attributes.productId.toString());
-	}, [attributes.productId]);
+		setLocalAttributes({
+			productId: productId.toString(),
+			productSKUs: productSKUs.toString(),
+		});
+	}, [productId, productSKUs]);
 
-	const handleOnChange = (value) => {
-		setLocalProductId(value); // Update local state immediately for UI
+	const handleChange = (name, value) => {
+		// Update local state immediately for UI feedback
+		setLocalAttributes((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleOnBlur = () => {
-		setAttributes({ productId: localProductId.trim() }); // Update block attribute on blur or after debounce
+	const handleBlur = (name, value) => {
+		// Trim the input value and update the corresponding attribute
+		setAttributes({ [name]: value.trim() });
 	};
 
 	return (
@@ -56,10 +65,17 @@ export default function Edit({ attributes, setAttributes }) {
 			<h4 style={{ color: "white" }}>Products Bundle</h4>
 			<PlainText
 				style={{ padding: "0 0.2em" }}
-				value={localProductId}
-				onChange={handleOnChange}
-				onBlur={handleOnBlur}
-				placeholder="Enter Product IDs"
+				value={localAttributes.productId}
+				onChange={(value) => handleChange("productId", value)}
+				onBlur={() => handleBlur("productId", localAttributes.productId)}
+				placeholder="Enter product IDs"
+			/>
+			<PlainText
+				style={{ padding: "0 0.2em" }}
+				value={localAttributes.productSKUs}
+				onChange={(value) => handleChange("productSKUs", value)}
+				onBlur={() => handleBlur("productSKUs", localAttributes.productSKUs)}
+				placeholder="Enter product SKUs"
 			/>
 		</div>
 	);
