@@ -219,396 +219,6 @@ window.myGlobalStore = window.myGlobalStore || (0,zustand__WEBPACK_IMPORTED_MODU
 
 /***/ }),
 
-/***/ "./src/useCart.js":
-/*!************************!*\
-  !*** ./src/useCart.js ***!
-  \************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
-/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! store */ "./src/store.js");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lodash */ "lodash");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_3__);
-
-
-
-
-function useCart(productId) {
-  const {
-    cartProducts
-  } = (0,store__WEBPACK_IMPORTED_MODULE_2__["default"])(state => ({
-    cartProducts: state.cartProducts
-  }));
-  const triggerTotalCartUpdate = (0,store__WEBPACK_IMPORTED_MODULE_2__["default"])(state => state.triggerTotalCartUpdate);
-  const [isLoading, setIsLoading] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
-  const [error, setError] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
-
-  // const [cartProducts, setCartProducts] = useState([]);
-  const [totalQuantity, setTotalQuantity] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
-  const [totalPrice, setTotalPrice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
-  const [totalSalePrice, setTotalSalePrice] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
-  const [salePercentage, setSalePercentage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
-  const [appliedCoupon, setAppliedCoupon] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)("");
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
-    // fetchCart();
-  }, []);
-  const fetchCart = async () => {
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-      path: "/wc/store/cart"
-    }) // Adjusted to an endpoint that returns full cart details
-    .then(cart => {
-      const cartProducts = cart.items;
-      setCartProducts(cartProducts);
-      // Assuming the response includes totalItems and total price directly
-      const totalQuantity = cart.items.reduce((acc, item) => acc + item.quantity, 0);
-      setTotalQuantity(totalQuantity);
-      // console.log('fetchCart totalQuantity', totalQuantity);
-
-      // Directly use the total price from the cart object
-      const totalPrice = parseFloat(cart.totals.total_items) / 100;
-      setTotalPrice(totalPrice);
-      const totalSalePrice = parseFloat(cart.totals.total_price) / 100;
-      setTotalSalePrice(totalSalePrice);
-      // if (totalPrice != 0) {
-      // 	const salePercentage = Math.round(
-      // 		((totalPrice - totalSalePrice) / totalPrice) * 100,
-      // 	);
-      // 	setSalePercentage(salePercentage);
-      // }
-      // console.log("fetchCart:", totalPrice);
-      setIsLoading(false);
-    }).catch(err => {
-      console.error("Error fetching cart:", err);
-      setError("Failed to fetch cart.");
-      setIsLoading(false);
-    });
-  };
-  const addToCart = productId => {
-    setIsLoading(true);
-    const itemData = {
-      id: productId,
-      quantity: 1
-    };
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-      path: "/wc/store/cart/add-item",
-      method: "POST",
-      data: itemData
-    }).then(() => {
-      console.log(`Add to cart: ${productId}`);
-    }).catch(error => {
-      console.error("Error incrementing item:", error);
-      setError("Failed to increment item.");
-      setIsLoading(false);
-    }).finally(() => {
-      // fetchCart(); // Refresh the cart items to reflect the change
-      setIsLoading(false);
-      triggerTotalCartUpdate();
-    });
-  };
-  const remFromCart = productId => {
-    setIsLoading(true);
-
-    // Find the current item in the cart
-    const item = cartProducts.find(item => item.id === productId);
-    if (!item) {
-      // If item not found, exit early
-      console.error("Item not found in cart:", productId);
-      setIsLoading(false);
-      return;
-    }
-    if (item.quantity === 1) {
-      // If the item's quantity is 1, remove it from the cart
-      const itemData = {
-        key: item.key
-      };
-      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-        path: "/wc/store/cart/remove-item",
-        method: "POST",
-        data: itemData
-      }).then(() => {
-        console.log(`Remove from cart: ${productId}`);
-        // fetchCart(); // Refresh the cart items to reflect the change
-        // triggerTotalCartUpdate();
-        // setIsLoading(false);
-      }).catch(error => {
-        console.error("Error removing item:", error);
-        setError("Failed to remove item.");
-        setIsLoading(false);
-      }).finally(() => {
-        // fetchCart(); // Refresh the cart items to reflect the change
-        setIsLoading(false);
-        triggerTotalCartUpdate();
-      });
-    } else {
-      // If the item's quantity is greater than 1, decrement its quantity
-      const itemData = {
-        key: item.key,
-        quantity: item.quantity - 1
-      };
-      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-        path: "/wc/store/cart/update-item",
-        method: "POST",
-        data: itemData
-      }).then(() => {
-        console.log(`Decrease cart quantity: ${productId}`);
-        // fetchCart(); // Refresh the cart items to reflect the change
-        // triggerTotalCartUpdate();
-        // setIsLoading(false);
-      }).catch(error => {
-        console.error("Error decrementing item:", error);
-        setError("Failed to decrement item.");
-        setIsLoading(false);
-      }).finally(() => {
-        // fetchCart(); // Refresh the cart items to reflect the change
-        setIsLoading(false);
-        triggerTotalCartUpdate();
-      });
-    }
-  };
-  const applyCoupon = couponCode => {
-    console.log(`Applying coupon: ${couponCode}`);
-    return _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-      path: "/wc/store/v1/cart/apply-coupon",
-      method: "POST",
-      data: {
-        code: couponCode
-      }
-    }).then(response => {
-      console.log(`Coupon ${couponCode} applied.`);
-      setAppliedCoupon(couponCode); // Update the applied coupon
-      return response; // Return response for chaining
-    }).catch(error => {
-      console.error(`Error applying coupon ${couponCode}:`, error);
-      throw error; // Re-throw for catch chaining
-    });
-  };
-  const removeCoupon = couponCode => {
-    console.log(`Removing coupon: ${couponCode}`);
-    return _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-      path: "/wc/store/v1/cart/remove-coupon",
-      method: "POST",
-      data: {
-        code: couponCode
-      }
-    }).then(response => {
-      console.log(`Coupon ${couponCode} removed.`);
-      setAppliedCoupon(""); // Clear the applied coupon
-      return response; // Return response for chaining
-    }).catch(error => {
-      console.error(`Error removing coupon ${couponCode}:`, error);
-      throw error; // Re-throw for catch chaining
-    });
-  };
-  return {
-    // fetchCart,
-    addToCart,
-    remFromCart,
-    // applyCoupon,
-    // removeCoupon,
-    appliedCoupon,
-    totalPrice,
-    totalSalePrice,
-    salePercentage,
-    totalQuantity,
-    isLoading,
-    error
-  };
-}
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (useCart);
-
-/***/ }),
-
-/***/ "./node_modules/lucide-react/dist/esm/createLucideIcon.js":
-/*!****************************************************************!*\
-  !*** ./node_modules/lucide-react/dist/esm/createLucideIcon.js ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ createLucideIcon)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _defaultAttributes_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./defaultAttributes.js */ "./node_modules/lucide-react/dist/esm/defaultAttributes.js");
-/* harmony import */ var _shared_src_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./shared/src/utils.js */ "./node_modules/lucide-react/dist/esm/shared/src/utils.js");
-/**
- * @license lucide-react v0.365.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-
-
-
-
-
-const createLucideIcon = (iconName, iconNode) => {
-  const Component = (0,react__WEBPACK_IMPORTED_MODULE_0__.forwardRef)(
-    ({
-      color = "currentColor",
-      size = 24,
-      strokeWidth = 2,
-      absoluteStrokeWidth,
-      className = "",
-      children,
-      ...rest
-    }, ref) => {
-      return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(
-        "svg",
-        {
-          ref,
-          ..._defaultAttributes_js__WEBPACK_IMPORTED_MODULE_1__["default"],
-          width: size,
-          height: size,
-          stroke: color,
-          strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
-          className: ["lucide", `lucide-${(0,_shared_src_utils_js__WEBPACK_IMPORTED_MODULE_2__.toKebabCase)(iconName)}`, className].join(" "),
-          ...rest
-        },
-        [
-          ...iconNode.map(([tag, attrs]) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(tag, attrs)),
-          ...Array.isArray(children) ? children : [children]
-        ]
-      );
-    }
-  );
-  Component.displayName = `${iconName}`;
-  return Component;
-};
-
-
-//# sourceMappingURL=createLucideIcon.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/lucide-react/dist/esm/defaultAttributes.js":
-/*!*****************************************************************!*\
-  !*** ./node_modules/lucide-react/dist/esm/defaultAttributes.js ***!
-  \*****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ defaultAttributes)
-/* harmony export */ });
-/**
- * @license lucide-react v0.365.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-
-var defaultAttributes = {
-  xmlns: "http://www.w3.org/2000/svg",
-  width: 24,
-  height: 24,
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 2,
-  strokeLinecap: "round",
-  strokeLinejoin: "round"
-};
-
-
-//# sourceMappingURL=defaultAttributes.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/lucide-react/dist/esm/icons/minus.js":
-/*!***********************************************************!*\
-  !*** ./node_modules/lucide-react/dist/esm/icons/minus.js ***!
-  \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ Minus)
-/* harmony export */ });
-/* harmony import */ var _createLucideIcon_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.js */ "./node_modules/lucide-react/dist/esm/createLucideIcon.js");
-/**
- * @license lucide-react v0.365.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-
-
-
-const Minus = (0,_createLucideIcon_js__WEBPACK_IMPORTED_MODULE_0__["default"])("Minus", [["path", { d: "M5 12h14", key: "1ays0h" }]]);
-
-
-//# sourceMappingURL=minus.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/lucide-react/dist/esm/icons/plus.js":
-/*!**********************************************************!*\
-  !*** ./node_modules/lucide-react/dist/esm/icons/plus.js ***!
-  \**********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ Plus)
-/* harmony export */ });
-/* harmony import */ var _createLucideIcon_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.js */ "./node_modules/lucide-react/dist/esm/createLucideIcon.js");
-/**
- * @license lucide-react v0.365.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-
-
-
-const Plus = (0,_createLucideIcon_js__WEBPACK_IMPORTED_MODULE_0__["default"])("Plus", [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "M12 5v14", key: "s699le" }]
-]);
-
-
-//# sourceMappingURL=plus.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/lucide-react/dist/esm/shared/src/utils.js":
-/*!****************************************************************!*\
-  !*** ./node_modules/lucide-react/dist/esm/shared/src/utils.js ***!
-  \****************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   toKebabCase: () => (/* binding */ toKebabCase)
-/* harmony export */ });
-/**
- * @license lucide-react v0.365.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-
-const toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
-
-
-//# sourceMappingURL=utils.js.map
-
-
-/***/ }),
-
 /***/ "./node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.development.js":
 /*!**********************************************************************************************!*\
   !*** ./node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.development.js ***!
@@ -1073,16 +683,6 @@ module.exports = window["React"];
 
 /***/ }),
 
-/***/ "lodash":
-/*!*************************!*\
-  !*** external "lodash" ***!
-  \*************************/
-/***/ ((module) => {
-
-module.exports = window["lodash"];
-
-/***/ }),
-
 /***/ "@wordpress/api-fetch":
 /*!**********************************!*\
   !*** external ["wp","apiFetch"] ***!
@@ -1297,20 +897,17 @@ var vanilla = (createState) => {
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-/*!*************************************!*\
-  !*** ./src/product-display/view.js ***!
-  \*************************************/
+/*!*********************************!*\
+  !*** ./src/coupon-form/view.js ***!
+  \*********************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var useCart__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! useCart */ "./src/useCart.js");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! store */ "./src/store.js");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lodash */ "lodash");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/minus.js");
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.js");
 
 /**
  * Use this file for JavaScript code that you want to run in the front-end
@@ -1334,230 +931,52 @@ __webpack_require__.r(__webpack_exports__);
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
  */
 
-// console.log("view.js");
-
-
-
+console.log("coupon-code js");
 
 
 
 
 /**
- * ProductDisplay
+ * Coupon Form
  */
 
-function ProductGallery({
-  selectedProductId,
-  productsData
-}) {
-  const selectedProductData = productsData.find(product => product.id === selectedProductId);
-
-  // Initialize selectedImage with the first image of the selected product or a default value
-  const [selectedImage, setSelectedImage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(selectedProductData?.imageUrls[0] || "");
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    // Update selectedImage when selectedProductId changes
-    setSelectedImage(selectedProductData?.imageUrls[0] || "");
-  }, [selectedProductId, selectedProductData]);
-  if (!selectedProductData) return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "No product selected"); // Or any other fallback UI
-
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "image-viewer-wrapper"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "full-size-wrapper"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-    src: selectedImage,
-    alt: "Selected"
-  })));
-}
-function InfoBox({
-  selectedProductTitle,
-  selectedProductPrice
-}) {
-  const PriceComponent = ({
-    html
-  }) => {
-    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
-      dangerouslySetInnerHTML: {
-        __html: html
-      }
-    });
-  };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "flex items-center w-full mt-2 gap-x-4 h-14"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "text-xl basis-1/5"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(PriceComponent, {
-    html: selectedProductPrice
-  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "leading-snug basis-4/5"
-  }, selectedProductTitle));
-}
-function TogglerBox({
-  products,
-  onProductSelect,
-  selectedProductId
-}) {
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "flex gap-x-3"
-  }, products.map(product => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    className: "w-11 h-11",
-    key: product.id,
-    onClick: () => onProductSelect(product.id),
-    style: {
-      background: product.color,
-      borderRadius: "50%",
-      color: "white",
-      margin: "1em 0",
-      fontWeight: "bold",
-      outline: product.id === selectedProductId ? "2px solid #3c82f6" : "none",
-      outlineOffset: "3px"
-    }
-  }, product.counterValue === 0 ? " " : product.counterValue)));
-}
-function AdjusterBox({
-  productId,
-  initialValue,
-  togglerValueChange
-}) {
+function FormComponent() {
   const {
-    fetchCart,
-    addToCart,
-    remFromCart,
-    totalQuantity,
-    totalPrice,
-    isLoading,
-    error
+    applyCoupon
   } = (0,store__WEBPACK_IMPORTED_MODULE_3__["default"])(state => ({
-    fetchCart: state.fetchCart,
-    addToCart: state.addToCart,
-    remFromCart: state.remFromCart,
-    totalQuantity: state.totalQuantity,
-    totalPrice: state.totalPrice,
-    error: state.error,
-    isLoading: state.isLoading
+    applyCoupon: state.applyCoupon
   }));
+  const [inputValue, setInputValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(""); // State to hold the input value
 
-  // const totalQuantity = useStore((state) => state.totalQuantity);
-  // const totalPrice = useStore((state) => state.totalPrice);
-
-  const [value, setValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(initialValue);
-  // const { remFromCart } = useCart();
-
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    fetchCart();
-  }, [value]);
-  const throttledAddToCart = (0,lodash__WEBPACK_IMPORTED_MODULE_4__.throttle)(productId => {
-    window.myGlobalStore.getState().addToCart(productId);
-    console.log("t");
-  }, 10000); // Adjust time as needed
-
-  const handleIncrement = () => {
-    const newValue = value + 1;
-    setValue(newValue);
-    togglerValueChange(newValue);
-    addToCart(productId);
-    // console.log(isLoading);
-    // throttledAddToCart(productId);
-    // debounce(addToCart(productId), 1000);
-    fetchCart();
+  const handleChange = event => {
+    setInputValue(event.target.value); // Update state with input value
   };
-  const handleDecrement = () => {
-    if (value > 0) {
-      const newValue = value - 1;
-      setValue(newValue);
-      togglerValueChange(newValue);
-      remFromCart(productId);
-      // debounce(remFromCart(productId), 300);
-      fetchCart();
-    }
+  const handleSubmit = event => {
+    event.preventDefault(); // Prevent the default form submit action
+    console.log(inputValue);
+    applyCoupon(inputValue);
+    alert(`Submitted value: ${inputValue}`); // Display alert with current input value
   };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "py-3 shadow-md rounded-md flex items-center justify-around w-44 font-bold bg-gray-300 [&>button]:bg-white [&>button]:rounded-full [&>button>svg]:m-auto [&>button]:h-8 [&>button]:w-8"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    onClick: handleDecrement,
-    disabled: isLoading
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], {
-    size: 20,
-    strokeWidth: 3
-  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, value), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    onClick: handleIncrement,
-    disabled: isLoading
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], {
-    size: 20,
-    strokeWidth: 3
-  }))));
-}
-function ProductDisplay({
-  data
-}) {
-  const [products, setProducts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)([]);
-  const [selectedProductId, setSelectedProductId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(null);
-  const [counterValue, setCounterValue] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    const selectedProduct = products.find(product => product.id === selectedProductId);
-    setCounterValue(selectedProduct ? selectedProduct.counterValue : 0);
-  }, [products, selectedProductId]);
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
-    setProducts(data); // Directly use the data prop which is now an array
-    if (data.length > 0) {
-      // Set the first product's ID as selected by default
-      setSelectedProductId(data[0].id);
-    }
-  }, [data]);
-  const togglerValueChange = newValue => {
-    // Update the counterValue for the selected product
-    const updatedProducts = products.map(product => product.id === selectedProductId ? {
-      ...product,
-      counterValue: newValue
-    } : product);
-    // console.log(updatedProducts);
-    setProducts(updatedProducts);
-  };
-  const handleProductSelect = id => {
-    setSelectedProductId(id);
-  };
-
-  // Find the selected product to get its title
-  const selectedProduct = products.find(product => product.id === selectedProductId);
-  const selectedProductTitle = selectedProduct ? selectedProduct.title : "";
-  const selectedProductPrice = selectedProduct ? selectedProduct.price : "";
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "mb-14 product-wrapper",
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center"
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductGallery, {
-    selectedProductId: selectedProductId,
-    productsData: products
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(InfoBox, {
-    selectedProductId: selectedProductId,
-    selectedProductTitle: selectedProductTitle,
-    selectedProductPrice: selectedProductPrice
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TogglerBox, {
-    products: products,
-    onProductSelect: handleProductSelect,
-    selectedProductId: selectedProductId
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(AdjusterBox, {
-    productId: selectedProductId,
-    initialValue: counterValue,
-    togglerValueChange: togglerValueChange
-  }));
+    className: "p-2 bg-green-300"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("form", {
+    className: "flex",
+    onSubmit: handleSubmit
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    className: "px-2 basis-2/3",
+    type: "text",
+    placeholder: "Coupon code",
+    value: inputValue,
+    onChange: handleChange
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    className: "text-center basis-1/3",
+    type: "submit"
+  }, "Apply")));
 }
-document.querySelectorAll(".react-container").forEach(container => {
-  const jsonDataElement = container.querySelector(".product-data");
-  if (jsonDataElement) {
-    const jsonData = JSON.parse(jsonDataElement.textContent || "[]");
-    // console.log("Mount data", jsonData);
-    ReactDOM.createRoot(container).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductDisplay, {
-      data: jsonData
-    }));
-  }
-});
+
+// const jsonDataElement = document.querySelector(".total-cart-data");
+// const jsonData = JSON.parse(jsonDataElement.textContent || "{}");
+ReactDOM.createRoot(document.querySelector("#root-coupon-form")).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(FormComponent, null));
 })();
 
 /******/ })()

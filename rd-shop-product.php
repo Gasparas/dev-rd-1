@@ -43,6 +43,7 @@ function rd_register_multiple_blocks()
 		'product-display' => '',
 		'total-cart'  => '',
 		'step-indicator'  => '',
+		'coupon-form'  => '',
 		'conditional-wrapper'  => 'dynamic_container_render_callback',
 	);
 
@@ -122,9 +123,8 @@ register_deactivation_hook(__FILE__, 'my_custom_roles_remove_custom_role');
 
 function my_custom_roles_remove_custom_role()
 {
-	remove_role('affiliate_role');
+	// remove_role('affiliate_role');
 }
-remove_role('affiliate_role');
 
 /**
  * Scripts

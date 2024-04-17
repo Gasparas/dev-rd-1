@@ -172,6 +172,26 @@ window.myGlobalStore =
 			removeProductFromCartDebounced[productId]();
 		},
 
+		applyCoupon: async (couponCode) => {
+			console.log(`Applying coupon: ${couponCode}`);
+			try {
+				const response = await apiFetch({
+					path: "/wc/store/v1/cart/apply-coupon",
+					method: "POST",
+					data: { code: couponCode },
+				});
+				console.log(`Coupon ${couponCode} applied.`);
+				// setAppliedCoupon(couponCode); // Update component state
+				// Clear any existing error
+				// setError("");
+				return response; // Return response for potential chaining
+			} catch (error) {
+				console.error(`Error applying coupon ${couponCode}:`, error);
+				// setError(`Failed to apply coupon ${couponCode}.`); // Update component state with error
+				throw error; // Re-throw to allow catch chaining elsewhere
+			}
+		},
+
 		triggerTotalCartUpdate: () => {
 			set((state) => ({
 				totalCartUpdate: state.totalCartUpdate + 1,
