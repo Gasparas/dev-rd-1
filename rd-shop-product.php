@@ -35,40 +35,96 @@ add_filter('woocommerce_store_api_disable_nonce_check', '__return_true');
 /**
  * Blocks
  */
-function rd_register_multiple_blocks() {
+function rd_register_multiple_blocks()
+{
 
 	// Register blocks in the format $dir => $render_callback.
 	$blocks = array(
-		'product-display' => '', 
+		'product-display' => '',
 		'total-cart'  => '',
 		'step-indicator'  => '',
+		'conditional-wrapper'  => 'dynamic_container_render_callback',
 	);
 
-	foreach ( $blocks as $dir => $render_callback ) {
+	foreach ($blocks as $dir => $render_callback) {
 		$args = array();
-		if ( ! empty( $render_callback ) ) {
+		if (!empty($render_callback)) {
 			$args['render_callback'] = $render_callback;
 		}
-		register_block_type( __DIR__ . '/build/' . $dir, $args );
+		register_block_type(__DIR__ . '/build/' . $dir, $args);
 	}
 }
-add_action( 'init', 'rd_register_multiple_blocks' );
+add_action('init', 'rd_register_multiple_blocks');
+
+/**
+ * Callbacks
+ */
+function dynamic_container_render_callback($attributes, $content)
+{
+	$roles_string = isset($attributes['roles']) ? $attributes['roles'] : '';
+	$roles_array = array_map('trim', explode(',', $roles_string));
+
+	if (is_user_logged_in() && is_user_in_roles($roles_array)) {
+		return '<div class="sticky top-1">' . $content . '</div>';
+	} elseif (!is_user_logged_in() && in_array('visitor', $roles_array)) {
+		return '<div class="sticky top-1">' . $content . '</div>';
+	}
+}
 
 /**
  * Helper functions
  */
-function convert_skus_to_ids($skus) {
-    $product_ids = array();
-    
-    foreach ($skus as $sku) {
-        $product = wc_get_product_id_by_sku($sku);
-        if ($product) {
-            $product_ids[] = $product; // Assuming you want integer IDs
-        }
-    }
-    
-    return $product_ids;
+function is_user_in_roles($roles = [])
+{
+	if (is_user_logged_in()) {
+		$user = wp_get_current_user();
+		foreach ((array) $roles as $role) {
+			if (in_array($role, (array) $user->roles)) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
+
+function convert_skus_to_ids($skus)
+{
+	$product_ids = array();
+
+	foreach ($skus as $sku) {
+		$product = wc_get_product_id_by_sku($sku);
+		if ($product) {
+			$product_ids[] = $product; // Assuming you want integer IDs
+		}
+	}
+
+	return $product_ids;
+}
+
+/**
+ * Affiliate custom role
+ */
+// Hook into the 'init' action to ensure all features are loaded
+add_action('init', 'my_custom_roles_add_custom_role');
+
+function my_custom_roles_add_custom_role()
+{
+	// Add a custom role with the 'read' capability
+	add_role('affiliate', 'Affiliate', array(
+		'read' => true, // True allows this capability
+		'edit_posts' => false, // False denies this capability
+		// Add other capabilities as needed
+	));
+}
+
+// Use the 'register_deactivation_hook' to remove the role when the plugin is deactivated
+register_deactivation_hook(__FILE__, 'my_custom_roles_remove_custom_role');
+
+function my_custom_roles_remove_custom_role()
+{
+	remove_role('affiliate_role');
+}
+remove_role('affiliate_role');
 
 /**
  * Scripts
