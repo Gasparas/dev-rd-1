@@ -44,14 +44,14 @@ function FormComponent() {
 	}));
 
 	const [inputValue, setInputValue] = useState(""); // State to hold the input value
-    const [isSubmitted, setIsSubmitted] = useState(false); // State to track submission status
+	const [isSubmitted, setIsSubmitted] = useState(false); // State to track submission status
 
 	const handleChange = (event) => {
 		setInputValue(event.target.value); // Update state with input value
 	};
 
 	const handleSubmit = (event) => {
-		event.preventDefault(); // Prevent the default form submit action		
+		event.preventDefault(); // Prevent the default form submit action
 		applyCoupon(inputValue);
 		setIsSubmitted(true); // Set the submission flag to true
 		// alert(`Submitted value: ${inputValue}`); // Display alert with current input value
@@ -60,21 +60,22 @@ function FormComponent() {
 	return (
 		<div className="p-2 bg-green-300">
 			<form className="flex" onSubmit={handleSubmit}>
-			{!isSubmitted ? ( 
-				<>
-				<input
-					className="px-2 basis-2/3"
-					type="text"
-					placeholder="Coupon code"
-					value={inputValue}
-					onChange={handleChange}
-					/>
-				<button className="text-center basis-1/3" type="submit">
-					Apply
-				</button>
+				{!isSubmitted ? (
+					<>
+						<input
+							className="px-2 basis-2/3"
+							type="text"
+							placeholder="Coupon code"
+							value={inputValue}
+							onChange={handleChange}
+						/>
+						<button className="text-center basis-1/3" type="submit">
+							Apply
+						</button>
 					</>
-
-			) : ( )}
+				) : (
+					<p>Coupon code is applied: {inputValue}</p>
+				)}
 			</form>
 		</div>
 	);
