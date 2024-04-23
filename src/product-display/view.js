@@ -31,9 +31,7 @@ import {
 	useEffect,
 	useCallback,
 } from "@wordpress/element";
-import useCart from "useCart";
 import useStore from "store";
-import { add, throttle } from "lodash";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 
 /**

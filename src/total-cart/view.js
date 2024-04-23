@@ -31,7 +31,6 @@ import {
 	useEffect,
 	useCallback,
 } from "@wordpress/element";
-import useCart from "useCart";
 import useStore from "store";
 
 /**
