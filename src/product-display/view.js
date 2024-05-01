@@ -21,7 +21,8 @@
  */
 
 // console.log("view.js");
-
+import apiFetch from "@wordpress/api-fetch";
+import { addQueryArgs } from '@wordpress/url';
 import {
 	createRoot,
 	render,
@@ -116,7 +117,7 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 	);
 }
 
-function AdjusterBox({ productId, initialValue, togglerValueChange }) {
+function AdjusterBox({ productId, initialValue, togglerValueChange, resetProductsData }) {
 	const {
 		fetchCart,
 		addToCart,
@@ -154,6 +155,12 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 		console.log("t");
 	}, 10000); // Adjust time as needed
 
+	const throttleAfterUpdate = debounce( async () => {
+		fetchCart().then(() => {
+			resetProductsData();
+		});
+	}, 500);
+
 	const handleIncrement = () => {
 		const newValue = value + 1;
 		setValue(newValue);
@@ -162,7 +169,7 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 		// console.log(isLoading);
 		// throttledAddToCart(productId);
 		// debounce(addToCart(productId), 1000);
-		fetchCart();
+		throttleAfterUpdate();
 	};
 
 	const handleDecrement = () => {
@@ -172,7 +179,7 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 			togglerValueChange(newValue);
 			remFromCart(productId);
 			// debounce(remFromCart(productId), 300);
-			fetchCart();
+			throttleAfterUpdate();
 		}
 	};
 
@@ -193,10 +200,31 @@ function AdjusterBox({ productId, initialValue, togglerValueChange }) {
 	);
 }
 
-function ProductDisplay({ data }) {
+function ProductDisplay({ productsSkus }) {
 	const [products, setProducts] = useState([]);
 	const [selectedProductId, setSelectedProductId] = useState(null);
 	const [counterValue, setCounterValue] = useState(0);
+
+	const {triggerUpdateProductDisplayPrices} = useStore((state) => ({
+		triggerUpdateProductDisplayPrices: state.triggerUpdateProductDisplayPrices
+	}));
+
+	const resetProductsData = () => {
+		apiFetch({
+			path: addQueryArgs('/rd-shop-product/v1/block-product-display-data', {
+				skus: productsSkus
+			}),
+			method: 'GET'
+		}).then( ( data ) => {
+			if(data){
+				setProducts(data); // Directly use the data prop which is now an array
+				if (data.length > 0 && !selectedProductId) {
+					// Set the first product's ID as selected by default
+					setSelectedProductId(data[0].id);
+				}
+			}
+		} );
+	}
 
 	useEffect(() => {
 		const selectedProduct = products.find(
@@ -206,12 +234,14 @@ function ProductDisplay({ data }) {
 	}, [products, selectedProductId]);
 
 	useEffect(() => {
-		setProducts(data); // Directly use the data prop which is now an array
-		if (data.length > 0) {
-			// Set the first product's ID as selected by default
-			setSelectedProductId(data[0].id);
+		resetProductsData();
+	}, [productsSkus]);
+
+	useEffect(() => {
+		if(triggerUpdateProductDisplayPrices){
+			resetProductsData();
 		}
-	}, [data]);
+	}, [triggerUpdateProductDisplayPrices])
 
 	const togglerValueChange = (newValue) => {
 		// Update the counterValue for the selected product
@@ -235,6 +265,7 @@ function ProductDisplay({ data }) {
 
 	const selectedProductTitle = selectedProduct ? selectedProduct.title : "";
 	const selectedProductPrice = selectedProduct ? selectedProduct.price : "";
+	if(!selectedProductId) return <div/>
 
 	return (
 		<div
@@ -244,7 +275,7 @@ function ProductDisplay({ data }) {
 			<ProductGallery
 				selectedProductId={selectedProductId}
 				productsData={products}
-			></ProductGallery>
+			/>
 			<InfoBox
 				selectedProductId={selectedProductId}
 				selectedProductTitle={selectedProductTitle}
@@ -259,16 +290,13 @@ function ProductDisplay({ data }) {
 				productId={selectedProductId}
 				initialValue={counterValue}
 				togglerValueChange={togglerValueChange}
+				resetProductsData={resetProductsData}
 			/>
 		</div>
 	);
 }
 
 document.querySelectorAll(".react-container").forEach((container) => {
-	const jsonDataElement = container.querySelector(".product-data");
-	if (jsonDataElement) {
-		const jsonData = JSON.parse(jsonDataElement.textContent || "[]");
-		// console.log("Mount data", jsonData);
-		ReactDOM.createRoot(container).render(<ProductDisplay data={jsonData} />);
-	}
+	const jsonProductsSkus = JSON.parse(container.dataset?.products_skus || "[]");
+	ReactDOM.createRoot(container).render(<ProductDisplay productsSkus={jsonProductsSkus} />);
 });

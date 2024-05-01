@@ -81,7 +81,7 @@ const TotalCart = ({ data }) => {
 
 	useEffect(() => {
 		// setSteps(data.steps);
-		// setPercanteges(data.perc); 
+		// setPercanteges(data.perc);
 	}, [data]);
 
 	useEffect(() => {
@@ -204,6 +204,6 @@ const TotalCart = ({ data }) => {
 
 const container = document.querySelector("#root-total-cart");
 const jsonDataElement = document.querySelector(".total-cart-data");
-const jsonData = JSON.parse(jsonDataElement.textContent || "{}");
+const jsonData = JSON.parse(jsonDataElement?.textContent || "{}");
 
 // ReactDOM.createRoot(container).render(<TotalCart data={jsonData} />);

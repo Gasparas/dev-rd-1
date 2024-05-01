@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import apiFetch from "@wordpress/api-fetch";
+import {throttle} from "lodash"
 
 // Utility debounce function
 function debounce(func, wait) {
@@ -12,6 +13,14 @@ function debounce(func, wait) {
 		clearTimeout(timeout);
 		timeout = setTimeout(later, wait);
 	};
+}
+
+// Fix missing global func
+if(typeof window.throttle === "undefined"){
+	window.throttle = throttle;
+}
+if(typeof window.debounce === "undefined"){
+	window.debounce = debounce;
 }
 
 const addProductToCartDebounced = {}; // Object to hold debounced functions by productId
@@ -27,11 +36,22 @@ window.myGlobalStore =
 		totalQuantity: 0,
 		totalPrice: 0.0,
 		totalSalePrice: 0.0,
+		totalDiscountPrice: 0.0,
+		currencyData: {
+			currency_code: "EUR",
+			currency_decimal_separator: ".",
+			currency_minor_unit: 2,
+			currency_prefix: "",
+			currency_suffix: "€",
+			currency_symbol: "€",
+			currency_thousand_separator: "",
+		},
 		isLoading: false,
 		error: "",
 		isAddingToCart: false,
 		cartAdditions: {}, // Holds the count of additions for debounce
 		cartRemovals: {}, // Holds the count of removals for debounce
+		triggerUpdateProductDisplayPrices: false, //Coupon update indicator
 
 		// State setters...
 		// These setters are simplified for demonstration. You might adjust them based on your needs.
@@ -50,6 +70,16 @@ window.myGlobalStore =
 					),
 					totalPrice: parseFloat(cart.totals.total_items) / 100,
 					totalSalePrice: parseFloat(cart.totals.total_price) / 100,
+					totalDiscountPrice: parseFloat(cart.totals.total_discount) / 100,
+					currencyData: {
+						currency_code: cart.totals.currency_code,
+						currency_decimal_separator: cart.totals.currency_decimal_separator,
+						currency_minor_unit: cart.totals.currency_minor_unit,
+						currency_prefix: cart.totals.currency_prefix,
+						currency_suffix: cart.totals.currency_suffix,
+						currency_symbol: cart.totals.currency_symbol,
+						currency_thousand_separator: cart.totals.currency_thousand_separator,
+					},
 					error: "",
 				});
 				// console.log("Successfully fetched cart, setting isLoading to false...");
@@ -61,6 +91,30 @@ window.myGlobalStore =
 			} finally {
 				// set({ isLoading: false });
 			}
+		},
+
+		wc_price: (price, wrapped = true) => {
+			const {
+				currency_code,
+				currency_decimal_separator,
+				currency_minor_unit,
+				currency_prefix,
+				currency_suffix,
+				currency_symbol,
+				currency_thousand_separator
+			} = get().currencyData;
+
+			const roundedPrice = price.toFixed(currency_minor_unit);
+			const [integerPart, decimalPart] = roundedPrice.split('.');
+			const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, currency_thousand_separator);
+			let formattedPrice = currency_prefix + formattedIntegerPart;
+			if (decimalPart) {
+				formattedPrice += currency_decimal_separator + decimalPart;
+			}
+			formattedPrice += currency_suffix;
+			if(!wrapped) return formattedPrice;
+
+			return `<span class="woocommerce-Price-amount amount"><bdi>${formattedPrice}</bdi></span>`;
 		},
 
 		addToCart: (productId) => {
@@ -184,6 +238,10 @@ window.myGlobalStore =
 				// setAppliedCoupon(couponCode); // Update component state
 				// Clear any existing error
 				// setError("");
+				set({triggerUpdateProductDisplayPrices: true});
+				setTimeout(() => {
+					set({triggerUpdateProductDisplayPrices: false});
+				}, 200);
 				return response; // Return response for potential chaining
 			} catch (error) {
 				console.error(`Error applying coupon ${couponCode}:`, error);

@@ -1,6 +1,6 @@
 module.exports = {
   https: true,
-  proxy: "https://shop-royaldenta-lt-staging.local",
+  proxy: "https://shop-royaldenta-lt.local",
   files: [
     './**/*.php',
     './**/*.css',

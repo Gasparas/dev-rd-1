@@ -326,7 +326,10 @@ const StepIndicator = ({ data }) => {
 };
 
 const jsonDataElement = document.querySelector(".total-cart-data");
-const jsonData = JSON.parse(jsonDataElement.textContent || "{}");
-ReactDOM.createRoot(document.querySelector("#root-step-indicator")).render(
-	<StepIndicator data={jsonData} />,
-);
+const jsonData = JSON.parse(jsonDataElement?.textContent || "{}");
+const htmlElement = document.querySelector("#root-step-indicator");
+if(htmlElement) {
+	ReactDOM.createRoot(htmlElement).render(
+		<StepIndicator data={jsonData}/>,
+	);
+}

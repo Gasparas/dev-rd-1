@@ -38,6 +38,39 @@ import useStore from "store";
  * Coupon Form
  */
 
+function CouponTotals(){
+	const {
+		totalPrice,
+		totalSalePrice,
+		totalDiscountPrice,
+		wc_price
+	} = useStore((state) => ({
+		totalPrice: state.totalPrice,
+		totalSalePrice: state.totalSalePrice,
+		totalDiscountPrice: state.totalDiscountPrice,
+		wc_price: state.wc_price
+	}));
+
+	if(!totalPrice) return;
+
+	return (
+		<div className={'coupon-cart-totals-wrap'}>
+			Order total:
+			<div className={'coupon-totals'}>
+				{totalSalePrice > 0 && totalSalePrice < totalPrice ? (
+					<>
+						<del aria-hidden="true"><span className="woocommerce-Price-amount amount"><bdi>{wc_price(totalPrice, false)}</bdi></span></del>
+						<span className="woocommerce-Price-amount amount"><bdi>{wc_price(totalSalePrice, false)}</bdi></span>
+						<span className={'discount-amount'}><span className="woocommerce-Price-amount amount"><bdi>{wc_price(totalDiscountPrice, false)}</bdi></span></span>
+					</>
+				) : (
+					<span className="woocommerce-Price-amount amount"><bdi>{wc_price(totalPrice, false)}</bdi></span>
+				)}
+			</div>
+		</div>
+	)
+}
+
 function FormComponent() {
 	const { applyCoupon } = useStore((state) => ({
 		applyCoupon: state.applyCoupon,
@@ -45,15 +78,23 @@ function FormComponent() {
 
 	const [inputValue, setInputValue] = useState(""); // State to hold the input value
 	const [isSubmitted, setIsSubmitted] = useState(false); // State to track submission status
+	const [formErrorText, setFormErrorText] = useState(""); // State for negative response
 
 	const handleChange = (event) => {
 		setInputValue(event.target.value); // Update state with input value
 	};
 
-	const handleSubmit = (event) => {
+	const handleSubmit = async (event) => {
 		event.preventDefault(); // Prevent the default form submit action
-		applyCoupon(inputValue);
-		setIsSubmitted(true); // Set the submission flag to true
+		setFormErrorText("");
+		applyCoupon(inputValue).then((res) => {
+			if(res){
+				setIsSubmitted(true);
+			}
+		}).catch((err) => {
+			setFormErrorText(err.message);
+		});
+		 // Set the submission flag to true
 		// alert(`Submitted value: ${inputValue}`); // Display alert with current input value
 	};
 
@@ -77,12 +118,19 @@ function FormComponent() {
 					<p>Coupon code is applied: {inputValue}</p>
 				)}
 			</form>
+			{formErrorText.length > 0 ? (
+				<p className={'wc-block-components-validation-error'} dangerouslySetInnerHTML={{ __html: formErrorText }} />
+			) : ''}
+			<CouponTotals />
 		</div>
 	);
 }
 
 // const jsonDataElement = document.querySelector(".total-cart-data");
 // const jsonData = JSON.parse(jsonDataElement.textContent || "{}");
-ReactDOM.createRoot(document.querySelector("#root-coupon-form")).render(
-	<FormComponent />,
-);
+const htmlElement = document.querySelector("#root-coupon-form");
+if(htmlElement) {
+	ReactDOM.createRoot(document.querySelector("#root-coupon-form")).render(
+		<FormComponent/>,
+	);
+}
