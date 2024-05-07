@@ -242,6 +242,20 @@ window.myGlobalStore =
 				setTimeout(() => {
 					set({triggerUpdateProductDisplayPrices: false});
 				}, 200);
+				set({
+					totalPrice: parseFloat(response.totals.total_items) / 100,
+					totalSalePrice: parseFloat(response.totals.total_price) / 100,
+					totalDiscountPrice: parseFloat(response.totals.total_discount) / 100,
+					currencyData: {
+						currency_code: response.totals.currency_code,
+						currency_decimal_separator: response.totals.currency_decimal_separator,
+						currency_minor_unit: response.totals.currency_minor_unit,
+						currency_prefix: response.totals.currency_prefix,
+						currency_suffix: response.totals.currency_suffix,
+						currency_symbol: response.totals.currency_symbol,
+						currency_thousand_separator: response.totals.currency_thousand_separator,
+					}
+				})
 				return response; // Return response for potential chaining
 			} catch (error) {
 				console.error(`Error applying coupon ${couponCode}:`, error);
