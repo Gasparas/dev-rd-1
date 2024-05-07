@@ -215,12 +215,12 @@ function ProductDisplay({ productsSkus }) {
 				skus: productsSkus
 			}),
 			method: 'GET'
-		}).then( ( data ) => {
-			if(data){
-				setProducts(data); // Directly use the data prop which is now an array
-				if (data.length > 0 && !selectedProductId) {
+		}).then( ( res ) => {
+			if(res?.data){
+				setProducts(res.data); // Directly use the data prop which is now an array
+				if (res.data.length > 0 && !selectedProductId) {
 					// Set the first product's ID as selected by default
-					setSelectedProductId(data[0].id);
+					setSelectedProductId(res.data[0].id);
 				}
 			}
 		} );
