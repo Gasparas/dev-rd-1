@@ -251,25 +251,48 @@ add_action( 'rest_api_init', function () {
 } );
 
 // fix empty cart coupon issue
-add_action('woocommerce_applied_coupon', 'yf_save_empty_cart_coupon');
-function yf_save_empty_cart_coupon($coupon_code){
-	$empty_cart_coupons = @json_decode(@base64_decode($_COOKIE['empty_cart_coupons'] ?? '')) ?: [];
-	if(!in_array($coupon_code, $empty_cart_coupons)){
+/**
+ * @return array
+ */
+function yf_get_empty_cart_coupons(){
+	return @json_decode(@base64_decode($_COOKIE['empty_cart_coupons'] ?? '')) ?: [];
+}
+/**
+ * @param string|array  $coupon_code
+ */
+function yf_save_empty_cart_coupons($coupon_code){
+	$empty_cart_coupons = yf_get_empty_cart_coupons();
+	if(is_array($coupon_code)){
+		$empty_cart_coupons = $coupon_code;
+	}
+	elseif(!in_array($coupon_code, $empty_cart_coupons)){
 		$empty_cart_coupons[] = $coupon_code;
 	}
-	setcookie('empty_cart_coupons', base64_encode(json_encode($empty_cart_coupons)), time()+3600, '/');
+	$empty_cart_coupons = array_values(array_filter($empty_cart_coupons));
+	if($empty_cart_coupons) {
+		setcookie('empty_cart_coupons', base64_encode(json_encode($empty_cart_coupons)), time() + 3600, '/');
+	}
+	else{
+		setcookie('empty_cart_coupons', null, -1, '/');
+	}
 }
-add_action('woocommerce_add_to_cart', function(){
-	yf_apply_empty_cart_coupons();
-});
+
+/**
+ * @param bool $reset
+ */
 function yf_apply_empty_cart_coupons($reset = true){
-	$empty_cart_coupons = @json_decode(@base64_decode($_COOKIE['empty_cart_coupons'] ?? '')) ?: [];
+	$empty_cart_coupons = yf_get_empty_cart_coupons();
 	if($empty_cart_coupons){
 		foreach ($empty_cart_coupons AS $cc){
 			WC()->cart->apply_coupon($cc);
 		}
 	}
 	if($reset) {
-		setcookie('empty_cart_coupons', null, -1, '/');
+		yf_save_empty_cart_coupons([]);
 	}
 }
+
+add_action('woocommerce_applied_coupon', 'yf_save_empty_cart_coupons');
+add_action('woocommerce_add_to_cart', function(){
+	yf_apply_empty_cart_coupons();
+});
