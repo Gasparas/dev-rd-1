@@ -130,19 +130,17 @@ function yf_recalc_product_price_with_coupon_data( $price, $product ) {
 	/** @var WC_Product $product */
 	if(!isset(WC()->cart)) return $price;
 	$applied_coupons = WC()->cart->get_applied_coupons();
-	if(!$applied_coupons) return $price;
 	$product_price = $product->get_price();
 	$discount_amount = 0;
-	$cart_product = null;
-	foreach(WC()->cart->get_cart() AS $cart_key => $cart_item){
-		if($cart_item['product_id'] == $product->get_id()){
-			$cart_product = $cart_item;
-			break;
-		}
-	}
+	$this_product_cart = array_filter(WC()->cart->get_cart(), fn($ci) => $ci['product_id'] == $product->get_id());
+	$cart_product = reset($this_product_cart);
 	if($cart_product){
 		$product_price *= $cart_product['quantity'];
 	}
+	if(!$applied_coupons && $cart_product){
+		return wc_price($product_price);
+	}
+	if(!$applied_coupons) return $price;
 	foreach($applied_coupons AS $coupon_code){
 		$coupon = new WC_Coupon( $coupon_code );
 		if ( $coupon->is_valid_for_product( $product ) ) {
