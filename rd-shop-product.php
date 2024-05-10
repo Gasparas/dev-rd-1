@@ -296,3 +296,93 @@ add_action('woocommerce_applied_coupon', 'yf_save_empty_cart_coupons');
 add_action('woocommerce_add_to_cart', function(){
 	yf_apply_empty_cart_coupons();
 });
+
+//manage cart coupons by step
+add_action('woocommerce_after_cart_item_quantity_update', 'manage_cart_coupons_by_step', 10, 4);
+function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \WC_Cart $cartInstance){
+	if(!is_user_logged_in()) return;
+
+	// set defaults
+	$coupon_steps = [
+		'',
+		'coupon-step-1',
+		'coupon-step-2',
+		'coupon-step-3',
+		'coupon-step-4'
+	];
+	$step_products_count = [
+		0,
+		5,
+		10,
+		20,
+		30
+	];
+
+	// get steps data from front pag block
+	try {
+		$front_page_id = get_option('page_on_front');
+		if ($front_page_id) {
+			$front_page = get_post($front_page_id);
+			if ($front_page) {
+				$blocks = parse_blocks($front_page->post_content);
+				$discount_block_data = [];
+				foreach ($blocks as $b) {
+					if ($b['blockName'] == 'create-block/rd-total-cart') {
+						$discount_block_data = $b['attrs'];
+						break;
+					}
+					if (empty($b['innerBlocks'])) continue;
+					foreach ($b['innerBlocks'] as $sb) {
+						if ($sb['blockName'] == 'create-block/rd-total-cart') {
+							$discount_block_data = $sb['attrs'];
+							break 2;
+						}
+					}
+				}
+				if (!empty($discount_block_data['discountSteps'])) {
+					$discount_block_steps = array_map(
+						fn($s) => (int)trim($s),
+						explode(',', $discount_block_data['discountSteps'])
+					);
+					if ($discount_block_steps) {
+						$step_products_count = [0, ...$discount_block_steps];
+					}
+				}
+			}
+
+		}
+	}
+	catch (\Exception $e){
+		//
+	}
+
+	// get needed coupon
+	$finished_steps = array_filter($step_products_count, fn($s) => $cartInstance->get_cart_contents_count() >= $s);
+	$needed_coupon_index = $finished_steps ? count($finished_steps)-1 : 0;
+	$needed_coupon = $coupon_steps[$needed_coupon_index] ?? end($coupon_steps);
+	$applied_coupons_by_steps = array_filter($cartInstance->get_applied_coupons(), fn($c) => mb_strpos($c, 'coupon-step') !== false);
+
+	//remove coupons
+	if(!$needed_coupon && $applied_coupons_by_steps){
+		foreach($applied_coupons_by_steps AS $c){
+			$cartInstance->remove_coupon($c);
+		}
+	}
+
+	// change applied coupon
+	elseif($applied_coupons_by_steps && !in_array($needed_coupon, $applied_coupons_by_steps)){
+		foreach($applied_coupons_by_steps AS $c){
+			$cartInstance->remove_coupon($c);
+		}
+		$cartInstance->apply_coupon($needed_coupon);
+	}
+
+	// apply new coupon
+	elseif (!$applied_coupons_by_steps && $needed_coupon){
+		$cartInstance->apply_coupon($needed_coupon);
+	}
+
+	// clean empty cart coupons
+	$empty_cart_coupons = array_values(array_filter(yf_get_empty_cart_coupons(), fn($c) => !in_array($c, $coupon_steps)));
+	yf_save_empty_cart_coupons($empty_cart_coupons);
+}

@@ -20,35 +20,37 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
  */
 
-console.log("view.js");
+console.log("step-indicator view.js");
 
-import {
-	createRoot,
-	render,
-	createContext,
-	useContext,
-	useState,
-	useEffect,
-	useCallback,
-} from "@wordpress/element";
-import apiFetch from "@wordpress/api-fetch";
 import useStore from "store";
 
 /**
  * NextStep
  */
+const NextStep = ({ data }) => {
+	const {
+		totalQuantity
+	} =  useStore((state) => ({
+		totalQuantity: state.totalQuantity
+	}));
 
-const NextStep = ({ beforeNextStep, percanteges, currentStep }) => {
-	const nextPercentage = percanteges[currentStep];
+	const currentStepIndex = data.steps.filter((step) => totalQuantity >= step).length-1;
+	const nextStepDiscountPercent = data.percs[(currentStepIndex+1)] ?? '';
+	const productsToNextStep = nextStepDiscountPercent ? data.steps[(currentStepIndex+1)]-totalQuantity : 0;
 
 	return (
 		<div className="lg:w-[400px] w-[330px]" style={{position: "fixed", bottom: "5px", left: "50%", translate: "-50%"}}>
 			<div className="flex  justify-around items-center px-3 py-2 mb-1 text-sm font-medium text-white bg-blue-500 rounded-lg [&>span]:text-xs">
-				<div>
-					Add <span className="mr-1">{beforeNextStep}</span>more to get{" "}
-					<span className="mx-1">{nextPercentage} OFF</span>
-				</div>
-
+				{nextStepDiscountPercent ? (
+					<div>
+						Add <span className="mr-1">{productsToNextStep}</span>more to get{" "}
+						<span className="mx-1">{nextStepDiscountPercent} OFF</span>
+					</div>
+				) : (
+					<div>
+						You have a <span className="mr-1">{data.percs[currentStepIndex] ?? '0%'}</span> discount
+					</div>
+				)}
 				<a
 					href="/?page_id=9"
 					className="px-2 py-1 text-sm text-white no-underline bg-blue-600 rounded-lg"
@@ -57,163 +59,30 @@ const NextStep = ({ beforeNextStep, percanteges, currentStep }) => {
 				</a>
 			</div>
 		</div>
-	);
-};
+	)
+}
 
 /**
  * StepIndicator
  */
-
-function transformArray(arr) {
-	const lastElement = arr[arr.length - 1] + arr[0];
-	return [0, ...arr, lastElement];
-}
-
 const StepIndicator = ({ data }) => {
 	const {
-		fetchCart,
-		addToCart,
-		remFromCart,
 		totalQuantity,
 		totalPrice,
 		totalSalePrice,
-		isLoading,
-		error,
+		totalDiscountPrice,
+		wc_price
 	} = useStore((state) => ({
-		fetchCart: state.fetchCart,
-		addToCart: state.addToCart,
-		remFromCart: state.remFromCart,
 		totalQuantity: state.totalQuantity,
 		totalPrice: state.totalPrice,
 		totalSalePrice: state.totalSalePrice,
-		error: state.error,
-		isLoading: state.isLoading,
+		totalDiscountPrice: state.totalDiscountPrice,
+		wc_price: state.wc_price
 	}));
 
-	const [currentStep, setCurrentStep] = useState(0);
-	const [appliedCoupon, setAppliedCoupon] = useState("");
-	const [distanceToNextStep, setDistanceToNextStep] = useState(0);
-	const [percanteges, setPercanteges] = useState(data.percs);
-
-	const priceSave = (totalPrice - totalSalePrice).toFixed(2);
-	const steps = transformArray(data.steps);
-	const stepsForDistance = data.steps;
-	const percs = data.percs;
-	const maxStepValue = steps[steps.length - 1]; // The last step is the maximum
-
+	const steps = [0, ...data.steps, (data.steps[0]+data.steps[data.steps.length-1])];
+	const maxStepValue = steps[steps.length - 1];
 	const progressPercentage = (totalQuantity / maxStepValue) * 100;
-
-	useEffect(() => {
-		determineCurrentStep();
-	}, [totalQuantity]);
-
-	useEffect(() => {
-		// Calculate the distance to the next step
-		const calculateDistanceToNextStep = () => {
-			if (currentStep < stepsForDistance.length) {
-				// If not at the last step, calculate the difference between the next step and totalQuantity
-				const nextStepValue = stepsForDistance[currentStep];
-				setDistanceToNextStep(nextStepValue - totalQuantity);
-			} else {
-				// If at the last step, there's no "next step" so set distance to 0
-				setDistanceToNextStep(0);
-			}
-		};
-		calculateDistanceToNextStep();
-	}, [totalQuantity]);
-
-	const determineCurrentStep = () => {
-		let foundStep = 0;
-		// Iterate over steps to find the highest step not exceeding totalItems
-		for (let step of steps) {
-			if (totalQuantity >= step) {
-				foundStep = step;
-			} else {
-				break; // Break early as steps are sorted
-			}
-		}
-
-		// Determine the step index if a step was found; otherwise, handle stepIndex as null
-		const stepIndex = foundStep !== 0 ? steps.indexOf(foundStep) : 0;
-
-		// Check if we are moving down to step 0 and need to remove any existing coupon
-		if (stepIndex === 0 && appliedCoupon) {
-			console.log(
-				`Removing coupon, as moving to step 0 from step: ${currentStep}`,
-			);
-			removeCoupon(appliedCoupon);
-			setCurrentStep(0);
-			// setBeforeNextStep(0);
-			// fetchCart();
-			return;
-		}
-
-		const newCouponCode = stepIndex ? `coupon-step-${stepIndex}` : 0;
-
-		if (stepIndex !== currentStep) {
-			setCurrentStep(stepIndex);
-			// setBeforeNextStep(1);
-			console.log(
-				`Current step: ${stepIndex} for total items: ${totalQuantity}`,
-			);
-
-			// Chain removal and application of coupons only if there's a valid step
-			if (newCouponCode && appliedCoupon !== newCouponCode) {
-				const couponOperation = appliedCoupon
-					? removeCoupon(appliedCoupon).then(() => applyCoupon(newCouponCode))
-					: applyCoupon(newCouponCode);
-
-				couponOperation
-					.then(() => {
-						console.log("Coupon operation completed.");
-						fetchCart();
-					})
-					.catch((error) => {
-						console.error("Coupon operation failed:", error);
-					});
-			}
-		}
-	};
-
-	const applyCoupon = async (couponCode) => {
-		console.log(`Applying coupon: ${couponCode}`);
-		try {
-			const response = await apiFetch({
-				path: "/wc/store/v1/cart/apply-coupon",
-				method: "POST",
-				data: { code: couponCode },
-			});
-			console.log(`Coupon ${couponCode} applied.`);
-			setAppliedCoupon(couponCode); // Update component state
-			// Clear any existing error
-			setError("");
-			return response; // Return response for potential chaining
-		} catch (error) {
-			console.error(`Error applying coupon ${couponCode}:`, error);
-			setError(`Failed to apply coupon ${couponCode}.`); // Update component state with error
-			throw error; // Re-throw to allow catch chaining elsewhere
-		}
-	};
-
-	const removeCoupon = async (couponCode) => {
-		console.log(`Removing coupon: ${couponCode}`);
-		try {
-			const response = await apiFetch({
-				path: "/wc/store/v1/cart/remove-coupon",
-				method: "POST",
-				data: { code: couponCode },
-			});
-			console.log(`Coupon ${couponCode} removed.`);
-			setAppliedCoupon(""); // Clear the applied coupon from state
-			// Clear any existing error
-			setError("");
-			return response; // Return response for potential chaining
-		} catch (error) {
-			console.error(`Error removing coupon ${couponCode}:`, error);
-			setError(`Failed to remove coupon ${couponCode}.`); // Update component state with error
-			throw error; // Re-throw to allow catch chaining elsewhere
-		}
-	};
 
 	return (
 		<>
@@ -247,7 +116,7 @@ const StepIndicator = ({ data }) => {
 					<div
 						className="progress-bar"
 						style={{ width: `${progressPercentage}%` }}
-					></div>
+					/>
 					{steps
 						.filter((_, index) => index !== 0 && index !== steps.length - 1) // Exclude first and last steps
 						.map((step) => {
@@ -259,7 +128,7 @@ const StepIndicator = ({ data }) => {
 									style={{
 										left: `${leftPercentage}%`,
 									}}
-								></div>
+								/>
 							);
 						})}
 				</div>
@@ -279,7 +148,7 @@ const StepIndicator = ({ data }) => {
 										left: `${leftPercentage - 4}%`,
 									}}
 								>
-									{percs[index]}
+									{data.percs[index]}
 								</div>
 							);
 						})}
@@ -290,37 +159,25 @@ const StepIndicator = ({ data }) => {
 							<span className="text-sm font-light text-gray-100">
 								Total:&nbsp;
 							</span>
-							<span
-								className={
-									`strikethrough-diagonal font-light text-sm text-gray-100 `
-									// ${currentStep != 0 ? "opacity-100" : "opacity-0"}
-								}
-							>
-								{totalPrice}€
+							{totalSalePrice < totalPrice ? (
+								<span className={`strikethrough-diagonal font-light text-sm text-gray-100`}>
+								{wc_price(totalPrice, false)}
 							</span>
-							<span className="ml-2">{totalSalePrice}€</span>
+							) : ''}
+							<span className="ml-2">{wc_price(totalSalePrice, false)}</span>
 						</div>
 						<div>
 							<span className="text-sm font-light text-gray-100">
 								You save:&nbsp;
 							</span>
-							<span className="">{priceSave}€</span>
+							<span>{wc_price(totalDiscountPrice ?? totalPrice, false)}</span>
 						</div>
 					</div>
-					{/* <div
-							className={`bg-white text-gray-700 rounded-lg px-2 ${
-								currentStep != 0 ? "opacity-100" : "opacity-0"
-							}`}
-						> */}
-					{/* -{percanteges[currentStep - 1]}% OFF */}
-					{/* </div> */}
 				</div>
 			</div>
 			<NextStep
-				beforeNextStep={distanceToNextStep}
-				percanteges={percanteges}
-				currentStep={currentStep}
-			></NextStep>
+				data={data}
+			/>
 		</>
 	);
 };
