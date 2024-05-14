@@ -20,24 +20,14 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
  */
 
-// console.log("view.js");
 import apiFetch from "@wordpress/api-fetch";
 import { addQueryArgs } from '@wordpress/url';
 import {
-	createRoot,
-	render,
-	createContext,
-	useContext,
 	useState,
-	useEffect,
-	useCallback,
+	useEffect
 } from "@wordpress/element";
 import useStore from "store";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
-
-/**
- * ProductDisplay
- */
 
 function ProductGallery({ selectedProductId, productsData }) {
 	const selectedProductData = productsData.find(
@@ -117,99 +107,75 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 	);
 }
 
-function AdjusterBox({ productId, initialValue, togglerValueChange, resetProductsData }) {
+function AdjusterBox({product, isDisabled, onQuantityUpdate}){
 	const {
+		isLoading,
 		fetchCart,
 		addToCart,
-		remFromCart,
-		totalQuantity,
-		totalPrice,
-		isLoading,
-		error,
-	} = useStore((state) => ({
-		fetchCart: state.fetchCart,
-		addToCart: state.addToCart,
-		remFromCart: state.remFromCart,
-		totalQuantity: state.totalQuantity,
-		totalPrice: state.totalPrice,
-		error: state.error,
-		isLoading: state.isLoading,
+		remFromCart
+	} = useStore((store) => ({
+		isLoading: store.isLoading,
+		fetchCart: store.fetchCart,
+		addToCart: store.addToCart,
+		remFromCart: store.remFromCart,
 	}));
 
-	// const totalQuantity = useStore((state) => state.totalQuantity);
-	// const totalPrice = useStore((state) => state.totalPrice);
-
-	const [value, setValue] = useState(initialValue);
-	// const { remFromCart } = useCart();
+	const [quantity, setQuantity] = useState(product.counterValue);
 
 	useEffect(() => {
-		setValue(initialValue);
-	}, [initialValue]);
+		if(quantity != product.counterValue) {
+			setQuantity(product.counterValue)
+		}
+	}, [product.counterValue])
 
 	useEffect(() => {
-		fetchCart();
-	}, [value]);
-
-	const throttledAddToCart = throttle((productId) => {
-		window.myGlobalStore.getState().addToCart(productId);
-		console.log("t");
-	}, 10000); // Adjust time as needed
-
-	const throttleAfterUpdate = debounce( async () => {
-		fetchCart().then(() => {
-			resetProductsData();
-		});
-	}, 500);
+		if(!isLoading && quantity != product.counterValue) {
+			onQuantityUpdate(quantity);
+		}
+	}, [isLoading])
 
 	const handleIncrement = () => {
-		const newValue = value + 1;
-		setValue(newValue);
-		togglerValueChange(newValue);
-		addToCart(productId);
-		// console.log(isLoading);
-		// throttledAddToCart(productId);
-		// debounce(addToCart(productId), 1000);
-		throttleAfterUpdate();
-	};
+		setQuantity(quantity+1);
+		addToCart(product.id);
+	}
 
 	const handleDecrement = () => {
-		if (value > 0) {
-			const newValue = value - 1;
-			setValue(newValue);
-			togglerValueChange(newValue);
-			remFromCart(productId);
-			// debounce(remFromCart(productId), 300);
-			throttleAfterUpdate();
+		if(quantity > 0){
+			setQuantity(quantity-1);
+			remFromCart(product.id);
 		}
-	};
+	}
 
 	return (
-		<>
-			<div className="py-3 shadow-md rounded-md flex items-center justify-around w-44 font-bold bg-gray-300 [&>button]:bg-white [&>button]:rounded-full [&>button>svg]:m-auto [&>button]:h-8 [&>button]:w-8">
-				<button onClick={handleDecrement} disabled={isLoading}>
-					{/* {isLoading ? <Minus size={24} /> : <Minus size={24} />} */}
-					<Minus size={20} strokeWidth={3} />
-				</button>
-				<span>{value}</span>
-				<button onClick={handleIncrement} disabled={isLoading}>
-					{/* {isLoading ? <Plus size={24} /> : <Plus size={24} />} */}
-					<Plus size={20} strokeWidth={3} />
-				</button>
-			</div>
-		</>
-	);
+		<div className="py-3 shadow-md rounded-md flex items-center justify-around w-44 font-bold bg-gray-300 [&>button]:bg-white [&>button]:rounded-full [&>button>svg]:m-auto [&>button]:h-8 [&>button]:w-8">
+			<button onClick={handleDecrement} disabled={isDisabled}>
+				{/* {isLoading ? <Minus size={24} /> : <Minus size={24} />} */}
+				<Minus size={20} strokeWidth={3} />
+			</button>
+			<span>{quantity}</span>
+			<button onClick={handleIncrement} disabled={isDisabled}>
+				{/* {isLoading ? <Plus size={24} /> : <Plus size={24} />} */}
+				<Plus size={20} strokeWidth={3} />
+			</button>
+		</div>
+	)
 }
 
 function ProductDisplay({ productsSkus }) {
 	const [products, setProducts] = useState([]);
 	const [selectedProductId, setSelectedProductId] = useState(null);
-	const [counterValue, setCounterValue] = useState(0);
+	const [productsResetInprogress, setProductsResetInprogress] = useState(false);
 
-	const {triggerUpdateProductDisplayPrices} = useStore((state) => ({
-		triggerUpdateProductDisplayPrices: state.triggerUpdateProductDisplayPrices
+	const {
+		isLoading,
+		triggerUpdateProductDisplayPrices
+	} = useStore((store) => ({
+		isLoading: store.isLoading,
+		triggerUpdateProductDisplayPrices: store.triggerUpdateProductDisplayPrices
 	}));
 
 	const resetProductsData = () => {
+		setProductsResetInprogress(true);
 		apiFetch({
 			path: addQueryArgs('/rd-shop-product/v1/block-product-display-data', {
 				skus: productsSkus
@@ -223,15 +189,9 @@ function ProductDisplay({ productsSkus }) {
 					setSelectedProductId(res.data[0].id);
 				}
 			}
+			setProductsResetInprogress(false);
 		} );
 	}
-
-	useEffect(() => {
-		const selectedProduct = products.find(
-			(product) => product.id === selectedProductId,
-		);
-		setCounterValue(selectedProduct ? selectedProduct.counterValue : 0);
-	}, [products, selectedProductId]);
 
 	useEffect(() => {
 		resetProductsData();
@@ -243,26 +203,15 @@ function ProductDisplay({ productsSkus }) {
 		}
 	}, [triggerUpdateProductDisplayPrices])
 
-	const togglerValueChange = (newValue) => {
-		// Update the counterValue for the selected product
-		const updatedProducts = products.map((product) =>
-			product.id === selectedProductId
-				? { ...product, counterValue: newValue }
-				: product,
-		);
-		// console.log(updatedProducts);
-		setProducts(updatedProducts);
-	};
+	useEffect(() => {
+		const selectedProduct = products.find((p) => p.id === selectedProductId);
+	}, [products, selectedProductId]);
 
 	const handleProductSelect = (id) => {
 		setSelectedProductId(id);
 	};
 
-	// Find the selected product to get its title
-	const selectedProduct = products.find(
-		(product) => product.id === selectedProductId,
-	);
-
+	const selectedProduct = products.find((p) => p.id === selectedProductId,);
 	const selectedProductTitle = selectedProduct ? selectedProduct.title : "";
 	const selectedProductPrice = selectedProduct ? selectedProduct.price : "";
 	if(!selectedProductId) return <div/>
@@ -287,13 +236,12 @@ function ProductDisplay({ productsSkus }) {
 				selectedProductId={selectedProductId}
 			/>
 			<AdjusterBox
-				productId={selectedProductId}
-				initialValue={counterValue}
-				togglerValueChange={togglerValueChange}
-				resetProductsData={resetProductsData}
+				product={selectedProduct}
+				isDisabled={isLoading || productsResetInprogress}
+				onQuantityUpdate={resetProductsData}
 			/>
 		</div>
-	);
+	)
 }
 
 document.querySelectorAll(".react-container").forEach((container) => {
