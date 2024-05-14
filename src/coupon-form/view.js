@@ -72,13 +72,18 @@ function CouponTotals(){
 }
 
 function FormComponent() {
-	const { applyCoupon } = useStore((state) => ({
+	const {
+		applyCoupon,
+		cartCoupons
+	} = useStore((state) => ({
 		applyCoupon: state.applyCoupon,
+		cartCoupons: state.cartCoupons,
 	}));
 
 	const [inputValue, setInputValue] = useState(""); // State to hold the input value
 	const [isSubmitted, setIsSubmitted] = useState(false); // State to track submission status
 	const [formErrorText, setFormErrorText] = useState(""); // State for negative response
+	const appliedCouponsCodes = cartCoupons.map((c) => c.code);
 
 	const handleChange = (event) => {
 		setInputValue(event.target.value); // Update state with input value
@@ -101,7 +106,7 @@ function FormComponent() {
 	return (
 		<div className="p-2 bg-green-300">
 			<form className="flex" onSubmit={handleSubmit}>
-				{!isSubmitted ? (
+				{!isSubmitted && !appliedCouponsCodes.length ? (
 					<>
 						<input
 							className="px-2 basis-2/3"
@@ -115,7 +120,7 @@ function FormComponent() {
 						</button>
 					</>
 				) : (
-					<p>Coupon code is applied: {inputValue}</p>
+					<p>Coupon code is applied: {appliedCouponsCodes.join(', ')}</p>
 				)}
 			</form>
 			{formErrorText.length > 0 ? (

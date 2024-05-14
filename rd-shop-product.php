@@ -290,17 +290,29 @@ function yf_apply_empty_cart_coupons($reset = true){
 	}
 }
 
-add_action('woocommerce_applied_coupon', 'yf_save_empty_cart_coupons');
-add_action('woocommerce_add_to_cart', function(){
+function remove_coupon_from_empty_cart_coupons($code)
+{
+	$empty_cart_coupons = yf_get_empty_cart_coupons();
+	if(in_array($code, $empty_cart_coupons)){
+		$empty_cart_coupons = array_filter($empty_cart_coupons, fn($c) => $c != $code);
+	}
+	yf_save_empty_cart_coupons(array_values($empty_cart_coupons));
+}
+
+function woocommerce_add_to_cart_with_empty_cart_coupons(){
 	yf_apply_empty_cart_coupons();
-});
+}
+
+add_action('woocommerce_applied_coupon', 'yf_save_empty_cart_coupons');
+add_action('woocommerce_removed_coupon', 'remove_coupon_from_empty_cart_coupons');
+add_action('woocommerce_add_to_cart', 'woocommerce_add_to_cart_with_empty_cart_coupons');
+
 
 //manage cart coupons by step
 add_action('woocommerce_after_cart_item_quantity_update', 'manage_cart_coupons_by_step', 10, 4);
 function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \WC_Cart $cartInstance){
-	if(!is_user_logged_in()) return;
-
 	// set defaults
+	$user_login_required = true;
 	$coupon_steps = [
 		'',
 		'coupon-step-1',
@@ -327,12 +339,21 @@ function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \
 				foreach ($blocks as $b) {
 					if ($b['blockName'] == 'create-block/rd-total-cart') {
 						$discount_block_data = $b['attrs'];
+						if(!empty($b['attrs']['roles']) && mb_strpos($b['attrs']['roles'], 'visitor') !== false){
+							$user_login_required = false;
+						}
 						break;
 					}
 					if (empty($b['innerBlocks'])) continue;
 					foreach ($b['innerBlocks'] as $sb) {
 						if ($sb['blockName'] == 'create-block/rd-total-cart') {
 							$discount_block_data = $sb['attrs'];
+							if(!empty($sb['attrs']['roles']) && mb_strpos($sb['attrs']['roles'], 'visitor') !== false){
+								$user_login_required = false;
+							}
+							elseif(!empty($b['attrs']['roles']) && mb_strpos($b['attrs']['roles'], 'visitor') !== false){
+								$user_login_required = false;
+							}
 							break 2;
 						}
 					}
@@ -353,6 +374,8 @@ function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \
 	catch (\Exception $e){
 		//
 	}
+
+	if($user_login_required && !is_user_logged_in()) return;
 
 	// get needed coupon
 	$finished_steps = array_filter($step_products_count, fn($s) => $cartInstance->get_cart_contents_count() >= $s);

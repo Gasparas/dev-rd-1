@@ -50,7 +50,8 @@ window.myGlobalStore =
 		error: "",
 		isAddingToCart: false,
 		cartAdditions: {}, // Holds the count of additions for debounce
-		cartRemovals: {}, // Holds the count of removals for debounce
+		cartRemovals: {}, // Holds the count of removals for debounce,
+		cartCoupons: [],
 		triggerUpdateProductDisplayPrices: false, //Coupon update indicator
 
 		// State setters...
@@ -80,6 +81,7 @@ window.myGlobalStore =
 						currency_symbol: cart.totals.currency_symbol,
 						currency_thousand_separator: cart.totals.currency_thousand_separator,
 					},
+					cartCoupons: cart.coupons,
 					error: "",
 				});
 				// console.log("Successfully fetched cart, setting isLoading to false...");
@@ -254,7 +256,8 @@ window.myGlobalStore =
 						currency_suffix: response.totals.currency_suffix,
 						currency_symbol: response.totals.currency_symbol,
 						currency_thousand_separator: response.totals.currency_thousand_separator,
-					}
+					},
+					cartCoupons: response.coupons,
 				})
 				return response; // Return response for potential chaining
 			} catch (error) {
