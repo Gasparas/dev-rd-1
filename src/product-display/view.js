@@ -168,9 +168,11 @@ function ProductDisplay({ productsSkus }) {
 
 	const {
 		isLoading,
+		fetchCart,
 		triggerUpdateProductDisplayPrices
 	} = useStore((store) => ({
 		isLoading: store.isLoading,
+		fetchCart: store.fetchCart,
 		triggerUpdateProductDisplayPrices: store.triggerUpdateProductDisplayPrices
 	}));
 
@@ -194,6 +196,7 @@ function ProductDisplay({ productsSkus }) {
 	}
 
 	useEffect(() => {
+		fetchCart();
 		resetProductsData();
 	}, [productsSkus]);
 
