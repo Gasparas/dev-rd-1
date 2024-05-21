@@ -242,7 +242,7 @@ function yf_get_block_product_display_data(WP_REST_Request $request){
 }
 add_action( 'rest_api_init', function () {
 	register_rest_route( 'rd-shop-product/v1', '/block-product-display-data', array(
-		'methods' => 'GET',
+		'methods' => 'POST',
 		'callback' => 'yf_get_block_product_display_data',
 		'permission_callback' => '__return_true',
 	) );

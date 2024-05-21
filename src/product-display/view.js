@@ -21,7 +21,6 @@
  */
 
 import apiFetch from "@wordpress/api-fetch";
-import { addQueryArgs } from '@wordpress/url';
 import {
 	useState,
 	useEffect
@@ -179,10 +178,11 @@ function ProductDisplay({ productsSkus }) {
 	const resetProductsData = () => {
 		setProductsResetInprogress(true);
 		apiFetch({
-			path: addQueryArgs('/rd-shop-product/v1/block-product-display-data', {
+			path: '/rd-shop-product/v1/block-product-display-data',
+			data: {
 				skus: productsSkus
-			}),
-			method: 'GET'
+			},
+			method: 'POST'
 		}).then( ( res ) => {
 			if(res?.data){
 				setProducts(res.data); // Directly use the data prop which is now an array
