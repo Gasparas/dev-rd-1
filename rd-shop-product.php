@@ -5,7 +5,7 @@
  * Description:       Example block scaffolded with Create Block tool.
  * Requires at least: 6.1
  * Requires PHP:      7.0
- * Version:           0.0.2
+ * Version:           0.9.02`
  * Author:            The WordPress Contributors
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -125,32 +125,34 @@ function my_custom_roles_remove_custom_role()
 
 
 // recalculate products prices includes cart quantity and applied coupons
-add_filter( 'woocommerce_get_price_html', 'yf_recalc_product_price_with_coupon_data', 10, 2 );
-function yf_recalc_product_price_with_coupon_data( $price, $product ) {
+add_filter('woocommerce_get_price_html', 'yf_recalc_product_price_with_coupon_data', 10, 2);
+function yf_recalc_product_price_with_coupon_data($price, $product)
+{
 	/** @var WC_Product $product */
-	if(!isset(WC()->cart)) return $price;
+	if (!isset(WC()->cart)) return $price;
 	$applied_coupons = WC()->cart->get_applied_coupons();
 	$product_price = $product->get_price();
 	$discount_amount = 0;
-	$this_product_cart = array_filter(WC()->cart->get_cart(), fn($ci) => $ci['product_id'] == $product->get_id());
+	$this_product_cart = array_filter(WC()->cart->get_cart(), fn ($ci) => $ci['product_id'] == $product->get_id());
 	$cart_product = reset($this_product_cart);
-	if($cart_product){
+	if ($cart_product) {
 		$product_price *= $cart_product['quantity'];
 	}
-	if(!$applied_coupons && $cart_product){
+	if (!$applied_coupons && $cart_product) {
 		return wc_price($product_price);
 	}
-	if(!$applied_coupons) return $price;
-	foreach($applied_coupons AS $coupon_code){
-		$coupon = new WC_Coupon( $coupon_code );
-		if ( $coupon->is_valid_for_product( $product ) ) {
-			$discount_amount += $coupon->get_discount_amount( $product_price );
+	if (!$applied_coupons) return $price;
+	foreach ($applied_coupons as $coupon_code) {
+		$coupon = new WC_Coupon($coupon_code);
+		if ($coupon->is_valid_for_product($product)) {
+			$discount_amount += $coupon->get_discount_amount($product_price);
 		}
 	}
-	if(!$discount_amount) return $price;
+	if (!$discount_amount) return $price;
 	$sale_price = $product_price - $discount_amount;
 
-	return sprintf('<del aria-hidden="true">%s</del>%s<span aria-hidden="true" class="discount-amount">%s</span>',
+	return sprintf(
+		'<del aria-hidden="true">%s</del><br>%s<span aria-hidden="true" class="discount-amount"><br>%s</span>',
 		wc_price($product_price),
 		wc_price($sale_price),
 		wc_price($discount_amount)
@@ -159,16 +161,17 @@ function yf_recalc_product_price_with_coupon_data( $price, $product ) {
 
 
 // move "product-display" render data logic to ajax request
-function yf_get_block_product_display_data(WP_REST_Request $request){
+function yf_get_block_product_display_data(WP_REST_Request $request)
+{
 
-	if ( is_null( WC()->cart ) ) {
+	if (is_null(WC()->cart)) {
 		wc_load_cart();
 		yf_apply_empty_cart_coupons(false);
 	}
 
 	$skus = $request->get_param('skus');
-	if ( empty( $skus ) ) {
-		return new WP_Error( 'no_skus', 'No products skus', array( 'status' => 404 ) );
+	if (empty($skus)) {
+		return new WP_Error('no_skus', 'No products skus', array('status' => 404));
 	}
 
 	$product_ids = []; // Initialize an array to hold the ids
@@ -240,37 +243,37 @@ function yf_get_block_product_display_data(WP_REST_Request $request){
 		'data' => $products_data,
 	]);
 }
-add_action( 'rest_api_init', function () {
-	register_rest_route( 'rd-shop-product/v1', '/block-product-display-data', array(
+add_action('rest_api_init', function () {
+	register_rest_route('rd-shop-product/v1', '/block-product-display-data', array(
 		'methods' => 'GET',
 		'callback' => 'yf_get_block_product_display_data',
 		'permission_callback' => '__return_true',
-	) );
-} );
+	));
+});
 
 // fix empty cart coupon issue
 /**
  * @return array
  */
-function yf_get_empty_cart_coupons(){
+function yf_get_empty_cart_coupons()
+{
 	return @json_decode(@base64_decode($_COOKIE['empty_cart_coupons'] ?? '')) ?: [];
 }
 /**
  * @param string|array  $coupon_code
  */
-function yf_save_empty_cart_coupons($coupon_code){
+function yf_save_empty_cart_coupons($coupon_code)
+{
 	$empty_cart_coupons = yf_get_empty_cart_coupons();
-	if(is_array($coupon_code)){
+	if (is_array($coupon_code)) {
 		$empty_cart_coupons = $coupon_code;
-	}
-	elseif(!in_array($coupon_code, $empty_cart_coupons)){
+	} elseif (!in_array($coupon_code, $empty_cart_coupons)) {
 		$empty_cart_coupons[] = $coupon_code;
 	}
 	$empty_cart_coupons = array_values(array_filter($empty_cart_coupons));
-	if($empty_cart_coupons) {
+	if ($empty_cart_coupons) {
 		setcookie('empty_cart_coupons', base64_encode(json_encode($empty_cart_coupons)), time() + 3600, '/');
-	}
-	else{
+	} else {
 		setcookie('empty_cart_coupons', null, -1, '/');
 	}
 }
@@ -278,14 +281,15 @@ function yf_save_empty_cart_coupons($coupon_code){
 /**
  * @param bool $reset
  */
-function yf_apply_empty_cart_coupons($reset = true){
+function yf_apply_empty_cart_coupons($reset = true)
+{
 	$empty_cart_coupons = yf_get_empty_cart_coupons();
-	if($empty_cart_coupons){
-		foreach ($empty_cart_coupons AS $cc){
+	if ($empty_cart_coupons) {
+		foreach ($empty_cart_coupons as $cc) {
 			WC()->cart->apply_coupon($cc);
 		}
 	}
-	if($reset) {
+	if ($reset) {
 		yf_save_empty_cart_coupons([]);
 	}
 }
@@ -293,13 +297,14 @@ function yf_apply_empty_cart_coupons($reset = true){
 function remove_coupon_from_empty_cart_coupons($code)
 {
 	$empty_cart_coupons = yf_get_empty_cart_coupons();
-	if(in_array($code, $empty_cart_coupons)){
-		$empty_cart_coupons = array_filter($empty_cart_coupons, fn($c) => $c != $code);
+	if (in_array($code, $empty_cart_coupons)) {
+		$empty_cart_coupons = array_filter($empty_cart_coupons, fn ($c) => $c != $code);
 	}
 	yf_save_empty_cart_coupons(array_values($empty_cart_coupons));
 }
 
-function woocommerce_add_to_cart_with_empty_cart_coupons(){
+function woocommerce_add_to_cart_with_empty_cart_coupons()
+{
 	yf_apply_empty_cart_coupons();
 }
 
@@ -310,7 +315,8 @@ add_action('woocommerce_add_to_cart', 'woocommerce_add_to_cart_with_empty_cart_c
 
 //manage cart coupons by step
 add_action('woocommerce_after_cart_item_quantity_update', 'manage_cart_coupons_by_step', 10, 4);
-function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \WC_Cart $cartInstance){
+function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \WC_Cart $cartInstance)
+{
 	// set defaults
 	$user_login_required = true;
 	$coupon_steps = [
@@ -339,7 +345,7 @@ function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \
 				foreach ($blocks as $b) {
 					if ($b['blockName'] == 'create-block/rd-total-cart') {
 						$discount_block_data = $b['attrs'];
-						if(!empty($b['attrs']['roles']) && mb_strpos($b['attrs']['roles'], 'visitor') !== false){
+						if (!empty($b['attrs']['roles']) && mb_strpos($b['attrs']['roles'], 'visitor') !== false) {
 							$user_login_required = false;
 						}
 						break;
@@ -348,10 +354,9 @@ function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \
 					foreach ($b['innerBlocks'] as $sb) {
 						if ($sb['blockName'] == 'create-block/rd-total-cart') {
 							$discount_block_data = $sb['attrs'];
-							if(!empty($sb['attrs']['roles']) && mb_strpos($sb['attrs']['roles'], 'visitor') !== false){
+							if (!empty($sb['attrs']['roles']) && mb_strpos($sb['attrs']['roles'], 'visitor') !== false) {
 								$user_login_required = false;
-							}
-							elseif(!empty($b['attrs']['roles']) && mb_strpos($b['attrs']['roles'], 'visitor') !== false){
+							} elseif (!empty($b['attrs']['roles']) && mb_strpos($b['attrs']['roles'], 'visitor') !== false) {
 								$user_login_required = false;
 							}
 							break 2;
@@ -360,7 +365,7 @@ function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \
 				}
 				if (!empty($discount_block_data['discountSteps'])) {
 					$discount_block_steps = array_map(
-						fn($s) => (int)trim($s),
+						fn ($s) => (int)trim($s),
 						explode(',', $discount_block_data['discountSteps'])
 					);
 					if ($discount_block_steps) {
@@ -368,42 +373,40 @@ function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \
 					}
 				}
 			}
-
 		}
-	}
-	catch (\Exception $e){
+	} catch (\Exception $e) {
 		//
 	}
 
-	if($user_login_required && !is_user_logged_in()) return;
+	if ($user_login_required && !is_user_logged_in()) return;
 
 	// get needed coupon
-	$finished_steps = array_filter($step_products_count, fn($s) => $cartInstance->get_cart_contents_count() >= $s);
-	$needed_coupon_index = $finished_steps ? count($finished_steps)-1 : 0;
+	$finished_steps = array_filter($step_products_count, fn ($s) => $cartInstance->get_cart_contents_count() >= $s);
+	$needed_coupon_index = $finished_steps ? count($finished_steps) - 1 : 0;
 	$needed_coupon = $coupon_steps[$needed_coupon_index] ?? end($coupon_steps);
-	$applied_coupons_by_steps = array_filter($cartInstance->get_applied_coupons(), fn($c) => mb_strpos($c, 'coupon-step') !== false);
+	$applied_coupons_by_steps = array_filter($cartInstance->get_applied_coupons(), fn ($c) => mb_strpos($c, 'coupon-step') !== false);
 
 	//remove coupons
-	if(!$needed_coupon && $applied_coupons_by_steps){
-		foreach($applied_coupons_by_steps AS $c){
+	if (!$needed_coupon && $applied_coupons_by_steps) {
+		foreach ($applied_coupons_by_steps as $c) {
 			$cartInstance->remove_coupon($c);
 		}
 	}
 
 	// change applied coupon
-	elseif($applied_coupons_by_steps && !in_array($needed_coupon, $applied_coupons_by_steps)){
-		foreach($applied_coupons_by_steps AS $c){
+	elseif ($applied_coupons_by_steps && !in_array($needed_coupon, $applied_coupons_by_steps)) {
+		foreach ($applied_coupons_by_steps as $c) {
 			$cartInstance->remove_coupon($c);
 		}
 		$cartInstance->apply_coupon($needed_coupon);
 	}
 
 	// apply new coupon
-	elseif (!$applied_coupons_by_steps && $needed_coupon){
+	elseif (!$applied_coupons_by_steps && $needed_coupon) {
 		$cartInstance->apply_coupon($needed_coupon);
 	}
 
 	// clean empty cart coupons
-	$empty_cart_coupons = array_values(array_filter(yf_get_empty_cart_coupons(), fn($c) => !in_array($c, $coupon_steps)));
+	$empty_cart_coupons = array_values(array_filter(yf_get_empty_cart_coupons(), fn ($c) => !in_array($c, $coupon_steps)));
 	yf_save_empty_cart_coupons($empty_cart_coupons);
 }

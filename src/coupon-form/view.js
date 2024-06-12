@@ -38,44 +38,49 @@ import useStore from "store";
  * Coupon Form
  */
 
-function CouponTotals(){
-	const {
-		totalPrice,
-		totalSalePrice,
-		totalDiscountPrice,
-		wc_price
-	} = useStore((state) => ({
-		totalPrice: state.totalPrice,
-		totalSalePrice: state.totalSalePrice,
-		totalDiscountPrice: state.totalDiscountPrice,
-		wc_price: state.wc_price
-	}));
+function CouponTotals() {
+	const { totalPrice, totalSalePrice, totalDiscountPrice, wc_price } = useStore(
+		(state) => ({
+			totalPrice: state.totalPrice,
+			totalSalePrice: state.totalSalePrice,
+			totalDiscountPrice: state.totalDiscountPrice,
+			wc_price: state.wc_price,
+		}),
+	);
 
-	if(!totalPrice) return;
+	if (!totalPrice) return;
 
 	return (
-		<div className={'coupon-cart-totals-wrap'}>
-			Order total:
-			<div className={'coupon-totals'}>
+		<div className={"coupon-cart-totals-wrap"}>
+			<div className={"coupon-totals flex justify-evenly"}>
 				{totalSalePrice > 0 && totalSalePrice < totalPrice ? (
 					<>
-						<del aria-hidden="true"><span className="woocommerce-Price-amount amount"><bdi>{wc_price(totalPrice, false)}</bdi></span></del>
-						<span className="woocommerce-Price-amount amount"><bdi>{wc_price(totalSalePrice, false)}</bdi></span>
-						<span className={'discount-amount'}><span className="woocommerce-Price-amount amount"><bdi>{wc_price(totalDiscountPrice, false)}</bdi></span></span>
+						<del aria-hidden="true">
+							<span className="woocommerce-Price-amount amount">
+								<bdi>{wc_price(totalPrice, false)}</bdi>
+							</span>
+						</del>
+						<span className="woocommerce-Price-amount amount">
+							<bdi>Total: {wc_price(totalSalePrice, false)}</bdi>
+						</span>
+						<span className={"discount-amount"}>
+							<span className="woocommerce-Price-amount amount">
+								<bdi>Save: {wc_price(totalDiscountPrice, false)}</bdi>
+							</span>
+						</span>
 					</>
 				) : (
-					<span className="woocommerce-Price-amount amount"><bdi>{wc_price(totalPrice, false)}</bdi></span>
+					<span className="woocommerce-Price-amount amount">
+						<bdi>{wc_price(totalPrice, false)}</bdi>
+					</span>
 				)}
 			</div>
 		</div>
-	)
+	);
 }
 
 function FormComponent() {
-	const {
-		applyCoupon,
-		cartCoupons
-	} = useStore((state) => ({
+	const { applyCoupon, cartCoupons } = useStore((state) => ({
 		applyCoupon: state.applyCoupon,
 		cartCoupons: state.cartCoupons,
 	}));
@@ -92,20 +97,22 @@ function FormComponent() {
 	const handleSubmit = async (event) => {
 		event.preventDefault(); // Prevent the default form submit action
 		setFormErrorText("");
-		applyCoupon(inputValue).then((res) => {
-			if(res){
-				setIsSubmitted(true);
-			}
-		}).catch((err) => {
-			setFormErrorText(err.message);
-		});
-		 // Set the submission flag to true
+		applyCoupon(inputValue)
+			.then((res) => {
+				if (res) {
+					setIsSubmitted(true);
+				}
+			})
+			.catch((err) => {
+				setFormErrorText(err.message);
+			});
+		// Set the submission flag to true
 		// alert(`Submitted value: ${inputValue}`); // Display alert with current input value
 	};
 
 	return (
-		<div className="p-2 bg-green-300">
-			<form className="flex" onSubmit={handleSubmit}>
+		<div className="p-2 bg-green-300 rounded">
+			<form className="flex justify-center" onSubmit={handleSubmit}>
 				{!isSubmitted && !appliedCouponsCodes.length ? (
 					<>
 						<input
@@ -120,12 +127,17 @@ function FormComponent() {
 						</button>
 					</>
 				) : (
-					<p>Coupon code is applied: {appliedCouponsCodes.join(', ')}</p>
+					<p>Coupon code is applied: {appliedCouponsCodes.join(", ")}</p>
 				)}
 			</form>
 			{formErrorText.length > 0 ? (
-				<p className={'wc-block-components-validation-error'} dangerouslySetInnerHTML={{ __html: formErrorText }} />
-			) : ''}
+				<p
+					className={"wc-block-components-validation-error"}
+					dangerouslySetInnerHTML={{ __html: formErrorText }}
+				/>
+			) : (
+				""
+			)}
 			<CouponTotals />
 		</div>
 	);
@@ -134,8 +146,8 @@ function FormComponent() {
 // const jsonDataElement = document.querySelector(".total-cart-data");
 // const jsonData = JSON.parse(jsonDataElement.textContent || "{}");
 const htmlElement = document.querySelector("#root-coupon-form");
-if(htmlElement) {
+if (htmlElement) {
 	ReactDOM.createRoot(document.querySelector("#root-coupon-form")).render(
-		<FormComponent/>,
+		<FormComponent />,
 	);
 }

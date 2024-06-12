@@ -73,10 +73,10 @@ function InfoBox({ selectedProductTitle, selectedProductPrice }) {
 	};
 	return (
 		<div className="flex items-center w-full mt-2 gap-x-4 h-14">
-			<div className="text-xl basis-1/5">
+			<div className="text-xl basis-3/8">
 				<PriceComponent html={selectedProductPrice} />
 			</div>
-			<div className="leading-snug basis-4/5">{selectedProductTitle}</div>
+			<div className="leading-snug basis-5/8">{selectedProductTitle}</div>
 		</div>
 	);
 }
