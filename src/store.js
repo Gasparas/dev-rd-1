@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import apiFetch from "@wordpress/api-fetch";
-import {throttle} from "lodash"
+import { throttle } from "lodash";
 
 // Utility debounce function
 function debounce(func, wait) {
@@ -16,10 +16,10 @@ function debounce(func, wait) {
 }
 
 // Fix missing global func
-if(typeof window.throttle === "undefined"){
+if (typeof window.throttle === "undefined") {
 	window.throttle = throttle;
 }
-if(typeof window.debounce === "undefined"){
+if (typeof window.debounce === "undefined") {
 	window.debounce = debounce;
 }
 
@@ -79,7 +79,8 @@ window.myGlobalStore =
 						currency_prefix: cart.totals.currency_prefix,
 						currency_suffix: cart.totals.currency_suffix,
 						currency_symbol: cart.totals.currency_symbol,
-						currency_thousand_separator: cart.totals.currency_thousand_separator,
+						currency_thousand_separator:
+							cart.totals.currency_thousand_separator,
 					},
 					cartCoupons: cart.coupons,
 					error: "",
@@ -103,18 +104,21 @@ window.myGlobalStore =
 				currency_prefix,
 				currency_suffix,
 				currency_symbol,
-				currency_thousand_separator
+				currency_thousand_separator,
 			} = get().currencyData;
 
 			const roundedPrice = price.toFixed(currency_minor_unit);
-			const [integerPart, decimalPart] = roundedPrice.split('.');
-			const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, currency_thousand_separator);
+			const [integerPart, decimalPart] = roundedPrice.split(".");
+			const formattedIntegerPart = integerPart.replace(
+				/\B(?=(\d{3})+(?!\d))/g,
+				currency_thousand_separator,
+			);
 			let formattedPrice = currency_prefix + formattedIntegerPart;
 			if (decimalPart) {
 				formattedPrice += currency_decimal_separator + decimalPart;
 			}
 			formattedPrice += currency_suffix;
-			if(!wrapped) return formattedPrice;
+			if (!wrapped) return formattedPrice;
 
 			return `<span class="woocommerce-Price-amount amount"><bdi>${formattedPrice}</bdi></span>`;
 		},
@@ -144,6 +148,10 @@ window.myGlobalStore =
 							method: "POST",
 							data: { id: productId, quantity: quantityToAdd },
 						});
+
+						// Dispatch custom event to update the mini-cart
+						const event = new Event("added_to_cart");
+						document.dispatchEvent(event);
 
 						// Reset the count for productId after adding
 						set((state) => ({
@@ -240,9 +248,9 @@ window.myGlobalStore =
 				// setAppliedCoupon(couponCode); // Update component state
 				// Clear any existing error
 				// setError("");
-				set({triggerUpdateProductDisplayPrices: true});
+				set({ triggerUpdateProductDisplayPrices: true });
 				setTimeout(() => {
-					set({triggerUpdateProductDisplayPrices: false});
+					set({ triggerUpdateProductDisplayPrices: false });
 				}, 200);
 				set({
 					totalPrice: parseFloat(response.totals.total_items) / 100,
@@ -250,15 +258,17 @@ window.myGlobalStore =
 					totalDiscountPrice: parseFloat(response.totals.total_discount) / 100,
 					currencyData: {
 						currency_code: response.totals.currency_code,
-						currency_decimal_separator: response.totals.currency_decimal_separator,
+						currency_decimal_separator:
+							response.totals.currency_decimal_separator,
 						currency_minor_unit: response.totals.currency_minor_unit,
 						currency_prefix: response.totals.currency_prefix,
 						currency_suffix: response.totals.currency_suffix,
 						currency_symbol: response.totals.currency_symbol,
-						currency_thousand_separator: response.totals.currency_thousand_separator,
+						currency_thousand_separator:
+							response.totals.currency_thousand_separator,
 					},
 					cartCoupons: response.coupons,
-				})
+				});
 				return response; // Return response for potential chaining
 			} catch (error) {
 				console.error(`Error applying coupon ${couponCode}:`, error);

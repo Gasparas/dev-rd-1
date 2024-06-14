@@ -5,5 +5,5 @@ module.exports = {
 		extend: {},
 	},
 	plugins: [],
-	safelist: ["sticky", "top-1"],
+	safelist: ["z-50", "sticky", "fixed", "top-1", "top-2", "bottom-2"],
 };

@@ -72,11 +72,11 @@ function InfoBox({ selectedProductTitle, selectedProductPrice }) {
 		return <span dangerouslySetInnerHTML={{ __html: html }} />;
 	};
 	return (
-		<div className="flex items-center w-full mt-2 gap-x-4 h-14">
-			<div className="text-xl basis-3/8">
+		<div className="max-w-[360px] flex items-center w-full justify-start gap-x-3 h-14">
+			<div className="w-24 text-xl">
 				<PriceComponent html={selectedProductPrice} />
 			</div>
-			<div className="leading-snug basis-5/8">{selectedProductTitle}</div>
+			<div className="leading-snug w-max">{selectedProductTitle}</div>
 		</div>
 	);
 }
@@ -221,7 +221,7 @@ function ProductDisplay({ productsSkus }) {
 
 	return (
 		<div
-			className="mb-14 product-wrapper"
+			className="mb-14 product-wrapper gap-y-4"
 			style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
 		>
 			<ProductGallery
@@ -233,11 +233,11 @@ function ProductDisplay({ productsSkus }) {
 				selectedProductTitle={selectedProductTitle}
 				selectedProductPrice={selectedProductPrice}
 			/>
-			<TogglerBox
+			{/* <TogglerBox
 				products={products}
 				onProductSelect={handleProductSelect}
 				selectedProductId={selectedProductId}
-			/>
+			/> */}
 			<AdjusterBox
 				product={selectedProduct}
 				isDisabled={isLoading || productsResetInprogress}

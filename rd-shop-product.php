@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Plugin Name:       Rd Shop Product 2
+ * Plugin Name:       Royal Denta Shop
  * Description:       Example block scaffolded with Create Block tool.
  * Requires at least: 6.1
  * Requires PHP:      7.0
- * Version:           0.9.02`
+ * Version:           0.9.08
  * Author:            The WordPress Contributors
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -39,6 +39,7 @@ function rd_register_multiple_blocks()
 	$blocks = array(
 		'product-display' => '',
 		'total-cart'  => '',
+		'checkout-bar'  => '',
 		'step-indicator'  => '',
 		'coupon-form'  => '',
 		'conditional-wrapper'  => 'dynamic_container_render_callback',
@@ -63,9 +64,9 @@ function dynamic_container_render_callback($attributes, $content)
 	$roles_array = array_map('trim', explode(',', $roles_string));
 
 	if (is_user_logged_in() && is_user_in_roles($roles_array)) {
-		return '<div class="sticky top-1">' . $content . '</div>';
+		return '<div id="conditional-wrapper" class="sticky top-1">' . $content . '</div>';
 	} elseif (!is_user_logged_in() && in_array('visitor', $roles_array)) {
-		return '<div class="sticky top-1">' . $content . '</div>';
+		return '<div id="conditional-wrapper" class="sticky top-1">' . $content . '</div>';
 	}
 }
 
@@ -152,7 +153,7 @@ function yf_recalc_product_price_with_coupon_data($price, $product)
 	$sale_price = $product_price - $discount_amount;
 
 	return sprintf(
-		'<del aria-hidden="true">%s</del><br>%s<span aria-hidden="true" class="discount-amount"><br>%s</span>',
+		'<del aria-hidden="true">%s</del><br>%s<span aria-hidden="true" class="discount-amount"><br></span>',
 		wc_price($product_price),
 		wc_price($sale_price),
 		wc_price($discount_amount)

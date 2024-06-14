@@ -33,6 +33,7 @@ import {
 } from "@wordpress/element";
 import apiFetch from "@wordpress/api-fetch";
 import useStore from "store";
+import { Check } from "lucide-react";
 
 /**
  * Coupon Form
@@ -111,34 +112,42 @@ function FormComponent() {
 	};
 
 	return (
-		<div className="p-2 bg-green-300 rounded">
-			<form className="flex justify-center" onSubmit={handleSubmit}>
+		<div className="p-2 rounded bg-amber-200">
+			<form className="flex justify-center gap-x-2" onSubmit={handleSubmit}>
 				{!isSubmitted && !appliedCouponsCodes.length ? (
 					<>
 						<input
-							className="px-2 basis-2/3"
+							className="px-1 text-base font-light rounded basis-4/6"
 							type="text"
-							placeholder="Coupon code"
+							placeholder="Wprowadź kod rabatowy"
 							value={inputValue}
 							onChange={handleChange}
 						/>
-						<button className="text-center basis-1/3" type="submit">
-							Apply
+						<button
+							className="px-2 text-base font-medium text-center uppercase transition-all bg-white hover:text-white hover:bg-sky-700 w-3/8 rounded-xl text-sky-900 basis-2/6"
+							type="submit"
+						>
+							Aktywuj
 						</button>
 					</>
 				) : (
-					<p>Coupon code is applied: {appliedCouponsCodes.join(", ")}</p>
+					<>
+						<p className="text-base uppercase text-sky-900">
+							Kod rabatowy: {appliedCouponsCodes.join(", ")}
+						</p>
+						<Check color="#0c4a6e" />
+					</>
 				)}
 			</form>
-			{formErrorText.length > 0 ? (
+			{/* {formErrorText.length > 0 ? (
 				<p
 					className={"wc-block-components-validation-error"}
 					dangerouslySetInnerHTML={{ __html: formErrorText }}
 				/>
 			) : (
 				""
-			)}
-			<CouponTotals />
+			)} */}
+			{/* <CouponTotals /> */}
 		</div>
 	);
 }
