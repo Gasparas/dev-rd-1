@@ -30,12 +30,14 @@ import { useState, useEffect } from "@wordpress/element";
  */
 const CheckoutBar = ({ data }) => {
 	const {
+		shippingTotal,
 		totalQuantity,
 		totalPrice,
 		totalSalePrice,
 		totalDiscountPrice,
 		wc_price,
 	} = useStore((state) => ({
+		shippingTotal: state.shippingTotal,
 		totalQuantity: state.totalQuantity,
 		totalPrice: state.totalPrice,
 		totalSalePrice: state.totalSalePrice,
@@ -79,8 +81,13 @@ const CheckoutBar = ({ data }) => {
 	return (
 		<>
 			{showTooltip && (
-				<div className="w-full px-4 py-1 mb-2 text-red-500 bg-white border border-blue-500 rounded bottom-full">
+				<div className="w-full px-4 py-0 mb-2 text-red-500 bg-white border border-blue-500 rounded bottom-full">
 					Twój koszyk jest pusty
+				</div>
+			)}
+			{totalPrice > 0 && (
+				<div className="flex justify-end px-4 py-0 mb-1 bg-white border border-gray-400 rounded float-end w-fit">
+					Wysyłka {shippingTotal > 0 ? shippingTotal + "zł" : "BEZPŁATNIE"}
 				</div>
 			)}
 			<a
@@ -88,9 +95,9 @@ const CheckoutBar = ({ data }) => {
 				href={totalQuantity > 0 ? checkoutUrl : null}
 				onClick={handleClick}
 			>
-				<div className="flex items-center justify-between w-full px-4 py-3 text-lg text-white no-underline bg-blue-500 rounded">
+				<div className="flex items-center justify-between w-full px-4 py-4 text-lg text-white no-underline bg-blue-500 rounded">
 					<div className="flex items-center">
-						<span className="flex items-center justify-center w-5 h-5 mr-2 bg-white rounded-full text-sky-900">
+						<span className="flex items-center justify-center w-6 h-6 mr-2 bg-white rounded-full text-sky-900">
 							{totalQuantity}
 						</span>
 						Zobacz zamówienie
