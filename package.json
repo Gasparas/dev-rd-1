@@ -1,6 +1,6 @@
 {
 	"name": "rd-shop-product",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Example block scaffolded with Create Block tool.",
 	"author": "The WordPress Contributors",
 	"license": "GPL-2.0-or-later",
@@ -18,18 +18,25 @@
 		"test": "wp-scripts build --config webpack.config.js"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^27.4.0",
+		"@wordpress/scripts": "28.1.0",
 		"autoprefixer": "^10.4.19",
 		"browser-sync": "^3.0.2",
 		"concurrently": "^8.2.2",
 		"postcss": "^8.4.38",
 		"tailwindcss": "^3.4.3"
 	},
+	"resolutions": {
+		"ws": "8.12.0",
+		"puppeteer-core": "21.0.0",
+		"glob": "10.4.2",
+		"rimraf": "5.0.7",
+		"core-js": "3.37.1"
+	},
 	"dependencies": {
-		"glob": "^10.3.12",
 		"lodash": "^4.17.21",
-		"lucide-react": "^0.365.0",
-		"uuid": "^9.0.1",
+		"lucide-react": "0.396.0",
+		"react": "^18.3.1",
+		"uuid": "10.0.0",
 		"zustand": "^4.5.2"
 	}
 }
