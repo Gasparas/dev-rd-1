@@ -24,12 +24,14 @@ console.log("checkout-bar view.js");
 
 import useStore from "store";
 import { useState, useEffect } from "@wordpress/element";
+import { Truck, Gift } from "lucide-react";
 
 /**
  * CheckoutBar
  */
 const CheckoutBar = ({ data }) => {
 	const {
+		currencyData,
 		shippingTotal,
 		totalQuantity,
 		totalPrice,
@@ -38,6 +40,7 @@ const CheckoutBar = ({ data }) => {
 		totalSalePriceMinusShipping,
 		wc_price,
 	} = useStore((state) => ({
+		currencyData: state.currencyData,
 		shippingTotal: state.shippingTotal,
 		totalQuantity: state.totalQuantity,
 		totalPrice: state.totalPrice,
@@ -46,6 +49,8 @@ const CheckoutBar = ({ data }) => {
 		totalSalePriceMinusShipping: state.totalSalePriceMinusShipping,
 		wc_price: state.wc_price,
 	}));
+
+	const currency = " zł";
 
 	// useEffect(() => {
 	// 	console.log("CheckoutBar component re-rendered");
@@ -101,32 +106,48 @@ const CheckoutBar = ({ data }) => {
 				</div>
 			)}
 			{totalSalePriceMinusShipping > 0 && (
-				<div className="flex justify-end px-4 py-0 mb-1 bg-white border border-gray-400 rounded float-end w-fit">
-					Wysyłka {shippingTotal > 0 ? shippingTotal + " zł" : "BEZPŁATNIE"}
-				</div>
+				<>
+					<div className="flex items-center justify-end px-3 py-0 mb-1 bg-white border border-gray-400 rounded float-end w-fit">
+						Wysyłka{" "}
+						{shippingTotal > 0 ? (
+							shippingTotal + " zł"
+						) : (
+							<span className="contents text-[#23b500]">
+								BEZPŁATNIE
+								<span className="ml-0.5">
+									<Gift size={18} color="#23b500" />
+								</span>
+							</span>
+						)}{" "}
+					</div>
+				</>
 			)}
 			<a
 				className="w-full cursor-pointer"
 				href={totalQuantity > 0 ? checkoutUrl : null}
 				onClick={handleClick}
 			>
-				<div className="flex items-center justify-between w-full px-4 py-4 text-lg text-white no-underline bg-blue-500 rounded">
+				<div className="flex items-center justify-between w-full px-3 py-4 text-lg text-white no-underline bg-blue-500 rounded gap-x-1">
 					<div className="flex items-center">
 						<span className="flex items-center justify-center w-6 h-6 mr-2 bg-white rounded-full text-sky-900">
 							{totalQuantity}
 						</span>
-						Zobacz zamówienie
+						<p className="leading-5 ">Zobacz zamówienie</p>
 					</div>
 					<div>
 						{totalPriceMinusShipping != totalSalePriceMinusShipping ? (
-							<div>
+							<div className="flex flex-wrap justify-end gap-x-1">
 								<span className="line-through">
-									{totalPriceMinusShipping} zł
+									{totalPriceMinusShipping} {currencyData.currency_symbol}
 								</span>{" "}
-								<span>{totalSalePriceMinusShipping} zł</span>
+								<span>
+									{totalSalePriceMinusShipping} {currencyData.currency_symbol}
+								</span>
 							</div>
 						) : (
-							<span>{totalSalePriceMinusShipping} zł</span>
+							<span>
+								{totalSalePriceMinusShipping} {currencyData.currency_symbol}
+							</span>
 						)}
 					</div>
 				</div>
