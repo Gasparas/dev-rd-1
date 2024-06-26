@@ -84,7 +84,7 @@ function InfoBox({ selectedProductTitle, selectedProductPrice }) {
 function TogglerBox({ products, onProductSelect, selectedProductId }) {
 	return (
 		<div className="flex gap-x-3">
-			{products.map((product) => (
+			{products.length > 1 && products.map((product) => (
 				<button
 					className="w-11 h-11"
 					key={product.id}
@@ -106,6 +106,7 @@ function TogglerBox({ products, onProductSelect, selectedProductId }) {
 		</div>
 	);
 }
+
 
 function AdjusterBox({product, isDisabled, onQuantityUpdate}){
 	const {
@@ -233,11 +234,11 @@ function ProductDisplay({ productsSkus }) {
 				selectedProductTitle={selectedProductTitle}
 				selectedProductPrice={selectedProductPrice}
 			/>
-			{/* <TogglerBox
+			<TogglerBox
 				products={products}
 				onProductSelect={handleProductSelect}
 				selectedProductId={selectedProductId}
-			/> */}
+			/>
 			<AdjusterBox
 				product={selectedProduct}
 				isDisabled={isLoading || productsResetInprogress}
