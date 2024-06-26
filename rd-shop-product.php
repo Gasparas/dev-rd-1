@@ -411,3 +411,54 @@ function manage_cart_coupons_by_step($cart_item_key, $quantity, $old_quantity, \
 	$empty_cart_coupons = array_values(array_filter(yf_get_empty_cart_coupons(), fn ($c) => !in_array($c, $coupon_steps)));
 	yf_save_empty_cart_coupons($empty_cart_coupons);
 }
+
+/**
+ * Custom endpoints
+ */
+
+class WC_Custom_Endpoints
+{
+	public function __construct()
+	{
+		add_action('rest_api_init', array($this, 'register_custom_endpoints'));
+	}
+
+	/**
+	 * Register custom endpoints.
+	 */
+	public function register_custom_endpoints()
+	{
+		register_rest_route('custom/v1', '/shipping-methods', array(
+			'methods' => 'GET',
+			'callback' => array($this, 'get_shipping_methods'),
+			'permission_callback' => '__return_true', // Allow unauthenticated access
+		));
+	}
+
+	/**
+	 * Callback to get shipping methods.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function get_shipping_methods()
+	{
+		$shipping_zone = new WC_Shipping_Zone(1); // Replace with appropriate zone ID
+		$shipping_methods = $shipping_zone->get_shipping_methods(true);
+
+		$methods = array();
+		foreach ($shipping_methods as $method) {
+			if ('flat_rate' === $method->id) {
+				$methods[] = array(
+					'id' => $method->id,
+					'title' => $method->get_title(),
+					'cost' => $method->get_instance_option('cost'),
+				);
+			}
+		}
+
+		return new WP_REST_Response($methods, 200);
+	}
+}
+
+// Instantiate the class
+new WC_Custom_Endpoints();
