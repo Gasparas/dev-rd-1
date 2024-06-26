@@ -47,18 +47,18 @@ const CheckoutBar = ({ data }) => {
 		wc_price: state.wc_price,
 	}));
 
-	useEffect(() => {
-		console.log("CheckoutBar component re-rendered");
-		console.log({
-			shippingTotal,
-			totalQuantity,
-			totalPrice,
-			totalPriceMinusShipping,
-			totalSalePrice,
-			totalSalePriceMinusShipping,
-			wc_price,
-		});
-	});
+	// useEffect(() => {
+	// 	console.log("CheckoutBar component re-rendered");
+	// 	console.log({
+	// 		shippingTotal,
+	// 		totalQuantity,
+	// 		totalPrice,
+	// 		totalPriceMinusShipping,
+	// 		totalSalePrice,
+	// 		totalSalePriceMinusShipping,
+	// 		wc_price,
+	// 	});
+	// });
 
 	const [checkoutUrl, setCheckoutUrl] = useState("");
 
