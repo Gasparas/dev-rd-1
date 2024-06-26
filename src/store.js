@@ -26,6 +26,12 @@ if (typeof window.debounce === "undefined") {
 const addProductToCartDebounced = {}; // Object to hold debounced functions by productId
 const removeProductFromCartDebounced = {}; // Object to hold debounced functions by productId
 
+const logVariables = (variables) => {
+	for (const [name, value] of Object.entries(variables)) {
+		console.log(`${name}:`, value);
+	}
+};
+
 // Attach the store to a global variable to ensure a single instance
 window.myGlobalStore =
 	window.myGlobalStore ||
@@ -83,19 +89,31 @@ window.myGlobalStore =
 				// Calculate total items price
 				const totalItems = parseFloat(cart.totals.total_items) / 100 || 0;
 				const totalPrice = parseFloat(cart.totals.total_price) / 100 || 0;
+				// const totalDiscountPrice = parseFloat(cart.totals.total_discount) / 100 || 0;
 
 				// Determine shipping cost based on threshold
 				const shippingTotal =
-					totalItems >= freeShippingThreshold ? 0 : flatRateCost;
+					totalPrice >= freeShippingThreshold ? 0 : flatRateCost;
+
+				const totalPriceMinusShipping = Math.max(totalItems, 0).toFixed(2);
+
+				const totalSalePriceMinusShipping = Math.max(
+					totalPrice - shippingTotal,
+					0,
+				).toFixed(2);
 
 				// Debugging: Log the full cart response and shipping method
-				console.log("Full Cart Response:", cart);
-				console.log("Flat Rate Method:", flatRateMethod);
-				console.log("Free Shipping Threshold:", freeShippingThreshold);
+				// console.log("Full Cart Response:", cart);
+				// console.log("Flat Rate Method:", flatRateMethod);
+				// console.log("Free Shipping Threshold:", freeShippingThreshold);
 
-				const totalPriceMinusShipping =
-					parseFloat(cart.totals.total_price) / 100 - shippingTotal || 0;
-				const totalDiscount = parseFloat(cart.totals.total_discount) || 0;
+				logVariables({
+					shippingTotal,
+					totalPriceMinusShipping,
+					totalSalePriceMinusShipping,
+					totalItems,
+					totalPrice,
+				});
 
 				// Set the state with the extracted values
 				set({
@@ -105,9 +123,11 @@ window.myGlobalStore =
 						0,
 					),
 					totalPrice: totalItems,
+					totalPriceMinusShipping: totalPriceMinusShipping,
 					totalSalePrice: totalPrice,
-					totalDiscountPrice: totalDiscount / 100,
-					shippingTotal: shippingTotal, // Adding shipping total to the state
+					totalSalePriceMinusShipping: totalSalePriceMinusShipping,
+					// totalDiscountPrice: totalDiscountPrice,
+					shippingTotal: shippingTotal,
 					currencyData: {
 						currency_code: cart.totals.currency_code,
 						currency_decimal_separator: cart.totals.currency_decimal_separator,
@@ -123,7 +143,7 @@ window.myGlobalStore =
 				});
 
 				// Debugging: Log the shipping total
-				console.log("Shipping Total (Flat Rate or Free):", shippingTotal);
+				// console.log("Shipping Total (Flat Rate or Free):", shippingTotal);
 			} catch (err) {
 				console.error("Error fetching cart:", err);
 				set({ error: "Failed to fetch cart." });

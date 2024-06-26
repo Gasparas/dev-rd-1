@@ -33,15 +33,17 @@ const CheckoutBar = ({ data }) => {
 		shippingTotal,
 		totalQuantity,
 		totalPrice,
+		totalPriceMinusShipping,
 		totalSalePrice,
-		totalDiscountPrice,
+		totalSalePriceMinusShipping,
 		wc_price,
 	} = useStore((state) => ({
 		shippingTotal: state.shippingTotal,
 		totalQuantity: state.totalQuantity,
 		totalPrice: state.totalPrice,
+		totalPriceMinusShipping: state.totalPriceMinusShipping,
 		totalSalePrice: state.totalSalePrice,
-		totalDiscountPrice: state.totalDiscountPrice,
+		totalSalePriceMinusShipping: state.totalSalePriceMinusShipping,
 		wc_price: state.wc_price,
 	}));
 
@@ -85,7 +87,7 @@ const CheckoutBar = ({ data }) => {
 					Twój koszyk jest pusty
 				</div>
 			)}
-			{totalPrice > 0 && (
+			{totalSalePriceMinusShipping > 0 && (
 				<div className="flex justify-end px-4 py-0 mb-1 bg-white border border-gray-400 rounded float-end w-fit">
 					Wysyłka {shippingTotal > 0 ? shippingTotal + "zł" : "BEZPŁATNIE"}
 				</div>
@@ -103,13 +105,13 @@ const CheckoutBar = ({ data }) => {
 						Zobacz zamówienie
 					</div>
 					<div>
-						{totalPrice != totalSalePrice ? (
+						{totalPriceMinusShipping != totalSalePriceMinusShipping ? (
 							<div>
-								<span className="line-through">{totalPrice} zł</span>{" "}
-								<span>{totalSalePrice} zł</span>
+								<span className="line-through">{totalPriceMinusShipping} zł</span>{" "}
+								<span>{totalSalePriceMinusShipping} zł</span>
 							</div>
 						) : (
-							<span>{totalSalePrice} zł</span>
+							<span>{totalSalePriceMinusShipping} zł</span>
 						)}
 					</div>
 				</div>
