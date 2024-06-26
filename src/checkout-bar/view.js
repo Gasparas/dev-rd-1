@@ -47,6 +47,19 @@ const CheckoutBar = ({ data }) => {
 		wc_price: state.wc_price,
 	}));
 
+	useEffect(() => {
+		console.log("CheckoutBar component re-rendered");
+		console.log({
+			shippingTotal,
+			totalQuantity,
+			totalPrice,
+			totalPriceMinusShipping,
+			totalSalePrice,
+			totalSalePriceMinusShipping,
+			wc_price,
+		});
+	});
+
 	const [checkoutUrl, setCheckoutUrl] = useState("");
 
 	useEffect(() => {
@@ -89,7 +102,7 @@ const CheckoutBar = ({ data }) => {
 			)}
 			{totalSalePriceMinusShipping > 0 && (
 				<div className="flex justify-end px-4 py-0 mb-1 bg-white border border-gray-400 rounded float-end w-fit">
-					Wysyłka {shippingTotal > 0 ? shippingTotal + "zł" : "BEZPŁATNIE"}
+					Wysyłka {shippingTotal > 0 ? shippingTotal + " zł" : "BEZPŁATNIE"}
 				</div>
 			)}
 			<a
@@ -107,7 +120,9 @@ const CheckoutBar = ({ data }) => {
 					<div>
 						{totalPriceMinusShipping != totalSalePriceMinusShipping ? (
 							<div>
-								<span className="line-through">{totalPriceMinusShipping} zł</span>{" "}
+								<span className="line-through">
+									{totalPriceMinusShipping} zł
+								</span>{" "}
 								<span>{totalSalePriceMinusShipping} zł</span>
 							</div>
 						) : (

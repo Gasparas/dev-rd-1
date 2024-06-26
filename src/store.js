@@ -71,16 +71,16 @@ window.myGlobalStore =
 
 				// Fetch shipping methods to get flat rate
 				const shippingMethods = await apiFetch({
-					path: "/wc/v3/shipping/zones/1/methods",
+					path: "/custom/v1/shipping-methods",
 					method: "GET",
 				});
 
 				// Find the flat rate method and extract its cost
 				const flatRateMethod = shippingMethods.find(
-					(method) => method.method_id === "flat_rate",
+					(method) => method.id === "flat_rate",
 				);
 				const flatRateCost = flatRateMethod
-					? parseFloat(flatRateMethod.settings.cost.value)
+					? parseFloat(flatRateMethod.cost)
 					: 0;
 
 				// Access the threshold value from localized script data
@@ -102,18 +102,7 @@ window.myGlobalStore =
 					0,
 				).toFixed(2);
 
-				// Debugging: Log the full cart response and shipping method
-				// console.log("Full Cart Response:", cart);
-				// console.log("Flat Rate Method:", flatRateMethod);
-				// console.log("Free Shipping Threshold:", freeShippingThreshold);
-
-				logVariables({
-					shippingTotal,
-					totalPriceMinusShipping,
-					totalSalePriceMinusShipping,
-					totalItems,
-					totalPrice,
-				});
+				logVariables({ totalPriceMinusShipping, totalSalePriceMinusShipping });
 
 				// Set the state with the extracted values
 				set({
@@ -147,6 +136,170 @@ window.myGlobalStore =
 			} catch (err) {
 				console.error("Error fetching cart:", err);
 				set({ error: "Failed to fetch cart." });
+			}
+		},
+
+		applyCoupon: async (couponCode) => {
+			console.log(`Applying coupon: ${couponCode}`);
+			try {
+				// Fetch the cart data
+				
+				// Post couppon code
+				const response = await apiFetch({
+					path: "/wc/store/v1/cart/apply-coupon",
+					method: "POST",
+					data: { code: couponCode },
+				});
+				console.log(`Coupon ${couponCode} applied.`);
+				
+				const cart = await apiFetch({ path: "/wc/store/cart" });
+				
+				// Fetch shipping methods to get flat rate
+				const shippingMethods = await apiFetch({
+					path: "/custom/v1/shipping-methods",
+					method: "GET",
+				});
+
+				// Find the flat rate method and extract its cost
+				const flatRateMethod = shippingMethods.find(
+					(method) => method.id === "flat_rate",
+				);
+				const flatRateCost = flatRateMethod
+					? parseFloat(flatRateMethod.cost)
+					: 0;
+
+				// Access the threshold value from localized script data
+				const freeShippingThreshold = wc_free_shipping_data.threshold;
+
+				const totalItems = parseFloat(cart.totals.total_items) / 100 || 0;
+				const totalPrice = parseFloat(cart.totals.total_price) / 100 || 0;
+
+				// Determine shipping cost based on threshold
+				const shippingTotal =
+					totalPrice >= freeShippingThreshold ? 0 : flatRateCost;
+
+				const totalSalePriceMinusShipping = Math.max(
+					totalPrice - shippingTotal,
+					0,
+				).toFixed(2);
+
+				const totalPriceMinusShipping = Math.max(totalItems, 0).toFixed(2);
+
+				// setAppliedCoupon(couponCode); // Update component state
+				// Clear any existing error
+				// setError("");
+				set({ triggerUpdateProductDisplayPrices: true });
+				setTimeout(() => {
+					set({ triggerUpdateProductDisplayPrices: false });
+				}, 200);
+
+				logVariables({ totalPriceMinusShipping, totalSalePriceMinusShipping });
+
+				set({
+					totalPrice: parseFloat(response.totals.total_items) / 100,
+					totalPriceMinusShipping: totalPriceMinusShipping,
+					totalSalePrice: parseFloat(response.totals.total_price) / 100,
+					totalSalePriceMinusShipping: totalSalePriceMinusShipping,
+					totalDiscountPrice: parseFloat(response.totals.total_discount) / 100,
+					currencyData: {
+						currency_code: response.totals.currency_code,
+						currency_decimal_separator:
+							response.totals.currency_decimal_separator,
+						currency_minor_unit: response.totals.currency_minor_unit,
+						currency_prefix: response.totals.currency_prefix,
+						currency_suffix: response.totals.currency_suffix,
+						currency_symbol: response.totals.currency_symbol,
+						currency_thousand_separator:
+							response.totals.currency_thousand_separator,
+					},
+					cartCoupons: response.coupons,
+				});
+				return response; // Return response for potential chaining
+			} catch (error) {
+				console.error(`Error applying coupon ${couponCode}:`, error);
+				// setError(`Failed to apply coupon ${couponCode}.`); // Update component state with error
+				throw error; // Re-throw to allow catch chaining elsewhere
+			}
+		},
+
+		applyCouponNew: async (couponCode) => {
+			console.log(`Applying coupon: ${couponCode}`);
+			try {
+				const response = await apiFetch({
+					path: "/wc/store/v1/cart/apply-coupon",
+					method: "POST",
+					data: { code: couponCode },
+				});
+				console.log(`Coupon ${couponCode} applied.`);
+
+				// Fetch shipping methods to get flat rate
+				const shippingMethodsResponse = await apiFetch({
+					path: "/custom/v1/shipping-methods",
+					method: "GET",
+				});
+				const shippingMethods = await shippingMethodsResponse.json();
+
+				// Find the flat rate method and extract its cost
+				const flatRateMethod = shippingMethods.find(
+					(method) => method.id === "flat_rate",
+				);
+				const flatRateCost = flatRateMethod
+					? parseFloat(flatRateMethod.cost)
+					: 0;
+
+				// Access the threshold value from localized script data
+				const freeShippingThreshold = wc_free_shipping_data.threshold;
+
+				// Calculate total items price
+				const totalItems = parseFloat(cart.totals.total_items) / 100 || 0;
+				const totalPrice = parseFloat(cart.totals.total_price) / 100 || 0;
+
+				// Determine shipping cost based on threshold
+				const shippingTotal =
+					totalPrice >= freeShippingThreshold ? 0 : flatRateCost;
+
+				const totalPriceMinusShipping = Math.max(totalItems, 0).toFixed(2);
+
+				const totalSalePriceMinusShipping = Math.max(
+					totalPrice - shippingTotal,
+					0,
+				).toFixed(2);
+
+				set({ triggerUpdateProductDisplayPrices: true });
+				setTimeout(() => {
+					set({ triggerUpdateProductDisplayPrices: false });
+				}, 200);
+
+				// Set the state with the extracted values
+				set({
+					cartProducts: cart.items,
+					totalQuantity: cart.items.reduce(
+						(acc, item) => acc + item.quantity,
+						0,
+					),
+					totalPrice: totalItems,
+					totalPriceMinusShipping: totalPriceMinusShipping,
+					totalSalePrice: totalPrice,
+					totalSalePriceMinusShipping: totalSalePriceMinusShipping,
+					shippingTotal: shippingTotal,
+					currencyData: {
+						currency_code: cart.totals.currency_code,
+						currency_decimal_separator: cart.totals.currency_decimal_separator,
+						currency_minor_unit: cart.totals.currency_minor_unit,
+						currency_prefix: cart.totals.currency_prefix,
+						currency_suffix: cart.totals.currency_suffix,
+						currency_symbol: cart.totals.currency_symbol,
+						currency_thousand_separator:
+							cart.totals.currency_thousand_separator,
+					},
+					cartCoupons: cart.coupons,
+					error: "",
+				});
+
+				return response; // Return response for potential chaining
+			} catch (error) {
+				console.error(`Error applying coupon ${couponCode}:`, error);
+				throw error; // Re-throw to allow catch chaining elsewhere
 			}
 		},
 
@@ -288,47 +441,6 @@ window.myGlobalStore =
 			}
 
 			removeProductFromCartDebounced[productId]();
-		},
-
-		applyCoupon: async (couponCode) => {
-			console.log(`Applying coupon: ${couponCode}`);
-			try {
-				const response = await apiFetch({
-					path: "/wc/store/v1/cart/apply-coupon",
-					method: "POST",
-					data: { code: couponCode },
-				});
-				console.log(`Coupon ${couponCode} applied.`);
-				// setAppliedCoupon(couponCode); // Update component state
-				// Clear any existing error
-				// setError("");
-				set({ triggerUpdateProductDisplayPrices: true });
-				setTimeout(() => {
-					set({ triggerUpdateProductDisplayPrices: false });
-				}, 200);
-				set({
-					totalPrice: parseFloat(response.totals.total_items) / 100,
-					totalSalePrice: parseFloat(response.totals.total_price) / 100,
-					totalDiscountPrice: parseFloat(response.totals.total_discount) / 100,
-					currencyData: {
-						currency_code: response.totals.currency_code,
-						currency_decimal_separator:
-							response.totals.currency_decimal_separator,
-						currency_minor_unit: response.totals.currency_minor_unit,
-						currency_prefix: response.totals.currency_prefix,
-						currency_suffix: response.totals.currency_suffix,
-						currency_symbol: response.totals.currency_symbol,
-						currency_thousand_separator:
-							response.totals.currency_thousand_separator,
-					},
-					cartCoupons: response.coupons,
-				});
-				return response; // Return response for potential chaining
-			} catch (error) {
-				console.error(`Error applying coupon ${couponCode}:`, error);
-				// setError(`Failed to apply coupon ${couponCode}.`); // Update component state with error
-				throw error; // Re-throw to allow catch chaining elsewhere
-			}
 		},
 
 		triggerTotalCartUpdate: () => {
