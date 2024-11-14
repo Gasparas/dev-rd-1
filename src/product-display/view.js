@@ -21,11 +21,8 @@
  */
 
 import apiFetch from "@wordpress/api-fetch";
-import { addQueryArgs } from '@wordpress/url';
-import {
-	useState,
-	useEffect
-} from "@wordpress/element";
+import { addQueryArgs } from "@wordpress/url";
+import { useState, useEffect } from "@wordpress/element";
 import useStore from "store";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 
@@ -67,16 +64,44 @@ function ProductGallery({ selectedProductId, productsData }) {
 	);
 }
 
-function InfoBox({ selectedProductTitle, selectedProductPrice }) {
+function InfoBox({
+	selectedProductTitle,
+	selectedProductSalePrice,
+	selectedProductRegularPrice,
+	selectedProductQuantity,
+}) {
 	const PriceComponent = ({ html }) => {
 		return <span dangerouslySetInnerHTML={{ __html: html }} />;
 	};
+
 	return (
-		<div className="max-w-[360px] flex items-center w-full justify-start gap-x-3 h-14">
-			<div className="w-24 text-xl">
-				<PriceComponent html={selectedProductPrice} />
+		<div className="flex flex-col items-center justify-start w-full gap-x-3 gap-y-4">
+			<div className="block text-xl leading-snug text-center">
+				{selectedProductTitle}
 			</div>
-			<div className="leading-snug w-max">{selectedProductTitle}</div>
+			<div className="flex flex-row w-full text-xl gap-x-6">
+				<div className="flex flex-col text-sm basis-1/2">
+					<span>Rekomenduojama pardavimo kaina pacientui</span>{" "}
+					<span>(su PVM)</span>
+					<span className="line-through">
+						<PriceComponent
+							html={(() => {
+								const quantity = Math.max(1, selectedProductQuantity);
+								return selectedProductRegularPrice * quantity + " €";
+							})()}
+						/>
+					</span>
+				</div>
+				<div className="flex flex-col text-lg basis-1/2">
+					<span>Kaina specialistui</span> <span>(su PVM)</span>
+					<PriceComponent
+						html={(() => {
+							const quantity = Math.max(1, selectedProductQuantity);
+							return selectedProductSalePrice * quantity + " €";
+						})()}
+					/>
+				</div>
+			</div>
 		</div>
 	);
 }
@@ -84,68 +109,65 @@ function InfoBox({ selectedProductTitle, selectedProductPrice }) {
 function TogglerBox({ products, onProductSelect, selectedProductId }) {
 	return (
 		<div className="flex gap-x-3">
-			{products.length > 1 && products.map((product) => (
-				<button
-					className="w-11 h-11"
-					key={product.id}
-					onClick={() => onProductSelect(product.id)}
-					style={{
-						background: product.color,
-						borderRadius: "50%",
-						color: "white",
-						margin: "1em 0",
-						fontWeight: "bold",
-						outline:
-							product.id === selectedProductId ? "2px solid #3c82f6" : "none",
-						outlineOffset: "3px",
-					}}
-				>
-					{product.counterValue === 0 ? " " : product.counterValue}
-				</button>
-			))}
+			{products.length > 1 &&
+				products.map((product) => (
+					<button
+						className="w-11 h-11"
+						key={product.id}
+						onClick={() => onProductSelect(product.id)}
+						style={{
+							background: product.color,
+							borderRadius: "50%",
+							color: "white",
+							margin: "1em 0",
+							fontWeight: "bold",
+							outline:
+								product.id === selectedProductId ? "2px solid #3c82f6" : "none",
+							outlineOffset: "3px",
+						}}
+					>
+						{product.counterValue === 0 ? " " : product.counterValue}
+					</button>
+				))}
 		</div>
 	);
 }
 
-
-function AdjusterBox({product, isDisabled, onQuantityUpdate}){
-	const {
-		isLoading,
-		fetchCart,
-		addToCart,
-		remFromCart
-	} = useStore((store) => ({
-		isLoading: store.isLoading,
-		fetchCart: store.fetchCart,
-		addToCart: store.addToCart,
-		remFromCart: store.remFromCart,
-	}));
+function AdjusterBox({ product, isDisabled, onQuantityUpdate }) {
+	const { isLoading, fetchCart, addToCart, remFromCart } = useStore(
+		(store) => ({
+			isLoading: store.isLoading,
+			fetchCart: store.fetchCart,
+			addToCart: store.addToCart,
+			remFromCart: store.remFromCart,
+		}),
+	);
 
 	const [quantity, setQuantity] = useState(product.counterValue);
 
 	useEffect(() => {
-		if(quantity != product.counterValue) {
-			setQuantity(product.counterValue)
+		if (quantity != product.counterValue) {
+			setQuantity(product.counterValue);
 		}
-	}, [product.counterValue])
+	}, [product.counterValue]);
 
 	useEffect(() => {
-		if(!isLoading && quantity != product.counterValue) {
+		if (!isLoading && quantity != product.counterValue) {
 			onQuantityUpdate(quantity);
 		}
-	}, [isLoading])
+	}, [isLoading]);
 
 	const handleIncrement = () => {
-		setQuantity(quantity+1);
+		setQuantity(quantity + 1);
 		addToCart(product.id);
-	}
+	};
 
 	const handleDecrement = () => {
-		if(quantity > 0){
-			setQuantity(quantity-1);
+		if (quantity > 0) {
+			setQuantity(quantity - 1);
 			remFromCart(product.id);
 		}
-	}
+	};
 
 	return (
 		<div className="py-3 shadow-md rounded-md flex items-center justify-around w-44 font-bold bg-gray-300 [&>button]:bg-white [&>button]:rounded-full [&>button>svg]:m-auto [&>button]:h-8 [&>button]:w-8">
@@ -159,7 +181,7 @@ function AdjusterBox({product, isDisabled, onQuantityUpdate}){
 				<Plus size={20} strokeWidth={3} />
 			</button>
 		</div>
-	)
+	);
 }
 
 function ProductDisplay({ productsSkus }) {
@@ -167,25 +189,24 @@ function ProductDisplay({ productsSkus }) {
 	const [selectedProductId, setSelectedProductId] = useState(null);
 	const [productsResetInprogress, setProductsResetInprogress] = useState(false);
 
-	const {
-		isLoading,
-		fetchCart,
-		triggerUpdateProductDisplayPrices
-	} = useStore((store) => ({
-		isLoading: store.isLoading,
-		fetchCart: store.fetchCart,
-		triggerUpdateProductDisplayPrices: store.triggerUpdateProductDisplayPrices
-	}));
+	const { isLoading, fetchCart, triggerUpdateProductDisplayPrices } = useStore(
+		(store) => ({
+			isLoading: store.isLoading,
+			fetchCart: store.fetchCart,
+			triggerUpdateProductDisplayPrices:
+				store.triggerUpdateProductDisplayPrices,
+		}),
+	);
 
 	const resetProductsData = () => {
 		setProductsResetInprogress(true);
 		apiFetch({
-			path: addQueryArgs('/rd-shop-product/v1/block-product-display-data', {
-				skus: productsSkus
+			path: addQueryArgs("/rd-shop-product/v1/block-product-display-data", {
+				skus: productsSkus,
 			}),
-			method: 'GET'
-		}).then( ( res ) => {
-			if(res?.data){
+			method: "GET",
+		}).then((res) => {
+			if (res?.data) {
 				setProducts(res.data); // Directly use the data prop which is now an array
 				if (res.data.length > 0 && !selectedProductId) {
 					// Set the first product's ID as selected by default
@@ -193,8 +214,8 @@ function ProductDisplay({ productsSkus }) {
 				}
 			}
 			setProductsResetInprogress(false);
-		} );
-	}
+		});
+	};
 
 	useEffect(() => {
 		fetchCart();
@@ -202,10 +223,10 @@ function ProductDisplay({ productsSkus }) {
 	}, [productsSkus]);
 
 	useEffect(() => {
-		if(triggerUpdateProductDisplayPrices){
+		if (triggerUpdateProductDisplayPrices) {
 			resetProductsData();
 		}
-	}, [triggerUpdateProductDisplayPrices])
+	}, [triggerUpdateProductDisplayPrices]);
 
 	useEffect(() => {
 		const selectedProduct = products.find((p) => p.id === selectedProductId);
@@ -215,10 +236,19 @@ function ProductDisplay({ productsSkus }) {
 		setSelectedProductId(id);
 	};
 
-	const selectedProduct = products.find((p) => p.id === selectedProductId,);
+	const selectedProduct = products.find((p) => p.id === selectedProductId);
 	const selectedProductTitle = selectedProduct ? selectedProduct.title : "";
 	const selectedProductPrice = selectedProduct ? selectedProduct.price : "";
-	if(!selectedProductId) return <div/>
+	const selectedProductSalePrice = selectedProduct
+		? selectedProduct.sale_price
+		: "";
+	const selectedProductRegularPrice = selectedProduct
+		? selectedProduct.regular_price
+		: "";
+	const selectedProductQuantity = selectedProduct
+		? selectedProduct.counterValue
+		: "";
+	if (!selectedProductId) return <div />;
 
 	return (
 		<div
@@ -232,7 +262,9 @@ function ProductDisplay({ productsSkus }) {
 			<InfoBox
 				selectedProductId={selectedProductId}
 				selectedProductTitle={selectedProductTitle}
-				selectedProductPrice={selectedProductPrice}
+				selectedProductSalePrice={selectedProductSalePrice}
+				selectedProductRegularPrice={selectedProductRegularPrice}
+				selectedProductQuantity={selectedProductQuantity}
 			/>
 			<TogglerBox
 				products={products}
@@ -245,10 +277,12 @@ function ProductDisplay({ productsSkus }) {
 				onQuantityUpdate={resetProductsData}
 			/>
 		</div>
-	)
+	);
 }
 
 document.querySelectorAll(".react-container").forEach((container) => {
 	const jsonProductsSkus = JSON.parse(container.dataset?.products_skus || "[]");
-	ReactDOM.createRoot(container).render(<ProductDisplay productsSkus={jsonProductsSkus} />);
+	ReactDOM.createRoot(container).render(
+		<ProductDisplay productsSkus={jsonProductsSkus} />,
+	);
 });

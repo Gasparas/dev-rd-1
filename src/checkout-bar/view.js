@@ -102,18 +102,18 @@ const CheckoutBar = ({ data }) => {
 		<>
 			{showTooltip && (
 				<div className="w-full px-4 py-0 mb-2 text-red-500 bg-white border border-blue-500 rounded bottom-full">
-					Twój koszyk jest pusty
+					Jūsų krepšelis yra tuščias
 				</div>
 			)}
 			{totalSalePriceMinusShipping > 0 && (
 				<>
 					<div className="flex items-center justify-end px-3 py-0 mb-1 bg-white border border-gray-400 rounded float-end w-fit">
-						Wysyłka{" "}
+						Pristatymas{" "}
 						{shippingTotal > 0 ? (
-							shippingTotal + " zł"
+							shippingTotal + " €"
 						) : (
 							<span className="contents text-[#23b500]">
-								BEZPŁATNIE
+								nemokamas
 								<span className="ml-0.5">
 									<Gift size={18} color="#23b500" />
 								</span>
@@ -132,10 +132,10 @@ const CheckoutBar = ({ data }) => {
 						<span className="flex items-center justify-center w-6 h-6 mr-2 bg-white rounded-full text-sky-900">
 							{totalQuantity}
 						</span>
-						<p className="leading-5 ">Zobacz zamówienie</p>
+						<p className="leading-5 ">Pradėti pirkimą</p>
 					</div>
 					<div>
-						{totalPriceMinusShipping != totalSalePriceMinusShipping ? (
+						{/* {totalPriceMinusShipping != totalSalePriceMinusShipping ? (
 							<div className="flex flex-wrap justify-end gap-x-1">
 								<span className="line-through">
 									{totalPriceMinusShipping} {currencyData.currency_symbol}
@@ -148,7 +148,10 @@ const CheckoutBar = ({ data }) => {
 							<span>
 								{totalSalePriceMinusShipping} {currencyData.currency_symbol}
 							</span>
-						)}
+						)} */}
+						<span>
+							{totalSalePriceMinusShipping} {currencyData.currency_symbol}
+						</span>
 					</div>
 				</div>
 			</a>
