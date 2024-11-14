@@ -1,1 +1,1523 @@
-(()=>{"use strict";var t={63:(t,e,r)=>{var a=r(609),o="function"==typeof Object.is?Object.is:function(t,e){return t===e&&(0!==t||1/t==1/e)||t!=t&&e!=e},c=a.useState,n=a.useEffect,s=a.useLayoutEffect,i=a.useDebugValue;function l(t){var e=t.getSnapshot;t=t.value;try{var r=e();return!o(t,r)}catch(t){return!0}}var u="undefined"==typeof window||void 0===window.document||void 0===window.document.createElement?function(t,e){return e()}:function(t,e){var r=e(),a=c({inst:{value:r,getSnapshot:e}}),o=a[0].inst,u=a[1];return s((function(){o.value=r,o.getSnapshot=e,l(o)&&u({inst:o})}),[t,r,e]),n((function(){return l(o)&&u({inst:o}),t((function(){l(o)&&u({inst:o})}))}),[t]),i(r),r};e.useSyncExternalStore=void 0!==a.useSyncExternalStore?a.useSyncExternalStore:u},940:(t,e,r)=>{var a=r(609),o=r(888),c="function"==typeof Object.is?Object.is:function(t,e){return t===e&&(0!==t||1/t==1/e)||t!=t&&e!=e},n=o.useSyncExternalStore,s=a.useRef,i=a.useEffect,l=a.useMemo,u=a.useDebugValue;e.useSyncExternalStoreWithSelector=function(t,e,r,a,o){var d=s(null);if(null===d.current){var p={hasValue:!1,value:null};d.current=p}else p=d.current;d=l((function(){function t(t){if(!i){if(i=!0,n=t,t=a(t),void 0!==o&&p.hasValue){var e=p.value;if(o(e,t))return s=e}return s=t}if(e=s,c(n,t))return e;var r=a(t);return void 0!==o&&o(e,r)?e:(n=t,s=r)}var n,s,i=!1,l=void 0===r?null:r;return[function(){return t(e())},null===l?void 0:function(){return t(l())}]}),[e,r,a,o]);var m=n(t,d[0],d[1]);return i((function(){p.hasValue=!0,p.value=m}),[m]),u(m),m}},888:(t,e,r)=>{t.exports=r(63)},242:(t,e,r)=>{t.exports=r(940)},609:t=>{t.exports=window.React}},e={};function r(a){var o=e[a];if(void 0!==o)return o.exports;var c=e[a]={exports:{}};return t[a](c,c.exports,r),c.exports}r.n=t=>{var e=t&&t.__esModule?()=>t.default:()=>t;return r.d(e,{a:e}),e},r.d=(t,e)=>{for(var a in e)r.o(e,a)&&!r.o(t,a)&&Object.defineProperty(t,a,{enumerable:!0,get:e[a]})},r.o=(t,e)=>Object.prototype.hasOwnProperty.call(t,e),(()=>{var t=r(609);const e=window.wp.apiFetch;var a=r.n(e);const o=window.wp.url,c=window.wp.element,n=t=>{let e;const r=new Set,a=(t,a)=>{const o="function"==typeof t?t(e):t;if(!Object.is(o,e)){const t=e;e=(null!=a?a:"object"!=typeof o||null===o)?o:Object.assign({},e,o),r.forEach((r=>r(e,t)))}},o=()=>e,c={setState:a,getState:o,getInitialState:()=>n,subscribe:t=>(r.add(t),()=>r.delete(t)),destroy:()=>{console.warn("[DEPRECATED] The `destroy` method will be unsupported in a future version. Instead use unsubscribe function returned by subscribe. Everything will be garbage-collected if store is garbage-collected."),r.clear()}},n=e=t(a,o,c);return c};var s=r(242);const{useDebugValue:i}=t,{useSyncExternalStoreWithSelector:l}=s;let u=!1;const d=t=>t,p=t=>{"function"!=typeof t&&console.warn("[DEPRECATED] Passing a vanilla store will be unsupported in a future version. Instead use `import { useStore } from 'zustand'`.");const e="function"==typeof t?(t=>t?n(t):n)(t):t,r=(t,r)=>function(t,e=d,r){r&&!u&&(console.warn("[DEPRECATED] Use `createWithEqualityFn` instead of `create` or use `useStoreWithEqualityFn` instead of `useStore`. They can be imported from 'zustand/traditional'. https://github.com/pmndrs/zustand/discussions/1937"),u=!0);const a=l(t.subscribe,t.getState,t.getServerState||t.getInitialState,e,r);return i(a),a}(e,t,r);return Object.assign(r,e),r},m=window.lodash;function f(t,e){let r;return function(...a){clearTimeout(r),r=setTimeout((()=>{clearTimeout(r),t(...a)}),e)}}void 0===window.throttle&&(window.throttle=m.throttle),void 0===window.debounce&&(window.debounce=f);const y={},h={};var g;window.myGlobalStore=window.myGlobalStore||((g=(t,e)=>({totalCartUpdate:0,cartProducts:[],totalQuantity:0,totalPrice:0,totalSalePrice:0,totalDiscountPrice:0,currencyData:{currency_code:"",currency_decimal_separator:".",currency_minor_unit:2,currency_prefix:"",currency_suffix:"",currency_symbol:"",currency_thousand_separator:""},isLoading:!1,error:"",isAddingToCart:!1,cartAdditions:{},cartRemovals:{},cartCoupons:[],triggerUpdateProductDisplayPrices:!1,fetchCart:async()=>{try{const e=await a()({path:"/wc/store/cart"}),r=(await a()({path:"/custom/v1/shipping-methods",method:"GET"})).find((t=>"flat_rate"===t.id)),o=r?parseFloat(r.cost):0,c=wc_free_shipping_data.threshold,n=parseFloat(e.totals.total_items)/100||0,s=parseFloat(e.totals.total_price)/100||0,i=s>=c?0:o,l=Math.max(n,0).toFixed(2),u=Math.max(s-i,0).toFixed(2);t({cartProducts:e.items,totalQuantity:e.items.reduce(((t,e)=>t+e.quantity),0),totalPrice:n,totalPriceMinusShipping:l,totalSalePrice:s,totalSalePriceMinusShipping:u,shippingTotal:i,currencyData:{currency_code:e.totals.currency_code,currency_decimal_separator:e.totals.currency_decimal_separator,currency_minor_unit:e.totals.currency_minor_unit,currency_prefix:e.totals.currency_prefix,currency_suffix:e.totals.currency_suffix,currency_symbol:e.totals.currency_symbol,currency_thousand_separator:e.totals.currency_thousand_separator},cartCoupons:e.coupons,error:""})}catch(e){console.error("Error fetching cart:",e),t({error:"Failed to fetch cart."})}},applyCoupon:async e=>{console.log(`Applying coupon: ${e}`);try{const r=await a()({path:"/wc/store/v1/cart/apply-coupon",method:"POST",data:{code:e}});console.log(`Coupon ${e} applied.`);const o=await a()({path:"/wc/store/cart"}),c=(await a()({path:"/custom/v1/shipping-methods",method:"GET"})).find((t=>"flat_rate"===t.id)),n=c?parseFloat(c.cost):0,s=wc_free_shipping_data.threshold,i=parseFloat(o.totals.total_items)/100||0,l=parseFloat(o.totals.total_price)/100||0,u=l>=s?0:n,d=Math.max(l-u,0).toFixed(2),p=Math.max(i,0).toFixed(2);return t({triggerUpdateProductDisplayPrices:!0}),setTimeout((()=>{t({triggerUpdateProductDisplayPrices:!1})}),200),t({totalPrice:parseFloat(r.totals.total_items)/100,totalPriceMinusShipping:p,totalSalePrice:parseFloat(r.totals.total_price)/100,totalSalePriceMinusShipping:d,totalDiscountPrice:parseFloat(r.totals.total_discount)/100,currencyData:{currency_code:r.totals.currency_code,currency_decimal_separator:r.totals.currency_decimal_separator,currency_minor_unit:r.totals.currency_minor_unit,currency_prefix:r.totals.currency_prefix,currency_suffix:r.totals.currency_suffix,currency_symbol:r.totals.currency_symbol,currency_thousand_separator:r.totals.currency_thousand_separator},cartCoupons:r.coupons}),r}catch(t){throw console.error(`Error applying coupon ${e}:`,t),t}},wc_price:(t,r=!0)=>{const{currency_code:a,currency_decimal_separator:o,currency_minor_unit:c,currency_prefix:n,currency_suffix:s,currency_symbol:i,currency_thousand_separator:l}=e().currencyData,u=t.toFixed(c),[d,p]=u.split(".");let m=n+d.replace(/\B(?=(\d{3})+(?!\d))/g,l);return p&&(m+=o+p),m+=s,r?`<span class="woocommerce-Price-amount amount"><bdi>${m}</bdi></span>`:m},addToCart:r=>{const o=e().cartAdditions[r]||0;t((t=>({cartAdditions:{...t.cartAdditions,[r]:o+1}}))),y[r]||(y[r]=f((async()=>{t({isLoading:!0});try{const o=e().cartAdditions[r];console.log(`Adding ${o} of product ${r} to cart.`),await a()({path:"/wc/store/cart/add-item",method:"POST",data:{id:r,quantity:o}});const c=new Event("added_to_cart");document.dispatchEvent(c),t((t=>({cartAdditions:{...t.cartAdditions,[r]:0}}))),e().fetchCart()}catch(e){console.error("Error adding item to cart:",e),t({error:"Failed to add item to cart."})}finally{t({isLoading:!1})}}),300)),y[r]()},remFromCart:r=>{const o=e().cartRemovals[r]||0;t((t=>({cartRemovals:{...t.cartRemovals,[r]:o+1}}))),h[r]||(h[r]=f((async()=>{t({isLoading:!0});const o=e().cartProducts.find((t=>t.id===r));if(!o)return console.error("Item not found in cart:",r),void t({isLoading:!1});try{const c={key:o.key,quantity:o.quantity-e().cartRemovals[r]};t((t=>({cartRemovals:{...t.cartRemovals,[r]:0}}))),await a()({path:c.quantity>0?"/wc/store/cart/update-item":"/wc/store/cart/remove-item",method:"POST",data:c}),console.log(`Updated cart for product ${r}.`),e().fetchCart()}catch(e){console.error("Error updating cart:",e),t({error:"Failed to update cart."})}finally{t({isLoading:!1}),e().triggerTotalCartUpdate()}}),300)),h[r]()},triggerTotalCartUpdate:()=>{t((t=>({totalCartUpdate:t.totalCartUpdate+1})))}}))?p(g):p);const _=window.myGlobalStore;var w={xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2,strokeLinecap:"round",strokeLinejoin:"round"};const v=(e,r)=>{const a=(0,t.forwardRef)((({color:a="currentColor",size:o=24,strokeWidth:c=2,absoluteStrokeWidth:n,className:s="",children:i,...l},u)=>{return(0,t.createElement)("svg",{ref:u,...w,width:o,height:o,stroke:a,strokeWidth:n?24*Number(c)/Number(o):c,className:["lucide",`lucide-${d=e,d.replace(/([a-z0-9])([A-Z])/g,"$1-$2").toLowerCase()}`,s].join(" "),...l},[...r.map((([e,r])=>(0,t.createElement)(e,r))),...Array.isArray(i)?i:[i]]);var d}));return a.displayName=`${e}`,a},E=v("Minus",[["path",{d:"M5 12h14",key:"1ays0h"}]]),b=v("Plus",[["path",{d:"M5 12h14",key:"1ays0h"}],["path",{d:"M12 5v14",key:"s699le"}]]);function x({selectedProductId:e,productsData:r}){const a=r.find((t=>t.id===e)),[o,n]=(0,c.useState)(a?.imageUrls[0]||"");return(0,c.useEffect)((()=>{n(a?.imageUrls[0]||"")}),[e,a]),a?(0,t.createElement)("div",{className:"image-viewer-wrapper"},(0,t.createElement)("div",{className:"full-size-wrapper"},(0,t.createElement)("img",{src:o,alt:"Selected"}))):(0,t.createElement)("div",null,"No product selected")}function S({selectedProductTitle:e,selectedProductSalePrice:r,selectedProductRegularPrice:a,selectedProductQuantity:o}){const c=({html:e})=>(0,t.createElement)("span",{dangerouslySetInnerHTML:{__html:e}});return(0,t.createElement)("div",{className:"flex flex-col items-center justify-start w-full gap-x-3 gap-y-4"},(0,t.createElement)("div",{className:"block text-xl leading-snug text-center"},e),(0,t.createElement)("div",{className:"flex flex-row w-full text-xl gap-x-6"},(0,t.createElement)("div",{className:"flex flex-col text-sm basis-1/2"},(0,t.createElement)("span",null,"Rekomenduojama pardavimo kaina pacientui")," ",(0,t.createElement)("span",null,"(su PVM)"),(0,t.createElement)("span",{className:"line-through"},(0,t.createElement)(c,{html:(()=>{const t=Math.max(1,o);return a*t+" €"})()}))),(0,t.createElement)("div",{className:"flex flex-col text-lg basis-1/2"},(0,t.createElement)("span",null,"Kaina specialistui")," ",(0,t.createElement)("span",null,"(su PVM)"),(0,t.createElement)(c,{html:(()=>{const t=Math.max(1,o);return r*t+" €"})()}))))}function P({products:e,onProductSelect:r,selectedProductId:a}){return(0,t.createElement)("div",{className:"flex gap-x-3"},e.length>1&&e.map((e=>(0,t.createElement)("button",{className:"w-11 h-11",key:e.id,onClick:()=>r(e.id),style:{background:e.color,borderRadius:"50%",color:"white",margin:"1em 0",fontWeight:"bold",outline:e.id===a?"2px solid #3c82f6":"none",outlineOffset:"3px"}},0===e.counterValue?" ":e.counterValue))))}function C({product:e,isDisabled:r,onQuantityUpdate:a}){const{isLoading:o,fetchCart:n,addToCart:s,remFromCart:i}=_((t=>({isLoading:t.isLoading,fetchCart:t.fetchCart,addToCart:t.addToCart,remFromCart:t.remFromCart}))),[l,u]=(0,c.useState)(e.counterValue);return(0,c.useEffect)((()=>{l!=e.counterValue&&u(e.counterValue)}),[e.counterValue]),(0,c.useEffect)((()=>{o||l==e.counterValue||a(l)}),[o]),(0,t.createElement)("div",{className:"py-3 shadow-md rounded-md flex items-center justify-around w-44 font-bold bg-gray-300 [&>button]:bg-white [&>button]:rounded-full [&>button>svg]:m-auto [&>button]:h-8 [&>button]:w-8"},(0,t.createElement)("button",{onClick:()=>{l>0&&(u(l-1),i(e.id))},disabled:r},(0,t.createElement)(E,{size:20,strokeWidth:3})),(0,t.createElement)("span",null,l),(0,t.createElement)("button",{onClick:()=>{u(l+1),s(e.id)},disabled:r},(0,t.createElement)(b,{size:20,strokeWidth:3})))}function k({productsSkus:e}){const[r,n]=(0,c.useState)([]),[s,i]=(0,c.useState)(null),[l,u]=(0,c.useState)(!1),{isLoading:d,fetchCart:p,triggerUpdateProductDisplayPrices:m}=_((t=>({isLoading:t.isLoading,fetchCart:t.fetchCart,triggerUpdateProductDisplayPrices:t.triggerUpdateProductDisplayPrices}))),f=()=>{u(!0),a()({path:(0,o.addQueryArgs)("/rd-shop-product/v1/block-product-display-data",{skus:e}),method:"GET"}).then((t=>{t?.data&&(n(t.data),t.data.length>0&&!s&&i(t.data[0].id)),u(!1)}))};(0,c.useEffect)((()=>{p(),f()}),[e]),(0,c.useEffect)((()=>{m&&f()}),[m]),(0,c.useEffect)((()=>{r.find((t=>t.id===s))}),[r,s]);const y=r.find((t=>t.id===s)),h=y?y.title:"",g=(y&&y.price,y?y.sale_price:""),w=y?y.regular_price:"",v=y?y.counterValue:"";return s?(0,t.createElement)("div",{className:"mb-14 product-wrapper gap-y-4",style:{display:"flex",flexDirection:"column",alignItems:"center"}},(0,t.createElement)(x,{selectedProductId:s,productsData:r}),(0,t.createElement)(S,{selectedProductId:s,selectedProductTitle:h,selectedProductSalePrice:g,selectedProductRegularPrice:w,selectedProductQuantity:v}),(0,t.createElement)(P,{products:r,onProductSelect:t=>{i(t)},selectedProductId:s}),(0,t.createElement)(C,{product:y,isDisabled:d||l,onQuantityUpdate:f})):(0,t.createElement)("div",null)}document.querySelectorAll(".react-container").forEach((e=>{const r=JSON.parse(e.dataset?.products_skus||"[]");ReactDOM.createRoot(e).render((0,t.createElement)(k,{productsSkus:r}))}))})()})();
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./src/store.js":
+/*!**********************!*\
+  !*** ./src/store.js ***!
+  \**********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var zustand__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! zustand */ "./node_modules/zustand/esm/index.mjs");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash */ "lodash");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_1__);
+
+
+
+
+// Utility debounce function
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Fix missing global func
+if (typeof window.throttle === "undefined") {
+  window.throttle = lodash__WEBPACK_IMPORTED_MODULE_1__.throttle;
+}
+if (typeof window.debounce === "undefined") {
+  window.debounce = debounce;
+}
+const addProductToCartDebounced = {}; // Object to hold debounced functions by productId
+const removeProductFromCartDebounced = {}; // Object to hold debounced functions by productId
+
+const logVariables = variables => {
+  for (const [name, value] of Object.entries(variables)) {
+    console.log(`${name}:`, value);
+  }
+};
+
+// Attach the store to a global variable to ensure a single instance
+window.myGlobalStore = window.myGlobalStore || (0,zustand__WEBPACK_IMPORTED_MODULE_2__.create)((set, get) => ({
+  // Initial state...
+  totalCartUpdate: 0,
+  cartProducts: [],
+  totalQuantity: 0,
+  totalPrice: 0.0,
+  totalSalePrice: 0.0,
+  totalDiscountPrice: 0.0,
+  currencyData: {
+    currency_code: "",
+    currency_decimal_separator: ".",
+    currency_minor_unit: 2,
+    currency_prefix: "",
+    currency_suffix: "",
+    currency_symbol: "",
+    currency_thousand_separator: ""
+  },
+  isLoading: false,
+  error: "",
+  isAddingToCart: false,
+  cartAdditions: {},
+  // Holds the count of additions for debounce
+  cartRemovals: {},
+  // Holds the count of removals for debounce,
+  cartCoupons: [],
+  triggerUpdateProductDisplayPrices: false,
+  //Coupon update indicator
+
+  // State setters...
+  // These setters are simplified for demonstration. You might adjust them based on your needs.
+
+  // Fetch cart data
+  fetchCart: async () => {
+    try {
+      // Fetch the cart data
+      const cart = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+        path: "/wc/store/cart"
+      });
+
+      // Fetch shipping methods to get flat rate
+      const shippingMethods = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+        path: "/custom/v1/shipping-methods",
+        method: "GET"
+      });
+
+      // Find the flat rate method and extract its cost
+      const flatRateMethod = shippingMethods.find(method => method.id === "flat_rate");
+      const flatRateCost = flatRateMethod ? parseFloat(flatRateMethod.cost) : 0;
+
+      // Access the threshold value from localized script data
+      const freeShippingThreshold = wc_free_shipping_data.threshold;
+
+      // Calculate total items price
+      const totalItems = parseFloat(cart.totals.total_items) / 100 || 0;
+      const totalPrice = parseFloat(cart.totals.total_price) / 100 || 0;
+      // const totalDiscountPrice = parseFloat(cart.totals.total_discount) / 100 || 0;
+
+      // Determine shipping cost based on threshold
+      const shippingTotal = totalPrice >= freeShippingThreshold ? 0 : flatRateCost;
+      const totalPriceMinusShipping = Math.max(totalItems, 0).toFixed(2);
+      const totalSalePriceMinusShipping = Math.max(totalPrice - shippingTotal, 0).toFixed(2);
+
+      // logVariables({ totalPriceMinusShipping, totalSalePriceMinusShipping });
+
+      // Set the state with the extracted values
+      set({
+        cartProducts: cart.items,
+        totalQuantity: cart.items.reduce((acc, item) => acc + item.quantity, 0),
+        totalPrice: totalItems,
+        totalPriceMinusShipping: totalPriceMinusShipping,
+        totalSalePrice: totalPrice,
+        totalSalePriceMinusShipping: totalSalePriceMinusShipping,
+        // totalDiscountPrice: totalDiscountPrice,
+        shippingTotal: shippingTotal,
+        currencyData: {
+          currency_code: cart.totals.currency_code,
+          currency_decimal_separator: cart.totals.currency_decimal_separator,
+          currency_minor_unit: cart.totals.currency_minor_unit,
+          currency_prefix: cart.totals.currency_prefix,
+          currency_suffix: cart.totals.currency_suffix,
+          currency_symbol: cart.totals.currency_symbol,
+          currency_thousand_separator: cart.totals.currency_thousand_separator
+        },
+        cartCoupons: cart.coupons,
+        error: ""
+      });
+
+      // Debugging: Log the shipping total
+      // console.log("Shipping Total (Flat Rate or Free):", shippingTotal);
+    } catch (err) {
+      console.error("Error fetching cart:", err);
+      set({
+        error: "Failed to fetch cart."
+      });
+    }
+  },
+  applyCoupon: async couponCode => {
+    console.log(`Applying coupon: ${couponCode}`);
+    try {
+      // Fetch the cart data
+
+      // Post couppon code
+      const response = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+        path: "/wc/store/v1/cart/apply-coupon",
+        method: "POST",
+        data: {
+          code: couponCode
+        }
+      });
+      console.log(`Coupon ${couponCode} applied.`);
+      const cart = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+        path: "/wc/store/cart"
+      });
+
+      // Fetch shipping methods to get flat rate
+      const shippingMethods = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+        path: "/custom/v1/shipping-methods",
+        method: "GET"
+      });
+
+      // Find the flat rate method and extract its cost
+      const flatRateMethod = shippingMethods.find(method => method.id === "flat_rate");
+      const flatRateCost = flatRateMethod ? parseFloat(flatRateMethod.cost) : 0;
+
+      // Access the threshold value from localized script data
+      const freeShippingThreshold = wc_free_shipping_data.threshold;
+      const totalItems = parseFloat(cart.totals.total_items) / 100 || 0;
+      const totalPrice = parseFloat(cart.totals.total_price) / 100 || 0;
+
+      // Determine shipping cost based on threshold
+      const shippingTotal = totalPrice >= freeShippingThreshold ? 0 : flatRateCost;
+      const totalSalePriceMinusShipping = Math.max(totalPrice - shippingTotal, 0).toFixed(2);
+      const totalPriceMinusShipping = Math.max(totalItems, 0).toFixed(2);
+
+      // setAppliedCoupon(couponCode); // Update component state
+      // Clear any existing error
+      // setError("");
+      set({
+        triggerUpdateProductDisplayPrices: true
+      });
+      setTimeout(() => {
+        set({
+          triggerUpdateProductDisplayPrices: false
+        });
+      }, 200);
+
+      // logVariables({ totalPriceMinusShipping, totalSalePriceMinusShipping });
+
+      set({
+        totalPrice: parseFloat(response.totals.total_items) / 100,
+        totalPriceMinusShipping: totalPriceMinusShipping,
+        totalSalePrice: parseFloat(response.totals.total_price) / 100,
+        totalSalePriceMinusShipping: totalSalePriceMinusShipping,
+        totalDiscountPrice: parseFloat(response.totals.total_discount) / 100,
+        currencyData: {
+          currency_code: response.totals.currency_code,
+          currency_decimal_separator: response.totals.currency_decimal_separator,
+          currency_minor_unit: response.totals.currency_minor_unit,
+          currency_prefix: response.totals.currency_prefix,
+          currency_suffix: response.totals.currency_suffix,
+          currency_symbol: response.totals.currency_symbol,
+          currency_thousand_separator: response.totals.currency_thousand_separator
+        },
+        cartCoupons: response.coupons
+      });
+      return response; // Return response for potential chaining
+    } catch (error) {
+      console.error(`Error applying coupon ${couponCode}:`, error);
+      // setError(`Failed to apply coupon ${couponCode}.`); // Update component state with error
+      throw error; // Re-throw to allow catch chaining elsewhere
+    }
+  },
+  wc_price: (price, wrapped = true) => {
+    const {
+      currency_code,
+      currency_decimal_separator,
+      currency_minor_unit,
+      currency_prefix,
+      currency_suffix,
+      currency_symbol,
+      currency_thousand_separator
+    } = get().currencyData;
+    const roundedPrice = price.toFixed(currency_minor_unit);
+    const [integerPart, decimalPart] = roundedPrice.split(".");
+    const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, currency_thousand_separator);
+    let formattedPrice = currency_prefix + formattedIntegerPart;
+    if (decimalPart) {
+      formattedPrice += currency_decimal_separator + decimalPart;
+    }
+    formattedPrice += currency_suffix;
+    if (!wrapped) return formattedPrice;
+    return `<span class="woocommerce-Price-amount amount"><bdi>${formattedPrice}</bdi></span>`;
+  },
+  addToCart: productId => {
+    // Increase the count for the specific productId
+    const currentCount = get().cartAdditions[productId] || 0;
+    set(state => ({
+      cartAdditions: {
+        ...state.cartAdditions,
+        [productId]: currentCount + 1
+      }
+    }));
+
+    // Initialize the debounced function if it doesn't exist for the productId
+    if (!addProductToCartDebounced[productId]) {
+      addProductToCartDebounced[productId] = debounce(async () => {
+        set({
+          isLoading: true
+        });
+        try {
+          const quantityToAdd = get().cartAdditions[productId];
+          console.log(`Adding ${quantityToAdd} of product ${productId} to cart.`);
+          await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+            path: "/wc/store/cart/add-item",
+            method: "POST",
+            data: {
+              id: productId,
+              quantity: quantityToAdd
+            }
+          });
+
+          // Dispatch custom event to update the mini-cart
+          const event = new Event("added_to_cart");
+          document.dispatchEvent(event);
+
+          // Reset the count for productId after adding
+          set(state => ({
+            cartAdditions: {
+              ...state.cartAdditions,
+              [productId]: 0
+            }
+          }));
+          get().fetchCart();
+        } catch (error) {
+          console.error("Error adding item to cart:", error);
+          set({
+            error: "Failed to add item to cart."
+          });
+        } finally {
+          set({
+            isLoading: false
+          });
+        }
+      }, 300); // Debounce time
+    }
+
+    // Call the debounced addition function
+    addProductToCartDebounced[productId]();
+  },
+  // Define remFromCart within your store
+  remFromCart: productId => {
+    // Increase the removal count for the specific productId
+    const currentCount = get().cartRemovals[productId] || 0;
+    set(state => ({
+      cartRemovals: {
+        ...state.cartRemovals,
+        [productId]: currentCount + 1
+      }
+    }));
+    if (!removeProductFromCartDebounced[productId]) {
+      removeProductFromCartDebounced[productId] = debounce(async () => {
+        set({
+          isLoading: true
+        });
+        const cartProducts = get().cartProducts;
+        const item = cartProducts.find(item => item.id === productId);
+        if (!item) {
+          console.error("Item not found in cart:", productId);
+          set({
+            isLoading: false
+          });
+          return;
+        }
+        try {
+          const itemData = {
+            key: item.key,
+            quantity: item.quantity - get().cartRemovals[productId]
+          };
+
+          // Reset the removal count for productId after removing
+          set(state => ({
+            cartRemovals: {
+              ...state.cartRemovals,
+              [productId]: 0
+            }
+          }));
+          await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+            path: itemData.quantity > 0 ? "/wc/store/cart/update-item" : "/wc/store/cart/remove-item",
+            method: "POST",
+            data: itemData
+          });
+          console.log(`Updated cart for product ${productId}.`);
+          get().fetchCart();
+        } catch (error) {
+          console.error("Error updating cart:", error);
+          set({
+            error: "Failed to update cart."
+          });
+        } finally {
+          set({
+            isLoading: false
+          });
+          get().triggerTotalCartUpdate();
+        }
+      }, 300); // Debounce time
+    }
+    removeProductFromCartDebounced[productId]();
+  },
+  triggerTotalCartUpdate: () => {
+    set(state => ({
+      totalCartUpdate: state.totalCartUpdate + 1
+    }));
+  }
+}));
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (window.myGlobalStore);
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/createLucideIcon.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/createLucideIcon.js ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ createLucideIcon)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _defaultAttributes_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./defaultAttributes.js */ "./node_modules/lucide-react/dist/esm/defaultAttributes.js");
+/* harmony import */ var _shared_src_utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./shared/src/utils.js */ "./node_modules/lucide-react/dist/esm/shared/src/utils.js");
+/**
+ * @license lucide-react v0.365.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+
+
+
+
+const createLucideIcon = (iconName, iconNode) => {
+  const Component = (0,react__WEBPACK_IMPORTED_MODULE_0__.forwardRef)(
+    ({
+      color = "currentColor",
+      size = 24,
+      strokeWidth = 2,
+      absoluteStrokeWidth,
+      className = "",
+      children,
+      ...rest
+    }, ref) => {
+      return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(
+        "svg",
+        {
+          ref,
+          ..._defaultAttributes_js__WEBPACK_IMPORTED_MODULE_1__["default"],
+          width: size,
+          height: size,
+          stroke: color,
+          strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
+          className: ["lucide", `lucide-${(0,_shared_src_utils_js__WEBPACK_IMPORTED_MODULE_2__.toKebabCase)(iconName)}`, className].join(" "),
+          ...rest
+        },
+        [
+          ...iconNode.map(([tag, attrs]) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(tag, attrs)),
+          ...Array.isArray(children) ? children : [children]
+        ]
+      );
+    }
+  );
+  Component.displayName = `${iconName}`;
+  return Component;
+};
+
+
+//# sourceMappingURL=createLucideIcon.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/defaultAttributes.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/defaultAttributes.js ***!
+  \*****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ defaultAttributes)
+/* harmony export */ });
+/**
+ * @license lucide-react v0.365.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+var defaultAttributes = {
+  xmlns: "http://www.w3.org/2000/svg",
+  width: 24,
+  height: 24,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round",
+  strokeLinejoin: "round"
+};
+
+
+//# sourceMappingURL=defaultAttributes.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/minus.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/minus.js ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Minus)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.js */ "./node_modules/lucide-react/dist/esm/createLucideIcon.js");
+/**
+ * @license lucide-react v0.365.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+
+
+const Minus = (0,_createLucideIcon_js__WEBPACK_IMPORTED_MODULE_0__["default"])("Minus", [["path", { d: "M5 12h14", key: "1ays0h" }]]);
+
+
+//# sourceMappingURL=minus.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/icons/plus.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/icons/plus.js ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Plus)
+/* harmony export */ });
+/* harmony import */ var _createLucideIcon_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../createLucideIcon.js */ "./node_modules/lucide-react/dist/esm/createLucideIcon.js");
+/**
+ * @license lucide-react v0.365.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+
+
+const Plus = (0,_createLucideIcon_js__WEBPACK_IMPORTED_MODULE_0__["default"])("Plus", [
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "M12 5v14", key: "s699le" }]
+]);
+
+
+//# sourceMappingURL=plus.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/lucide-react/dist/esm/shared/src/utils.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/lucide-react/dist/esm/shared/src/utils.js ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   toKebabCase: () => (/* binding */ toKebabCase)
+/* harmony export */ });
+/**
+ * @license lucide-react v0.365.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+
+const toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+
+
+//# sourceMappingURL=utils.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.development.js":
+/*!**********************************************************************************************!*\
+  !*** ./node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.development.js ***!
+  \**********************************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/**
+ * @license React
+ * use-sync-external-store-shim.development.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+
+if (true) {
+  (function() {
+
+          'use strict';
+
+/* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
+if (
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart ===
+    'function'
+) {
+  __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
+}
+          var React = __webpack_require__(/*! react */ "react");
+
+var ReactSharedInternals = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+
+function error(format) {
+  {
+    {
+      for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        args[_key2 - 1] = arguments[_key2];
+      }
+
+      printWarning('error', format, args);
+    }
+  }
+}
+
+function printWarning(level, format, args) {
+  // When changing this logic, you might want to also
+  // update consoleWithStackDev.www.js as well.
+  {
+    var ReactDebugCurrentFrame = ReactSharedInternals.ReactDebugCurrentFrame;
+    var stack = ReactDebugCurrentFrame.getStackAddendum();
+
+    if (stack !== '') {
+      format += '%s';
+      args = args.concat([stack]);
+    } // eslint-disable-next-line react-internal/safe-string-coercion
+
+
+    var argsWithFormat = args.map(function (item) {
+      return String(item);
+    }); // Careful: RN currently depends on this prefix
+
+    argsWithFormat.unshift('Warning: ' + format); // We intentionally don't use spread (or .apply) directly because it
+    // breaks IE9: https://github.com/facebook/react/issues/13610
+    // eslint-disable-next-line react-internal/no-production-logging
+
+    Function.prototype.apply.call(console[level], console, argsWithFormat);
+  }
+}
+
+/**
+ * inlined Object.is polyfill to avoid requiring consumers ship their own
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
+ */
+function is(x, y) {
+  return x === y && (x !== 0 || 1 / x === 1 / y) || x !== x && y !== y // eslint-disable-line no-self-compare
+  ;
+}
+
+var objectIs = typeof Object.is === 'function' ? Object.is : is;
+
+// dispatch for CommonJS interop named imports.
+
+var useState = React.useState,
+    useEffect = React.useEffect,
+    useLayoutEffect = React.useLayoutEffect,
+    useDebugValue = React.useDebugValue;
+var didWarnOld18Alpha = false;
+var didWarnUncachedGetSnapshot = false; // Disclaimer: This shim breaks many of the rules of React, and only works
+// because of a very particular set of implementation details and assumptions
+// -- change any one of them and it will break. The most important assumption
+// is that updates are always synchronous, because concurrent rendering is
+// only available in versions of React that also have a built-in
+// useSyncExternalStore API. And we only use this shim when the built-in API
+// does not exist.
+//
+// Do not assume that the clever hacks used by this hook also work in general.
+// The point of this shim is to replace the need for hacks by other libraries.
+
+function useSyncExternalStore(subscribe, getSnapshot, // Note: The shim does not use getServerSnapshot, because pre-18 versions of
+// React do not expose a way to check if we're hydrating. So users of the shim
+// will need to track that themselves and return the correct value
+// from `getSnapshot`.
+getServerSnapshot) {
+  {
+    if (!didWarnOld18Alpha) {
+      if (React.startTransition !== undefined) {
+        didWarnOld18Alpha = true;
+
+        error('You are using an outdated, pre-release alpha of React 18 that ' + 'does not support useSyncExternalStore. The ' + 'use-sync-external-store shim will not work correctly. Upgrade ' + 'to a newer pre-release.');
+      }
+    }
+  } // Read the current snapshot from the store on every render. Again, this
+  // breaks the rules of React, and only works here because of specific
+  // implementation details, most importantly that updates are
+  // always synchronous.
+
+
+  var value = getSnapshot();
+
+  {
+    if (!didWarnUncachedGetSnapshot) {
+      var cachedValue = getSnapshot();
+
+      if (!objectIs(value, cachedValue)) {
+        error('The result of getSnapshot should be cached to avoid an infinite loop');
+
+        didWarnUncachedGetSnapshot = true;
+      }
+    }
+  } // Because updates are synchronous, we don't queue them. Instead we force a
+  // re-render whenever the subscribed state changes by updating an some
+  // arbitrary useState hook. Then, during render, we call getSnapshot to read
+  // the current value.
+  //
+  // Because we don't actually use the state returned by the useState hook, we
+  // can save a bit of memory by storing other stuff in that slot.
+  //
+  // To implement the early bailout, we need to track some things on a mutable
+  // object. Usually, we would put that in a useRef hook, but we can stash it in
+  // our useState hook instead.
+  //
+  // To force a re-render, we call forceUpdate({inst}). That works because the
+  // new object always fails an equality check.
+
+
+  var _useState = useState({
+    inst: {
+      value: value,
+      getSnapshot: getSnapshot
+    }
+  }),
+      inst = _useState[0].inst,
+      forceUpdate = _useState[1]; // Track the latest getSnapshot function with a ref. This needs to be updated
+  // in the layout phase so we can access it during the tearing check that
+  // happens on subscribe.
+
+
+  useLayoutEffect(function () {
+    inst.value = value;
+    inst.getSnapshot = getSnapshot; // Whenever getSnapshot or subscribe changes, we need to check in the
+    // commit phase if there was an interleaved mutation. In concurrent mode
+    // this can happen all the time, but even in synchronous mode, an earlier
+    // effect may have mutated the store.
+
+    if (checkIfSnapshotChanged(inst)) {
+      // Force a re-render.
+      forceUpdate({
+        inst: inst
+      });
+    }
+  }, [subscribe, value, getSnapshot]);
+  useEffect(function () {
+    // Check for changes right before subscribing. Subsequent changes will be
+    // detected in the subscription handler.
+    if (checkIfSnapshotChanged(inst)) {
+      // Force a re-render.
+      forceUpdate({
+        inst: inst
+      });
+    }
+
+    var handleStoreChange = function () {
+      // TODO: Because there is no cross-renderer API for batching updates, it's
+      // up to the consumer of this library to wrap their subscription event
+      // with unstable_batchedUpdates. Should we try to detect when this isn't
+      // the case and print a warning in development?
+      // The store changed. Check if the snapshot changed since the last time we
+      // read from the store.
+      if (checkIfSnapshotChanged(inst)) {
+        // Force a re-render.
+        forceUpdate({
+          inst: inst
+        });
+      }
+    }; // Subscribe to the store and return a clean-up function.
+
+
+    return subscribe(handleStoreChange);
+  }, [subscribe]);
+  useDebugValue(value);
+  return value;
+}
+
+function checkIfSnapshotChanged(inst) {
+  var latestGetSnapshot = inst.getSnapshot;
+  var prevValue = inst.value;
+
+  try {
+    var nextValue = latestGetSnapshot();
+    return !objectIs(prevValue, nextValue);
+  } catch (error) {
+    return true;
+  }
+}
+
+function useSyncExternalStore$1(subscribe, getSnapshot, getServerSnapshot) {
+  // Note: The shim does not use getServerSnapshot, because pre-18 versions of
+  // React do not expose a way to check if we're hydrating. So users of the shim
+  // will need to track that themselves and return the correct value
+  // from `getSnapshot`.
+  return getSnapshot();
+}
+
+var canUseDOM = !!(typeof window !== 'undefined' && typeof window.document !== 'undefined' && typeof window.document.createElement !== 'undefined');
+
+var isServerEnvironment = !canUseDOM;
+
+var shim = isServerEnvironment ? useSyncExternalStore$1 : useSyncExternalStore;
+var useSyncExternalStore$2 = React.useSyncExternalStore !== undefined ? React.useSyncExternalStore : shim;
+
+exports.useSyncExternalStore = useSyncExternalStore$2;
+          /* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
+if (
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop ===
+    'function'
+) {
+  __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(new Error());
+}
+        
+  })();
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/use-sync-external-store/cjs/use-sync-external-store-shim/with-selector.development.js":
+/*!************************************************************************************************************!*\
+  !*** ./node_modules/use-sync-external-store/cjs/use-sync-external-store-shim/with-selector.development.js ***!
+  \************************************************************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/**
+ * @license React
+ * use-sync-external-store-shim/with-selector.development.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+
+if (true) {
+  (function() {
+
+          'use strict';
+
+/* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
+if (
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart ===
+    'function'
+) {
+  __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
+}
+          var React = __webpack_require__(/*! react */ "react");
+var shim = __webpack_require__(/*! use-sync-external-store/shim */ "./node_modules/use-sync-external-store/shim/index.js");
+
+/**
+ * inlined Object.is polyfill to avoid requiring consumers ship their own
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
+ */
+function is(x, y) {
+  return x === y && (x !== 0 || 1 / x === 1 / y) || x !== x && y !== y // eslint-disable-line no-self-compare
+  ;
+}
+
+var objectIs = typeof Object.is === 'function' ? Object.is : is;
+
+var useSyncExternalStore = shim.useSyncExternalStore;
+
+// for CommonJS interop.
+
+var useRef = React.useRef,
+    useEffect = React.useEffect,
+    useMemo = React.useMemo,
+    useDebugValue = React.useDebugValue; // Same as useSyncExternalStore, but supports selector and isEqual arguments.
+
+function useSyncExternalStoreWithSelector(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
+  // Use this to track the rendered snapshot.
+  var instRef = useRef(null);
+  var inst;
+
+  if (instRef.current === null) {
+    inst = {
+      hasValue: false,
+      value: null
+    };
+    instRef.current = inst;
+  } else {
+    inst = instRef.current;
+  }
+
+  var _useMemo = useMemo(function () {
+    // Track the memoized state using closure variables that are local to this
+    // memoized instance of a getSnapshot function. Intentionally not using a
+    // useRef hook, because that state would be shared across all concurrent
+    // copies of the hook/component.
+    var hasMemo = false;
+    var memoizedSnapshot;
+    var memoizedSelection;
+
+    var memoizedSelector = function (nextSnapshot) {
+      if (!hasMemo) {
+        // The first time the hook is called, there is no memoized result.
+        hasMemo = true;
+        memoizedSnapshot = nextSnapshot;
+
+        var _nextSelection = selector(nextSnapshot);
+
+        if (isEqual !== undefined) {
+          // Even if the selector has changed, the currently rendered selection
+          // may be equal to the new selection. We should attempt to reuse the
+          // current value if possible, to preserve downstream memoizations.
+          if (inst.hasValue) {
+            var currentSelection = inst.value;
+
+            if (isEqual(currentSelection, _nextSelection)) {
+              memoizedSelection = currentSelection;
+              return currentSelection;
+            }
+          }
+        }
+
+        memoizedSelection = _nextSelection;
+        return _nextSelection;
+      } // We may be able to reuse the previous invocation's result.
+
+
+      // We may be able to reuse the previous invocation's result.
+      var prevSnapshot = memoizedSnapshot;
+      var prevSelection = memoizedSelection;
+
+      if (objectIs(prevSnapshot, nextSnapshot)) {
+        // The snapshot is the same as last time. Reuse the previous selection.
+        return prevSelection;
+      } // The snapshot has changed, so we need to compute a new selection.
+
+
+      // The snapshot has changed, so we need to compute a new selection.
+      var nextSelection = selector(nextSnapshot); // If a custom isEqual function is provided, use that to check if the data
+      // has changed. If it hasn't, return the previous selection. That signals
+      // to React that the selections are conceptually equal, and we can bail
+      // out of rendering.
+
+      // If a custom isEqual function is provided, use that to check if the data
+      // has changed. If it hasn't, return the previous selection. That signals
+      // to React that the selections are conceptually equal, and we can bail
+      // out of rendering.
+      if (isEqual !== undefined && isEqual(prevSelection, nextSelection)) {
+        return prevSelection;
+      }
+
+      memoizedSnapshot = nextSnapshot;
+      memoizedSelection = nextSelection;
+      return nextSelection;
+    }; // Assigning this to a constant so that Flow knows it can't change.
+
+
+    // Assigning this to a constant so that Flow knows it can't change.
+    var maybeGetServerSnapshot = getServerSnapshot === undefined ? null : getServerSnapshot;
+
+    var getSnapshotWithSelector = function () {
+      return memoizedSelector(getSnapshot());
+    };
+
+    var getServerSnapshotWithSelector = maybeGetServerSnapshot === null ? undefined : function () {
+      return memoizedSelector(maybeGetServerSnapshot());
+    };
+    return [getSnapshotWithSelector, getServerSnapshotWithSelector];
+  }, [getSnapshot, getServerSnapshot, selector, isEqual]),
+      getSelection = _useMemo[0],
+      getServerSelection = _useMemo[1];
+
+  var value = useSyncExternalStore(subscribe, getSelection, getServerSelection);
+  useEffect(function () {
+    inst.hasValue = true;
+    inst.value = value;
+  }, [value]);
+  useDebugValue(value);
+  return value;
+}
+
+exports.useSyncExternalStoreWithSelector = useSyncExternalStoreWithSelector;
+          /* global __REACT_DEVTOOLS_GLOBAL_HOOK__ */
+if (
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined' &&
+  typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop ===
+    'function'
+) {
+  __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(new Error());
+}
+        
+  })();
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/use-sync-external-store/shim/index.js":
+/*!************************************************************!*\
+  !*** ./node_modules/use-sync-external-store/shim/index.js ***!
+  \************************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+
+
+if (false) {} else {
+  module.exports = __webpack_require__(/*! ../cjs/use-sync-external-store-shim.development.js */ "./node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.development.js");
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/use-sync-external-store/shim/with-selector.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/use-sync-external-store/shim/with-selector.js ***!
+  \********************************************************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+
+
+if (false) {} else {
+  module.exports = __webpack_require__(/*! ../cjs/use-sync-external-store-shim/with-selector.development.js */ "./node_modules/use-sync-external-store/cjs/use-sync-external-store-shim/with-selector.development.js");
+}
+
+
+/***/ }),
+
+/***/ "react":
+/*!************************!*\
+  !*** external "React" ***!
+  \************************/
+/***/ ((module) => {
+
+module.exports = window["React"];
+
+/***/ }),
+
+/***/ "lodash":
+/*!*************************!*\
+  !*** external "lodash" ***!
+  \*************************/
+/***/ ((module) => {
+
+module.exports = window["lodash"];
+
+/***/ }),
+
+/***/ "@wordpress/api-fetch":
+/*!**********************************!*\
+  !*** external ["wp","apiFetch"] ***!
+  \**********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["apiFetch"];
+
+/***/ }),
+
+/***/ "@wordpress/element":
+/*!*********************************!*\
+  !*** external ["wp","element"] ***!
+  \*********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["element"];
+
+/***/ }),
+
+/***/ "@wordpress/url":
+/*!*****************************!*\
+  !*** external ["wp","url"] ***!
+  \*****************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["url"];
+
+/***/ }),
+
+/***/ "./node_modules/zustand/esm/index.mjs":
+/*!********************************************!*\
+  !*** ./node_modules/zustand/esm/index.mjs ***!
+  \********************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   create: () => (/* binding */ create),
+/* harmony export */   createStore: () => (/* reexport safe */ zustand_vanilla__WEBPACK_IMPORTED_MODULE_0__.createStore),
+/* harmony export */   "default": () => (/* binding */ react),
+/* harmony export */   useStore: () => (/* binding */ useStore)
+/* harmony export */ });
+/* harmony import */ var zustand_vanilla__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! zustand/vanilla */ "./node_modules/zustand/esm/vanilla.mjs");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var use_sync_external_store_shim_with_selector_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! use-sync-external-store/shim/with-selector.js */ "./node_modules/use-sync-external-store/shim/with-selector.js");
+
+
+
+
+
+const { useDebugValue } = react__WEBPACK_IMPORTED_MODULE_1__;
+const { useSyncExternalStoreWithSelector } = use_sync_external_store_shim_with_selector_js__WEBPACK_IMPORTED_MODULE_2__;
+let didWarnAboutEqualityFn = false;
+const identity = (arg) => arg;
+function useStore(api, selector = identity, equalityFn) {
+  if (( false ? 0 : void 0) !== "production" && equalityFn && !didWarnAboutEqualityFn) {
+    console.warn(
+      "[DEPRECATED] Use `createWithEqualityFn` instead of `create` or use `useStoreWithEqualityFn` instead of `useStore`. They can be imported from 'zustand/traditional'. https://github.com/pmndrs/zustand/discussions/1937"
+    );
+    didWarnAboutEqualityFn = true;
+  }
+  const slice = useSyncExternalStoreWithSelector(
+    api.subscribe,
+    api.getState,
+    api.getServerState || api.getInitialState,
+    selector,
+    equalityFn
+  );
+  useDebugValue(slice);
+  return slice;
+}
+const createImpl = (createState) => {
+  if (( false ? 0 : void 0) !== "production" && typeof createState !== "function") {
+    console.warn(
+      "[DEPRECATED] Passing a vanilla store will be unsupported in a future version. Instead use `import { useStore } from 'zustand'`."
+    );
+  }
+  const api = typeof createState === "function" ? (0,zustand_vanilla__WEBPACK_IMPORTED_MODULE_0__.createStore)(createState) : createState;
+  const useBoundStore = (selector, equalityFn) => useStore(api, selector, equalityFn);
+  Object.assign(useBoundStore, api);
+  return useBoundStore;
+};
+const create = (createState) => createState ? createImpl(createState) : createImpl;
+var react = (createState) => {
+  if (( false ? 0 : void 0) !== "production") {
+    console.warn(
+      "[DEPRECATED] Default export is deprecated. Instead use `import { create } from 'zustand'`."
+    );
+  }
+  return create(createState);
+};
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/zustand/esm/vanilla.mjs":
+/*!**********************************************!*\
+  !*** ./node_modules/zustand/esm/vanilla.mjs ***!
+  \**********************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   createStore: () => (/* binding */ createStore),
+/* harmony export */   "default": () => (/* binding */ vanilla)
+/* harmony export */ });
+const createStoreImpl = (createState) => {
+  let state;
+  const listeners = /* @__PURE__ */ new Set();
+  const setState = (partial, replace) => {
+    const nextState = typeof partial === "function" ? partial(state) : partial;
+    if (!Object.is(nextState, state)) {
+      const previousState = state;
+      state = (replace != null ? replace : typeof nextState !== "object" || nextState === null) ? nextState : Object.assign({}, state, nextState);
+      listeners.forEach((listener) => listener(state, previousState));
+    }
+  };
+  const getState = () => state;
+  const getInitialState = () => initialState;
+  const subscribe = (listener) => {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  };
+  const destroy = () => {
+    if (( false ? 0 : void 0) !== "production") {
+      console.warn(
+        "[DEPRECATED] The `destroy` method will be unsupported in a future version. Instead use unsubscribe function returned by subscribe. Everything will be garbage-collected if store is garbage-collected."
+      );
+    }
+    listeners.clear();
+  };
+  const api = { setState, getState, getInitialState, subscribe, destroy };
+  const initialState = state = createState(setState, getState, api);
+  return api;
+};
+const createStore = (createState) => createState ? createStoreImpl(createState) : createStoreImpl;
+var vanilla = (createState) => {
+  if (( false ? 0 : void 0) !== "production") {
+    console.warn(
+      "[DEPRECATED] Default export is deprecated. Instead use import { createStore } from 'zustand/vanilla'."
+    );
+  }
+  return createStore(createState);
+};
+
+
+
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+/*!*************************************!*\
+  !*** ./src/product-display/view.js ***!
+  \*************************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/url */ "@wordpress/url");
+/* harmony import */ var _wordpress_url__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_url__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! store */ "./src/store.js");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/minus.js");
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/plus.js");
+
+/**
+ * Use this file for JavaScript code that you want to run in the front-end
+ * on posts/pages that contain this block.
+ *
+ * When this file is defined as the value of the `viewScript` property
+ * in `block.json` it will be enqueued on the front end of the site.
+ *
+ * Example:
+ *
+ * ```js
+ * {
+ *   "viewScript": "file:./view.js"
+ * }
+ * ```
+ *
+ * If you're not making any changes to this file because your project doesn't need any
+ * JavaScript running in the front-end, then you should delete this file and remove
+ * the `viewScript` property from `block.json`.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
+ */
+
+
+
+
+
+
+function ProductGallery({
+  selectedProductId,
+  productsData
+}) {
+  const selectedProductData = productsData.find(product => product.id === selectedProductId);
+
+  // Initialize selectedImage with the first image of the selected product or a default value
+  const [selectedImage, setSelectedImage] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(selectedProductData?.imageUrls[0] || "");
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    // Update selectedImage when selectedProductId changes
+    setSelectedImage(selectedProductData?.imageUrls[0] || "");
+  }, [selectedProductId, selectedProductData]);
+  if (!selectedProductData) return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "No product selected"); // Or any other fallback UI
+
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "image-viewer-wrapper"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "full-size-wrapper"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+    src: selectedImage,
+    alt: "Selected"
+  })));
+}
+function InfoBox({
+  selectedProductTitle,
+  selectedProductSalePrice,
+  selectedProductRegularPrice
+}) {
+  const currency = " €";
+  const PriceComponent = ({
+    html
+  }) => {
+    return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+      dangerouslySetInnerHTML: {
+        __html: html
+      }
+    });
+  };
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "flex flex-col items-center justify-start w-full gap-y-2"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "block text-xl leading-snug text-center"
+  }, selectedProductTitle), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "flex flex-row w-full text-xl gap-x-6 "
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "flex flex-col text-lg font-normal basis-8/12 lg:basis-1/2"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Kaina specialistui ", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: "text-sm"
+  }, "(su PVM)")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "p-2 text-2xl font-bold bg-green-100 rounded shadow w-fit"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(PriceComponent, {
+    html: selectedProductSalePrice + currency
+  }), " ")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "flex flex-col text-sm font-light text-gray-500 basis-4/12 lg:basis-1/2"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, "Rekomenduojama pardavimo kaina pacientui (su PVM)"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "p-1 text-base font-normal rounded shadow bg-gray-50 w-fit"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(PriceComponent, {
+    html: selectedProductRegularPrice + currency
+  })))));
+}
+function TogglerBox({
+  products,
+  onProductSelect,
+  selectedProductId
+}) {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "flex gap-x-3"
+  }, products.length > 1 && products.map(product => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    className: "w-11 h-11",
+    key: product.id,
+    onClick: () => onProductSelect(product.id),
+    style: {
+      background: product.color,
+      borderRadius: "50%",
+      color: "white",
+      margin: "1em 0",
+      fontWeight: "bold",
+      outline: product.id === selectedProductId ? "2px solid #3c82f6" : "none",
+      outlineOffset: "3px"
+    }
+  }, product.counterValue === 0 ? " " : product.counterValue)));
+}
+function AdjusterBox({
+  product,
+  isDisabled,
+  onQuantityUpdate
+}) {
+  const {
+    isLoading,
+    fetchCart,
+    addToCart,
+    remFromCart
+  } = (0,store__WEBPACK_IMPORTED_MODULE_4__["default"])(store => ({
+    isLoading: store.isLoading,
+    fetchCart: store.fetchCart,
+    addToCart: store.addToCart,
+    remFromCart: store.remFromCart
+  }));
+  const [quantity, setQuantity] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(product.counterValue);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    if (quantity != product.counterValue) {
+      setQuantity(product.counterValue);
+    }
+  }, [product.counterValue]);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    if (!isLoading && quantity != product.counterValue) {
+      onQuantityUpdate(quantity);
+    }
+  }, [isLoading]);
+  const handleIncrement = () => {
+    setQuantity(quantity + 1);
+    addToCart(product.id);
+  };
+  const handleDecrement = () => {
+    if (quantity > 0) {
+      setQuantity(quantity - 1);
+      remFromCart(product.id);
+    }
+  };
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "py-3 shadow-md rounded-md flex items-center justify-around w-44 font-bold bg-gray-300 [&>button]:bg-white [&>button]:rounded-full [&>button>svg]:m-auto [&>button]:h-8 [&>button]:w-8"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: handleDecrement,
+    disabled: isDisabled
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], {
+    size: 20,
+    strokeWidth: 3
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, quantity), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: handleIncrement,
+    disabled: isDisabled
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(lucide_react__WEBPACK_IMPORTED_MODULE_6__["default"], {
+    size: 20,
+    strokeWidth: 3
+  })));
+}
+function ProductDisplay({
+  productsSkus
+}) {
+  const [products, setProducts] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)([]);
+  const [selectedProductId, setSelectedProductId] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(null);
+  const [productsResetInprogress, setProductsResetInprogress] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useState)(false);
+  const {
+    isLoading,
+    fetchCart,
+    triggerUpdateProductDisplayPrices
+  } = (0,store__WEBPACK_IMPORTED_MODULE_4__["default"])(store => ({
+    isLoading: store.isLoading,
+    fetchCart: store.fetchCart,
+    triggerUpdateProductDisplayPrices: store.triggerUpdateProductDisplayPrices
+  }));
+  const resetProductsData = () => {
+    setProductsResetInprogress(true);
+    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
+      path: (0,_wordpress_url__WEBPACK_IMPORTED_MODULE_2__.addQueryArgs)("/rd-shop-product/v1/block-product-display-data", {
+        skus: productsSkus
+      }),
+      method: "GET"
+    }).then(res => {
+      if (res?.data) {
+        setProducts(res.data); // Directly use the data prop which is now an array
+        if (res.data.length > 0 && !selectedProductId) {
+          // Set the first product's ID as selected by default
+          setSelectedProductId(res.data[0].id);
+        }
+      }
+      setProductsResetInprogress(false);
+    });
+  };
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    fetchCart();
+    resetProductsData();
+  }, [productsSkus]);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    if (triggerUpdateProductDisplayPrices) {
+      resetProductsData();
+    }
+  }, [triggerUpdateProductDisplayPrices]);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_3__.useEffect)(() => {
+    const selectedProduct = products.find(p => p.id === selectedProductId);
+  }, [products, selectedProductId]);
+  const handleProductSelect = id => {
+    setSelectedProductId(id);
+  };
+  const selectedProduct = products.find(p => p.id === selectedProductId);
+  const selectedProductTitle = selectedProduct ? selectedProduct.title : "";
+  const selectedProductPrice = selectedProduct ? selectedProduct.price : "";
+  const selectedProductSalePrice = selectedProduct ? selectedProduct.sale_price : "";
+  const selectedProductRegularPrice = selectedProduct ? selectedProduct.regular_price : "";
+  const selectedProductQuantity = selectedProduct ? selectedProduct.counterValue : "";
+  if (!selectedProductId) return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null);
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "mb-14 product-wrapper gap-y-4",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center"
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductGallery, {
+    selectedProductId: selectedProductId,
+    productsData: products
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(InfoBox, {
+    selectedProductId: selectedProductId,
+    selectedProductTitle: selectedProductTitle,
+    selectedProductSalePrice: selectedProductSalePrice,
+    selectedProductRegularPrice: selectedProductRegularPrice,
+    selectedProductQuantity: selectedProductQuantity
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(TogglerBox, {
+    products: products,
+    onProductSelect: handleProductSelect,
+    selectedProductId: selectedProductId
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(AdjusterBox, {
+    product: selectedProduct,
+    isDisabled: isLoading || productsResetInprogress,
+    onQuantityUpdate: resetProductsData
+  }));
+}
+document.querySelectorAll(".react-container").forEach(container => {
+  const jsonProductsSkus = JSON.parse(container.dataset?.products_skus || "[]");
+  ReactDOM.createRoot(container).render((0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(ProductDisplay, {
+    productsSkus: jsonProductsSkus
+  }));
+});
+})();
+
+/******/ })()
+;
+//# sourceMappingURL=view.js.map

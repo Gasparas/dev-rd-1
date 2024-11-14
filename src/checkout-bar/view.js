@@ -50,8 +50,6 @@ const CheckoutBar = ({ data }) => {
 		wc_price: state.wc_price,
 	}));
 
-	const currency = " zł";
-
 	// useEffect(() => {
 	// 	console.log("CheckoutBar component re-rendered");
 	// 	console.log({
@@ -69,7 +67,7 @@ const CheckoutBar = ({ data }) => {
 
 	useEffect(() => {
 		// Replace 'checkout' with the slug or ID of your Checkout page
-		const pageSlug = "checkout";
+		const pageSlug = "cart";
 
 		// Fetch the Checkout page details from the REST API
 		fetch(`${window.location.origin}/wp-json/wp/v2/pages?slug=${pageSlug}`)
@@ -132,7 +130,7 @@ const CheckoutBar = ({ data }) => {
 						<span className="flex items-center justify-center w-6 h-6 mr-2 bg-white rounded-full text-sky-900">
 							{totalQuantity}
 						</span>
-						<p className="leading-5 ">Pradėti pirkimą</p>
+						<p className="leading-5 ">Pirkinių krepšelis</p>
 					</div>
 					<div>
 						{/* {totalPriceMinusShipping != totalSalePriceMinusShipping ? (

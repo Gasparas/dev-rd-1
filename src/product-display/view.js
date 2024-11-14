@@ -68,40 +68,35 @@ function InfoBox({
 	selectedProductTitle,
 	selectedProductSalePrice,
 	selectedProductRegularPrice,
-	selectedProductQuantity,
 }) {
+	const currency = " €";
 	const PriceComponent = ({ html }) => {
 		return <span dangerouslySetInnerHTML={{ __html: html }} />;
 	};
 
 	return (
-		<div className="flex flex-col items-center justify-start w-full gap-x-3 gap-y-4">
+		<div className="flex flex-col items-center justify-start w-full gap-y-2">
 			<div className="block text-xl leading-snug text-center">
 				{selectedProductTitle}
 			</div>
-			<div className="flex flex-row w-full text-xl gap-x-6">
-				<div className="flex flex-col text-sm basis-1/2">
-					<span>Rekomenduojama pardavimo kaina pacientui</span>{" "}
-					<span>(su PVM)</span>
-					<span className="line-through">
-						<PriceComponent
-							html={(() => {
-								const quantity = Math.max(1, selectedProductQuantity);
-								return selectedProductRegularPrice * quantity + " €";
-							})()}
-						/>
-					</span>
+			{/* <hr className="w-full" /> */}
+			<div className="flex flex-row w-full text-xl gap-x-6 ">
+				<div className="flex flex-col text-lg font-normal basis-8/12 lg:basis-1/2">
+					<div>
+						Kaina specialistui <span className="text-sm">(su PVM)</span>
+					</div>
+					<div className="p-2 text-2xl font-bold bg-green-100 rounded shadow w-fit">
+						<PriceComponent html={selectedProductSalePrice + currency} />{" "}
+					</div>
 				</div>
-				<div className="flex flex-col text-lg basis-1/2">
-					<span>Kaina specialistui</span> <span>(su PVM)</span>
-					<PriceComponent
-						html={(() => {
-							const quantity = Math.max(1, selectedProductQuantity);
-							return selectedProductSalePrice * quantity + " €";
-						})()}
-					/>
+				<div className="flex flex-col text-sm font-light text-gray-500 basis-4/12 lg:basis-1/2">
+					<div>Rekomenduojama pardavimo kaina pacientui (su PVM)</div>
+					<div className="p-1 text-base font-normal rounded shadow bg-gray-50 w-fit">
+						<PriceComponent html={selectedProductRegularPrice + currency} />
+					</div>
 				</div>
 			</div>
+			{/* <hr className="w-full" /> */}
 		</div>
 	);
 }

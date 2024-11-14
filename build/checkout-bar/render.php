@@ -5,4 +5,4 @@
  */
 
 ?>
-<div id="root-checkout-bar" class="sticky z-50 bottom-2"></div>
+<div id="root-checkout-bar" class="sticky z-50 top-2"></div>
